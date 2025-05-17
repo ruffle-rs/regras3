@@ -2036,6 +2036,36 @@ fn test_pcre_extended_tc(tc: TestConfig) {
     tc.compilef("a \t\r\nb", "x").match1f("ab").test_eq("ab");
 }
 
+#[test]
+fn test_python_named_groups() {
+    test_with_configs(test_python_named_groups_tc);
+}
+
+fn test_python_named_groups_tc(tc: TestConfig) {
+    tc.compile(r"(?P<n>a)").match1f("a").test_eq("a,a");
+    tc.compile(r"(?P<n>a)b")
+        .match1_named_group("ab", "n")
+        .test_eq("a");
+    tc.compile(r"(?P<n>a)\k<n>").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?P<x>a)|(?P<y>b)")
+        .match1_named_group("b", "y")
+        .test_eq("b");
+    tc.compile(r"(?i:(?P<n>a))")
+        .match1_named_group("A", "n")
+        .test_eq("A");
+
+    // Combined with the other PCRE extensions.
+    tc.compilef(
+        r"(?#comment) ((?P<protocol>[a-z]+: \/\/) (?P<host>[^:\/]*))? (?P<path>[^?]*)",
+        "x",
+    )
+    .match1_named_group("http://example.org/abc", "host")
+    .test_eq("example.org");
+
+    // `(?P` without a `<` is neither a named group nor a modifier group.
+    test_parse_fails(r"(?Pa)");
+}
+
 #[cfg(feature = "utf16")]
 mod utf16_tests {
     use super::*;

@@ -771,7 +771,10 @@ where
             return Ok(None);
         };
 
-        if to_char_sat(current) == '<' {
+        // `(?<name>` is a named capture group, and so is the Python style `(?P<name>`.
+        if to_char_sat(current) == '<'
+            || (to_char_sat(current) == 'P' && cursor.peek() == Some(&('<' as u32)))
+        {
             return Ok(None);
         }
 
@@ -1850,7 +1853,7 @@ where
     }
 
     fn try_consume_named_capture_group_name(&mut self) -> Option<String> {
-        if !self.try_consume('<') {
+        if !self.try_consume('<') && !self.try_consume_str("P<") {
             return None;
         }
 
