@@ -1690,7 +1690,7 @@ where
     }
 
     fn try_consume_named_capture_group_name(&mut self) -> Option<String> {
-        if !self.try_consume('<') {
+        if !self.try_consume('<') && !self.try_consume_str("P<") {
             return None;
         }
 
