@@ -724,9 +724,11 @@ where
 
                 // Term :: Atom :: PatternCharacter
                 // Term :: ExtendedAtom :: ExtendedPatternCharacter
-                _ => {
+                chr => {
                     self.consume(c);
-                    result.push(self.char_node(c))
+                    if !self.flags.extended || !chr.is_ascii_whitespace() {
+                        result.push(self.char_node(c))
+                    }
                 }
             }
 

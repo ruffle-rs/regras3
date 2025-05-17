@@ -53,6 +53,10 @@ pub struct Flags {
     /// If set, the regex is interpreted as a UnicodeSets regex.
     /// Equivalent to the 'v' flag in JavaScript.
     pub unicode_sets: bool,
+
+    /// If set, spaces are ignored.
+    /// Equivalent to the 'x' flag in ActionScript/PCRE.
+    pub extended: bool,
 }
 
 impl Flags {
@@ -79,6 +83,9 @@ impl Flags {
                 }
                 'v' => {
                     result.unicode_sets = true;
+                }
+                'x' => {
+                    result.extended = true;
                 }
                 _ => {
                     // Silently skip unsupported flags.
@@ -109,6 +116,7 @@ impl fmt::Display for Flags {
             no_opt: _,
             unicode,
             unicode_sets,
+            extended,
         } = *self;
         if multiline {
             f.write_str("m")?;
@@ -124,6 +132,9 @@ impl fmt::Display for Flags {
         }
         if unicode_sets {
             f.write_str("v")?;
+        }
+        if extended {
+            f.write_str("x")?;
         }
         Ok(())
     }
