@@ -1997,6 +1997,32 @@ fn test_quantifiable_assertion_followed_by_tc(tc: TestConfig) {
         .test_eq("b");
 }
 
+#[test]
+fn test_pcre_comment() {
+    test_with_configs(test_pcre_comment_tc);
+}
+
+fn test_pcre_comment_tc(tc: TestConfig) {
+    tc.compile(r#"(?#comment)abc"#)
+        .match1f("abc")
+        .test_eq("abc");
+
+    tc.compile(r"x(?#c)yz").match1f("xyz").test_eq("xyz");
+
+    // A comment ends at the first ')', and nothing inside it counts as a
+    // capture group, so a \N beyond the real groups stays an octal escape.
+    tc.compile(r"(a)\2(?#(b)")
+        .match1f("a\x02")
+        .test_eq("a\x02,a");
+    tc.compile(r"(?#(b)(a)\1").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?#[)(a)\1").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?#|)(a)\1").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?#\)a").match1f("a").test_eq("a");
+    tc.compile(r"(?#(?<n>)(?<n>a)\k<n>")
+        .match1f("aa")
+        .test_eq("aa,a");
+}
+
 #[cfg(feature = "utf16")]
 mod utf16_tests {
     use super::*;

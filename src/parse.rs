@@ -645,6 +645,17 @@ where
                     } else if self.try_consume_str("(?:") {
                         // Non-capturing group.
                         result.push(self.consume_disjunction()?);
+                    } else if self.try_consume_str("(?#") {
+                        // PCRE Comment
+                        loop {
+                            match self.peek().map(to_char_sat) {
+                                None | Some(')') => break,
+                                Some(c) => {
+                                    self.consume(c);
+                                    continue;
+                                }
+                            }
+                        }
                     } else if let Some(group) = self.try_consume_modifier_group()? {
                         result.push(group);
                     } else {
@@ -1969,6 +1980,14 @@ where
                     }
                 },
                 Some('(') => {
+                    if self.try_consume_str("?#") {
+                        // PCRE comment. It ends at the first ')', without escapes, and
+                        // nothing inside it is a group, so skip it entirely, as the
+                        // parser does.
+                        while !matches!(self.next().map(to_char_sat), None | Some(')')) {}
+                        continue;
+                    }
+
                     // Determine whether we're a capturing group, and optionally the name.
                     let is_capturing;
                     let group_name;
