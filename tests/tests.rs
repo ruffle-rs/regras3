@@ -1836,6 +1836,25 @@ fn test_pcre_comment_tc(tc: TestConfig) {
       .test_eq("xyz");
 }
 
+#[test]
+fn test_pcre_extended() {
+    test_with_configs(test_pcre_extended_tc);
+}
+
+fn test_pcre_extended_tc(tc: TestConfig) {
+    tc.compilef(r#"a b? c"#, "x")
+        .match1f("ac")
+        .test_eq("ac");
+
+    tc.compilef(r#"a b? c"#, "x")
+        .match1f("abc")
+        .test_eq("abc");
+
+    tc.compilef("a \t\r\nb", "x")
+        .match1f("ab")
+        .test_eq("ab");
+}
+
 #[cfg(feature = "utf16")]
 mod utf16_tests {
     use super::*;
