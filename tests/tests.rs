@@ -1821,6 +1821,21 @@ fn test_quantifiable_assertion_followed_by_tc(tc: TestConfig) {
         .test_eq("b");
 }
 
+#[test]
+fn test_pcre_comment() {
+    test_with_configs(test_pcre_comment_tc);
+}
+
+fn test_pcre_comment_tc(tc: TestConfig) {
+    tc.compile(r#"(?#comment)abc"#)
+      .match1f("abc")
+      .test_eq("abc");
+
+    tc.compile(r"x(?#c)yz")
+      .match1f("xyz")
+      .test_eq("xyz");
+}
+
 #[cfg(feature = "utf16")]
 mod utf16_tests {
     use super::*;
