@@ -39,6 +39,7 @@ fn test_syntax_errors() {
     test_1_error(r"(", "Unbalanced parenthesis");
     test_1_error(r"(?!", "Unbalanced parenthesis");
     test_1_error(r"abc)", "Unbalanced parenthesis");
+    test_1_error(r"(?#", "Unbalanced parenthesis");
 
     test_1_error(
         r"[z-a]",
