@@ -1828,12 +1828,10 @@ fn test_pcre_comment() {
 
 fn test_pcre_comment_tc(tc: TestConfig) {
     tc.compile(r#"(?#comment)abc"#)
-      .match1f("abc")
-      .test_eq("abc");
+        .match1f("abc")
+        .test_eq("abc");
 
-    tc.compile(r"x(?#c)yz")
-      .match1f("xyz")
-      .test_eq("xyz");
+    tc.compile(r"x(?#c)yz").match1f("xyz").test_eq("xyz");
 }
 
 #[test]
@@ -1842,17 +1840,11 @@ fn test_pcre_extended() {
 }
 
 fn test_pcre_extended_tc(tc: TestConfig) {
-    tc.compilef(r#"a b? c"#, "x")
-        .match1f("ac")
-        .test_eq("ac");
+    tc.compilef(r#"a b? c"#, "x").match1f("ac").test_eq("ac");
 
-    tc.compilef(r#"a b? c"#, "x")
-        .match1f("abc")
-        .test_eq("abc");
+    tc.compilef(r#"a b? c"#, "x").match1f("abc").test_eq("abc");
 
-    tc.compilef("a \t\r\nb", "x")
-        .match1f("ab")
-        .test_eq("ab");
+    tc.compilef("a \t\r\nb", "x").match1f("ab").test_eq("ab");
 }
 
 #[cfg(feature = "utf16")]
