@@ -1,0 +1,5 @@
+[env]
+# Set the minimum stack size for tests to 8 MiB, as Ruffle does.
+# Otherwise test_excessive_nesting overflows the stack in debug builds
+# before reaching MAX_NESTING_DEPTH.
+RUST_MIN_STACK = "8388608"

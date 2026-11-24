@@ -20,7 +20,7 @@ pub type LoopID = u16;
 
 /// The maximum nesting depth of groups, lookarounds, and nested classes.
 /// This bounds parser recursion to prevent a stack overflow on adversarial input.
-pub const MAX_NESTING_DEPTH: u32 = 256;
+pub const MAX_NESTING_DEPTH: u32 = 512;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum CharacterClassType {
