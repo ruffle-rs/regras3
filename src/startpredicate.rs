@@ -7,7 +7,27 @@ use crate::ir::Node;
 use crate::util::{add_utf8_first_bytes_to_bitmap, utf8_first_byte};
 #[cfg(not(feature = "std"))]
 use alloc::{boxed::Box, vec::Vec};
-use core::convert::TryInto;
+use memchr::memmem;
+
+/// Check if a node is anchored to the start of the line/string.
+/// Returns true if the node begins with a StartOfLine anchor.
+fn is_start_anchored(n: &Node) -> bool {
+    match n {
+        Node::Anchor {
+            anchor_type: ir::AnchorType::StartOfLine,
+            multiline,
+        } => !multiline,
+        Node::Cat(nodes) => {
+            // For concatenation, check if the first node is start-anchored
+            nodes.first().is_some_and(is_start_anchored)
+        }
+        Node::CaptureGroup { contents, .. } => is_start_anchored(contents),
+        // For alternation, both arms must be start-anchored
+        Node::Alt(left, right) => is_start_anchored(left) && is_start_anchored(right),
+        // Other nodes are not anchored
+        _ => false,
+    }
+}
 
 /// Convert the code point set to a first-byte bitmap.
 /// That is, make a list of all of the possible first bytes of every contained
@@ -77,15 +97,14 @@ impl AbstractStartPredicate {
             Self::Arbitrary => StartPredicate::Arbitrary,
             Self::Sequence(vals) => match vals.len() {
                 0 => StartPredicate::Arbitrary,
-                1 => StartPredicate::ByteSeq1(vals[..].try_into().unwrap()),
-                2 => StartPredicate::ByteSeq2(vals[..].try_into().unwrap()),
-                3 => StartPredicate::ByteSeq3(vals[..].try_into().unwrap()),
-                _ => StartPredicate::ByteSeq4(vals[..4].try_into().unwrap()),
+                1 => StartPredicate::ByteSet1([vals[0]]),
+                _ => StartPredicate::ByteSeq(Box::new(memmem::Finder::new(&vals).into_owned())),
             },
             Self::Set(bm) => match bm.count_bits() {
                 0 => StartPredicate::Arbitrary,
-                1 => StartPredicate::ByteSeq1(bm.to_vec()[..].try_into().unwrap()),
-                2 => StartPredicate::ByteSet2(bm.to_vec()[..].try_into().unwrap()),
+                1 => StartPredicate::ByteSet1(bm.as_array()),
+                2 => StartPredicate::ByteSet2(bm.as_array()),
+                3 => StartPredicate::ByteSet3(bm.as_array()),
                 _ => StartPredicate::ByteBracket(*bm),
             },
         }
@@ -106,7 +125,7 @@ fn compute_start_predicate(n: &Node) -> Option<AbstractStartPredicate> {
 
         Node::Empty => arbitrary,
         Node::Goal => arbitrary,
-        Node::BackRef(..) => arbitrary,
+        Node::BackRef { .. } => arbitrary,
 
         Node::CharSet(chars) => {
             // Pick the first bytes out.
@@ -118,6 +137,9 @@ fn compute_start_predicate(n: &Node) -> Option<AbstractStartPredicate> {
                 &bytes,
             ))))
         }
+
+        // StringSets come from TC39 "sequence properties" and are very rare - not worth optimizing.
+        Node::StringSet { .. } => arbitrary,
 
         // We assume that most char nodes have been optimized to ByteSeq or AnyBytes2, so skip
         // these.
@@ -134,13 +156,11 @@ fn compute_start_predicate(n: &Node) -> Option<AbstractStartPredicate> {
         Node::MatchAnyExceptLineTerminator => arbitrary,
 
         // TODO: can probably exploit some of these.
-        Node::Anchor(..) => arbitrary,
+        Node::Anchor { .. } => arbitrary,
         Node::WordBoundary { .. } => arbitrary,
 
         // Capture groups delegate to their contents.
-        Node::CaptureGroup(child, ..) | Node::NamedCaptureGroup(child, ..) => {
-            compute_start_predicate(child)
-        }
+        Node::CaptureGroup { contents, .. } => compute_start_predicate(contents),
 
         // Zero-width assertions are one of the few instructions that impose no start predicate.
         Node::LookaroundAssertion { .. } => None,
@@ -194,6 +214,14 @@ fn compute_start_predicate(n: &Node) -> Option<AbstractStartPredicate> {
 
 /// \return the start predicate for a Regex.
 pub fn predicate_for_re(re: &ir::Regex) -> StartPredicate {
+    // Check if the regex is anchored to the start - if so, we can optimize
+    // by avoiding string searching entirely. However, only do this when
+    // multiline mode is disabled, since in multiline mode ^ can match
+    // at the beginning of any line, not just the string start.
+    if is_start_anchored(&re.node) && !re.flags.multiline {
+        return StartPredicate::StartAnchored;
+    }
+
     compute_start_predicate(&re.node)
         .unwrap_or(AbstractStartPredicate::Arbitrary)
         .resolve_to_insn()

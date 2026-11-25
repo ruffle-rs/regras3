@@ -6,7 +6,7 @@ use crate::cursor;
 use crate::cursor::{Backward, Direction, Forward};
 use crate::exec;
 use crate::indexing::{AsciiInput, ElementType, InputIndexer, Utf8Input};
-use crate::insn::{CompiledRegex, Insn, LoopFields};
+use crate::insn::{CompiledRegex, Insn, LoopFields, StartPredicate};
 use crate::matchers;
 use crate::matchers::CharProperties;
 use crate::position::PositionType;
@@ -15,7 +15,7 @@ use crate::scm::SingleCharMatcher;
 use crate::types::{GroupData, LoopData};
 use crate::util::DebugCheckIndex;
 #[cfg(not(feature = "std"))]
-use alloc::{string::String, vec::Vec};
+use alloc::{boxed::Box, vec::Vec};
 use core::ops::Range;
 
 #[derive(Debug, Clone)]
@@ -26,11 +26,19 @@ struct State<Position: PositionType> {
     /// Offset in the bytecode.
     ip: usize,
 
+    /// Iteration count of the `Loop1CharBody` currently being executed.
+    /// This is 0 except while actively iterating such a loop: the loop's exit
+    /// branch resets it to 0, so a fresh loop entry always observes 0.
+    /// This is basically as hack to support the Loop1CharBody optimization
+    /// used by the classical backtracker.
+    /// Only the `Insn::Loop1CharBody` arm reads or writes this field.
+    loop1_iters: usize,
+
     /// Loop datas.
-    loops: Vec<LoopData<Position>>,
+    loops: Box<[LoopData<Position>]>,
 
     /// Group datas.
-    groups: Vec<GroupData<Position>>,
+    groups: Box<[GroupData<Position>]>,
 }
 
 enum StateMatch<Position: PositionType> {
@@ -117,12 +125,6 @@ fn try_match_state<Input: InputIndexer, Dir: Direction>(
             Some(c2) => nextinsn_or_fail!(c == c2.as_u32()),
             _ => StateMatch::Fail,
         },
-        &Insn::CharICase(c) => match cursor::next(input, dir, &mut s.pos) {
-            Some(c2) => {
-                nextinsn_or_fail!(c == c2.as_u32() || input.fold(c2).as_u32() == c)
-            }
-            _ => StateMatch::Fail,
-        },
 
         Insn::CharSet(v) => match cursor::next(input, dir, &mut s.pos) {
             Some(c) => nextinsn_or_fail!(charset_contains(v, c.as_u32())),
@@ -146,19 +148,21 @@ fn try_match_state<Input: InputIndexer, Dir: Direction>(
         Insn::ByteSeq15(v) => nextinsn_or_fail!(cursor::try_match_lit(input, dir, &mut s.pos, v)),
         Insn::ByteSeq16(v) => nextinsn_or_fail!(cursor::try_match_lit(input, dir, &mut s.pos, v)),
 
-        Insn::StartOfLine => {
+        Insn::StartOfLine { multiline } => {
+            let multiline = *multiline;
             let matches = match input.peek_left(s.pos) {
                 None => true,
-                Some(c) if re.flags.multiline && Input::CharProps::is_line_terminator(c) => true,
+                Some(c) if multiline && Input::CharProps::is_line_terminator(c) => true,
                 _ => false,
             };
             nextinsn_or_fail!(matches)
         }
 
-        Insn::EndOfLine => {
+        Insn::EndOfLine { multiline } => {
+            let multiline = *multiline;
             let matches = match input.peek_right(s.pos) {
                 None => true, // we're at the right of the string
-                Some(c) if re.flags.multiline && Input::CharProps::is_line_terminator(c) => true,
+                Some(c) if multiline && Input::CharProps::is_line_terminator(c) => true,
                 _ => false,
             };
             nextinsn_or_fail!(matches)
@@ -219,11 +223,14 @@ fn try_match_state<Input: InputIndexer, Dir: Direction>(
             nextinsn_or_fail!(true)
         }
 
-        &Insn::BackRef(group_idx) => {
+        &Insn::BackRef {
+            group: group_idx,
+            icase,
+        } => {
             let matched;
             let group = &mut s.groups[group_idx as usize];
             if let Some(orig_range) = group.as_range() {
-                if re.flags.icase {
+                if icase {
                     matched = matchers::backref_icase(input, dir, orig_range, &mut s.pos);
                 } else {
                     matched = matchers::backref(input, dir, orig_range, &mut s.pos)
@@ -280,11 +287,77 @@ fn try_match_state<Input: InputIndexer, Dir: Direction>(
         &Insn::LoopAgain { begin } => {
             s.ip = begin as usize;
             match re.insns.iat(s.ip) {
-                Insn::EnterLoop(ref lf) => run_loop(s, lf, false),
+                Insn::EnterLoop(lf) => run_loop(s, lf, false),
                 _ => panic!("LoopAgain does not point at EnterLoop"),
             }
         }
-        Insn::Loop1CharBody { .. } => panic!("Loop1CharBody unimplemented for pikevm"),
+        &Insn::Loop1CharBody {
+            min_iters,
+            max_iters,
+            greedy,
+        } => {
+            let loop_ip = s.ip;
+            let continuation = loop_ip + 2;
+
+            // Try to iterate on the loop. We may "fail" if we're already at the max, or if
+            // the loop body fails to match.
+            let iters = s.loop1_iters;
+            let mut taken_pos = None;
+            if iters < max_iters {
+                // Try matching the next instruction, which matches exactly one character,
+                // and does not modify loops or groups.
+                let saved_pos = s.pos;
+                s.ip = loop_ip + 1;
+                taken_pos = match try_match_state(re, input, s, dir) {
+                    StateMatch::Continue => Some(s.pos),
+                    StateMatch::Fail => None,
+                    _ => unreachable!("Loop1CharBody body must match exactly one character"),
+                };
+                s.ip = loop_ip;
+                s.pos = saved_pos;
+            };
+
+            match (taken_pos, iters >= min_iters) {
+                // Cannot not iterate and the minimum isn't met: dead end.
+                (None, false) => StateMatch::Fail,
+
+                // Cannot (or did not) iterate but the minimum is met: exit the loop.
+                (None, true) => {
+                    s.ip = continuation;
+                    s.loop1_iters = 0;
+                    StateMatch::Continue
+                }
+
+                // Below the minimum: another iteration is mandatory.
+                (Some(taken_pos), false) => {
+                    s.pos = taken_pos;
+                    s.loop1_iters = iters + 1;
+                    StateMatch::Continue
+                }
+
+                // Both iterating and exiting are viable: split, ordered by greed.
+                // Split(new) explores `new` first, so push the preferred branch.
+                (Some(taken_pos), true) => {
+                    if greedy {
+                        // Prefer iterating. The clone keeps ip == loop_ip.
+                        let mut iterate = s.clone();
+                        iterate.pos = taken_pos;
+                        iterate.loop1_iters = iters + 1;
+                        s.ip = continuation;
+                        s.loop1_iters = 0;
+                        StateMatch::Split(iterate)
+                    } else {
+                        // Prefer exiting.
+                        let mut exit = s.clone();
+                        exit.ip = continuation;
+                        exit.loop1_iters = 0;
+                        s.pos = taken_pos;
+                        s.loop1_iters = iters + 1;
+                        StateMatch::Split(exit)
+                    }
+                }
+            }
+        }
         &Insn::Bracket(idx) => match cursor::next(input, dir, &mut s.pos) {
             Some(c) => nextinsn_or_fail!(Input::CharProps::bracket(&re.brackets[idx], c)),
             _ => StateMatch::Fail,
@@ -294,13 +367,13 @@ fn try_match_state<Input: InputIndexer, Dir: Direction>(
             nextinsn_or_fail!(scm::MatchByteSet { bytes }.matches(input, dir, &mut s.pos))
         }
         &Insn::ByteSet2(bytes) => {
-            nextinsn_or_fail!(scm::MatchByteArraySet { bytes }.matches(input, dir, &mut s.pos))
+            nextinsn_or_fail!(scm::MatchByteArraySet(bytes).matches(input, dir, &mut s.pos))
         }
         &Insn::ByteSet3(bytes) => {
-            nextinsn_or_fail!(scm::MatchByteArraySet { bytes }.matches(input, dir, &mut s.pos))
+            nextinsn_or_fail!(scm::MatchByteArraySet(bytes).matches(input, dir, &mut s.pos))
         }
         &Insn::ByteSet4(bytes) => {
-            nextinsn_or_fail!(scm::MatchByteArraySet { bytes }.matches(input, dir, &mut s.pos))
+            nextinsn_or_fail!(scm::MatchByteArraySet(bytes).matches(input, dir, &mut s.pos))
         }
 
         &Insn::WordBoundary { invert } => {
@@ -310,6 +383,17 @@ fn try_match_state<Input: InputIndexer, Dir: Direction>(
             let curr_wordchar = input
                 .peek_right(s.pos)
                 .is_some_and(Input::CharProps::is_word_char);
+            let is_boundary = prev_wordchar != curr_wordchar;
+            nextinsn_or_fail!(is_boundary != invert)
+        }
+
+        &Insn::WordBoundaryUnicodeICase { invert } => {
+            let prev_wordchar = input
+                .peek_left(s.pos)
+                .is_some_and(Input::CharProps::is_word_char_unicode_icase);
+            let curr_wordchar = input
+                .peek_right(s.pos)
+                .is_some_and(Input::CharProps::is_word_char_unicode_icase);
             let is_boundary = prev_wordchar != curr_wordchar;
             nextinsn_or_fail!(is_boundary != invert)
         }
@@ -400,7 +484,7 @@ impl<'r, 't> exec::Executor<'r, 't> for PikeVMExecutor<'r, AsciiInput<'t>> {
     type AsAscii = PikeVMExecutor<'r, AsciiInput<'t>>;
 
     fn new(re: &'r CompiledRegex, text: &'t str) -> Self {
-        let input = AsciiInput::new(text);
+        let input = AsciiInput::new(text, re.flags.unicode);
         Self {
             input,
             matcher: MatchAttempter::new(re),
@@ -421,12 +505,45 @@ impl<Input: InputIndexer> exec::MatchProducer for PikeVMExecutor<'_, Input> {
         next_start: &mut Option<Self::Position>,
     ) -> Option<Match> {
         let re = self.matcher.re;
+
+        // Check if this is an anchored regex - if so, only try matching at the current position
+        if matches!(re.start_pred, StartPredicate::StartAnchored) {
+            let mut state = State {
+                pos,
+                ip: 0,
+                loop1_iters: 0,
+                loops: vec![LoopData::new(pos); re.loops as usize].into(),
+                groups: vec![GroupData::new(); re.groups as usize].into(),
+            };
+            if self
+                .matcher
+                .try_at_pos(self.input, &mut state, Forward::new())
+            {
+                let end = state.pos;
+                if end != pos {
+                    *next_start = Some(end)
+                } else {
+                    *next_start = self.input.next_right_pos(end)
+                }
+                return Some(successful_match(
+                    self.input,
+                    pos,
+                    &state,
+                    re.group_names.clone(),
+                ));
+            }
+            // Anchored regex failed to match at this position
+            return None;
+        }
+
+        // Standard matching - try at each position
         // Note the "initial" loop position is ignored. Use whatever is most convenient.
         let mut state = State {
             pos,
             ip: 0,
-            loops: vec![LoopData::new(pos); re.loops as usize],
-            groups: vec![GroupData::new(); re.groups as usize],
+            loop1_iters: 0,
+            loops: vec![LoopData::new(pos); re.loops as usize].into(),
+            groups: vec![GroupData::new(); re.groups as usize].into(),
         };
         loop {
             let start = state.pos;

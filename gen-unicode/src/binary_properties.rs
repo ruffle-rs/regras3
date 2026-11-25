@@ -1,4 +1,4 @@
-use crate::{codepoints_to_range, format_interval_table, pack_adjacent_codepoints, GenUnicode};
+use crate::{GenUnicode, codepoints_to_range, format_interval_table, merge_sorted_ranges};
 use codegen::{Block, Enum, Function};
 
 impl GenUnicode {
@@ -30,7 +30,7 @@ impl GenUnicode {
             let mut codepoints = ucd_file.chars(orig_name, self);
 
             codepoints.sort();
-            pack_adjacent_codepoints(&mut codepoints);
+            merge_sorted_ranges(&mut codepoints);
 
             self.scope.raw(format_interval_table(
                 &orig_name.to_uppercase(),
@@ -38,11 +38,11 @@ impl GenUnicode {
             ));
 
             self.scope
-                .new_fn(&format!("{}_ranges", orig_name.to_lowercase()))
+                .new_fn(format!("{}_ranges", orig_name.to_lowercase()))
                 .vis("pub(crate)")
                 .ret("&'static [Interval]")
-                .line(&format!("&{}", orig_name.to_uppercase()))
-                .doc(&format!(
+                .line(format!("&{}", orig_name.to_uppercase()))
+                .doc(format!(
                     "Return the code point ranges of the '{}' Unicode property.",
                     orig_name
                 ));
@@ -94,7 +94,7 @@ impl GenUnicode {
             }
         }
         unassigned_codepoints.sort();
-        pack_adjacent_codepoints(&mut unassigned_codepoints);
+        merge_sorted_ranges(&mut unassigned_codepoints);
         let mut assigned_codepoints = Vec::new();
         let mut start = 0;
         for iv in unassigned_codepoints {
@@ -141,7 +141,7 @@ impl GenUnicode {
             let chars = ucd_file.chars(orig_name, self);
 
             self.scope_tests
-                .new_fn(&format!(
+                .new_fn(format!(
                     "unicode_escape_property_binary_{}",
                     name.to_lowercase()
                 ))
@@ -151,7 +151,7 @@ impl GenUnicode {
                     name.to_lowercase()
                 ));
 
-            let f = self.scope_tests.new_fn(&format!(
+            let f = self.scope_tests.new_fn(format!(
                 "unicode_escape_property_binary_{}_tc",
                 name.to_lowercase()
             ));
@@ -164,7 +164,7 @@ impl GenUnicode {
                 .collect();
 
             f.line(format!(
-                "const CODE_POINTS: [&str; {}] = [\n    {},\n];",
+                "static CODE_POINTS: [&str; {}] = [\n    {},\n];",
                 code_points.len(),
                 code_points.join(",\n    ")
             ));

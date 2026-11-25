@@ -5,7 +5,6 @@ use crate::bytesearch;
 use crate::cursor;
 use crate::cursor::{Backward, Direction, Forward};
 use crate::exec;
-use crate::indexing;
 use crate::indexing::{AsciiInput, ElementType, InputIndexer, Utf8Input};
 #[cfg(not(feature = "utf16"))]
 use crate::insn::StartPredicate;
@@ -15,7 +14,7 @@ use crate::matchers::CharProperties;
 use crate::position::PositionType;
 use crate::scm;
 use crate::scm::SingleCharMatcher;
-use crate::types::{CaptureGroupID, GroupData, LoopData, LoopID, IP, MAX_CAPTURE_GROUPS};
+use crate::types::{CaptureGroupID, GroupData, IP, LoopData, LoopID, MAX_CAPTURE_GROUPS};
 use crate::util::DebugCheckIndex;
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
@@ -44,6 +43,9 @@ enum BacktrackInsn<Input: InputIndexer> {
         // The IP of the loop.
         // This is guaranteed to point to an EnterLoopInsn.
         ip: IP,
+        // The input position of the loop before entering it.
+        // This is used to set up backtracking that restores this position.
+        orig_pos: Input::Position,
         data: LoopData<Input::Position>,
     },
 
@@ -154,9 +156,11 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
             }
             (true, true) if !loop_fields.greedy => {
                 // Both arms are viable; backtrack into the loop.
+                let orig_pos = loop_data.entry;
                 loop_data.entry = pos;
                 self.bts.push(BacktrackInsn::EnterNonGreedyLoop {
                     ip,
+                    orig_pos,
                     data: *loop_data,
                 });
                 Some(loop_not_taken_ip)
@@ -196,7 +200,6 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
         let min_pos = pos;
 
         // Drive it up to the max.
-        // TODO; this is dumb.
         for _ in 0..(max - min) {
             let saved = pos;
             if !matcher.matches(input, dir, &mut pos) {
@@ -206,6 +209,166 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
         }
         let max_pos = pos;
         Some((min_pos, max_pos))
+    }
+
+    // Compute the maximum position from a starting position, up to a limit.
+    // This is used for lazy computation in non-greedy loops.
+    fn compute_max_pos<Dir: Direction, Scm: SingleCharMatcher<Input, Dir>>(
+        input: &Input,
+        mut pos: Input::Position,
+        limit: usize,
+        dir: Dir,
+        matcher: Scm,
+    ) -> Input::Position {
+        for _ in 0..limit {
+            let saved = pos;
+            if !matcher.matches(input, dir, &mut pos) {
+                pos = saved;
+                break;
+            }
+        }
+        pos
+    }
+
+    // Helper function to extract the duplicated match blocks that handle different instruction types
+    // with different matcher functions. This significantly reduces code duplication and compile times.
+    fn with_scm_loop_impl<Dir: Direction>(
+        re: &CompiledRegex,
+        input: &Input,
+        pos: Input::Position,
+        min: usize,
+        max: usize,
+        dir: Dir,
+        ip: IP,
+    ) -> Option<(Input::Position, Input::Position)> {
+        match re.insns.iat(ip + 1) {
+            &Insn::Char(c) => {
+                let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::Char { c })
+            }
+            &Insn::Bracket(idx) => {
+                let bc = &re.brackets[idx];
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::Bracket { bc })
+            }
+            Insn::AsciiBracket(bitmap) => Self::run_scm_loop_impl(
+                input,
+                pos,
+                min,
+                max,
+                dir,
+                scm::MatchByteSet { bytes: bitmap },
+            ),
+            Insn::MatchAny => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchAny::new())
+            }
+            Insn::MatchAnyExceptLineTerminator => Self::run_scm_loop_impl(
+                input,
+                pos,
+                min,
+                max,
+                dir,
+                scm::MatchAnyExceptLineTerminator::new(),
+            ),
+            Insn::CharSet(chars) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::CharSet { chars })
+            }
+            &Insn::ByteSet2(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteArraySet(bytes))
+            }
+            &Insn::ByteSet3(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteArraySet(bytes))
+            }
+            &Insn::ByteSet4(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteArraySet(bytes))
+            }
+            Insn::ByteSeq1(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq2(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq3(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq4(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq5(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq6(bytes) => {
+                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::MatchByteSeq(bytes))
+            }
+            _ => {
+                unreachable!("Missing SCM: {:?}", re.insns.iat(ip + 1));
+            }
+        }
+    }
+
+    // Helper function for compute_max_pos to avoid duplication
+    fn with_scm_compute_max<Dir: Direction>(
+        re: &CompiledRegex,
+        input: &Input,
+        pos: Input::Position,
+        limit: usize,
+        dir: Dir,
+        ip: IP,
+    ) -> Option<Input::Position> {
+        let result = match re.insns.iat(ip + 1) {
+            &Insn::Char(c) => {
+                let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
+                Self::compute_max_pos(input, pos, limit, dir, scm::Char { c })
+            }
+            &Insn::Bracket(idx) => {
+                let bc = &re.brackets[idx];
+                Self::compute_max_pos(input, pos, limit, dir, scm::Bracket { bc })
+            }
+            Insn::AsciiBracket(bitmap) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSet { bytes: bitmap })
+            }
+            Insn::MatchAny => Self::compute_max_pos(input, pos, limit, dir, scm::MatchAny::new()),
+            Insn::MatchAnyExceptLineTerminator => Self::compute_max_pos(
+                input,
+                pos,
+                limit,
+                dir,
+                scm::MatchAnyExceptLineTerminator::new(),
+            ),
+            Insn::CharSet(chars) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::CharSet { chars })
+            }
+            &Insn::ByteSet2(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteArraySet(bytes))
+            }
+            &Insn::ByteSet3(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteArraySet(bytes))
+            }
+            &Insn::ByteSet4(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteArraySet(bytes))
+            }
+            Insn::ByteSeq1(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq2(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq3(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq4(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq5(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSeq(bytes))
+            }
+            Insn::ByteSeq6(bytes) => {
+                Self::compute_max_pos(input, pos, limit, dir, scm::MatchByteSeq(bytes))
+            }
+            _ => {
+                unreachable!("Missing SCM: {:?}", re.insns.iat(ip + 1));
+            }
+        };
+        Some(result)
     }
 
     // Given that ip points at a loop whose body matches exactly one character, run
@@ -224,94 +387,25 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
         ip: IP,
         greedy: bool,
     ) -> Option<IP> {
-        // Iterate as far as we can go.
-        let loop_res = match self.re.insns.iat(ip + 1) {
-            &Insn::Char(c) => {
-                // Note this try_from may fail, for example if our char is outside ASCII.
-                // In this case we wish to not match.
-                let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::Char { c })
-            }
-            &Insn::CharICase(c) => {
-                let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::CharICase { c })
-            }
-            &Insn::Bracket(idx) => {
-                let bc = &self.re.brackets[idx];
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::Bracket { bc })
-            }
-            Insn::AsciiBracket(bitmap) => Self::run_scm_loop_impl(
-                input,
-                *pos,
-                min,
-                max,
-                dir,
-                scm::MatchByteSet { bytes: bitmap },
-            ),
-            Insn::MatchAny => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchAny::new())
-            }
-            Insn::MatchAnyExceptLineTerminator => Self::run_scm_loop_impl(
-                input,
-                *pos,
-                min,
-                max,
-                dir,
-                scm::MatchAnyExceptLineTerminator::new(),
-            ),
-            Insn::CharSet(chars) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::CharSet { chars })
-            }
-            &Insn::ByteSet2(bytes) => Self::run_scm_loop_impl(
-                input,
-                *pos,
-                min,
-                max,
-                dir,
-                scm::MatchByteArraySet { bytes },
-            ),
-            &Insn::ByteSet3(bytes) => Self::run_scm_loop_impl(
-                input,
-                *pos,
-                min,
-                max,
-                dir,
-                scm::MatchByteArraySet { bytes },
-            ),
-            &Insn::ByteSet4(bytes) => Self::run_scm_loop_impl(
-                input,
-                *pos,
-                min,
-                max,
-                dir,
-                scm::MatchByteArraySet { bytes },
-            ),
-            Insn::ByteSeq1(bytes) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchByteSeq { bytes })
-            }
-            Insn::ByteSeq2(bytes) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchByteSeq { bytes })
-            }
-            Insn::ByteSeq3(bytes) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchByteSeq { bytes })
-            }
-            Insn::ByteSeq4(bytes) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchByteSeq { bytes })
-            }
-            Insn::ByteSeq5(bytes) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchByteSeq { bytes })
-            }
-            Insn::ByteSeq6(bytes) => {
-                Self::run_scm_loop_impl(input, *pos, min, max, dir, scm::MatchByteSeq { bytes })
-            }
-            _ => {
-                // There should be no other SCMs.
-                unreachable!("Missing SCM: {:?}", self.re.insns.iat(ip + 1));
-            }
+        // For non-greedy loops, we can avoid computing the maximum match eagerly.
+        // We'll only compute it when we need to set up backtracking.
+        let (min_pos, max_pos) = if greedy {
+            // For greedy loops, compute both min and max positions
+            Self::with_scm_loop_impl(self.re, input, *pos, min, max, dir, ip)?
+        } else {
+            // For non-greedy loops, initially only compute the minimum position
+            let (min_pos, _) = Self::with_scm_loop_impl(self.re, input, *pos, min, min, dir, ip)?;
+
+            // For non-greedy loops, we only compute the max position if we need to set up backtracking
+            let max_pos = if min < max {
+                // We need to compute the max for backtracking purposes
+                Self::with_scm_compute_max(self.re, input, min_pos, max - min, dir, ip)?
+            } else {
+                min_pos
+            };
+            (min_pos, max_pos)
         };
 
-        // If loop_res is none, we failed to match at least the minimum.
-        let (min_pos, max_pos) = loop_res?;
         debug_assert!(
             if Dir::FORWARD {
                 min_pos <= max_pos
@@ -434,9 +528,11 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                     self.pop_backtrack();
                 }
 
-                &mut BacktrackInsn::EnterNonGreedyLoop { ip: loop_ip, data } => {
-                    // Must pop before we enter the loop.
-                    self.pop_backtrack();
+                &mut BacktrackInsn::EnterNonGreedyLoop {
+                    ip: loop_ip,
+                    orig_pos,
+                    data,
+                } => {
                     *ip = loop_ip + 1;
                     *pos = data.entry;
                     let loop_fields = match &self.re.insns.iat(loop_ip) {
@@ -444,6 +540,14 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                         _ => rs_unreachable!("EnterNonGreedyLoop must point at a loop instruction"),
                     };
                     let loop_data = self.s.loops.mat(loop_fields.loop_id as usize);
+                    // Need to restore the position should we backtrack out of the loop (#131).
+                    *bt = BacktrackInsn::SetLoopData {
+                        id: loop_fields.loop_id,
+                        data: LoopData {
+                            entry: orig_pos,
+                            ..data
+                        },
+                    };
                     *loop_data = data;
                     MatchAttempter::prepare_to_enter_loop(
                         &mut self.bts,
@@ -568,13 +672,13 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                     }
 
                     &Insn::ByteSet2(bytes) => {
-                        next_or_bt!(scm::MatchByteArraySet { bytes }.matches(input, dir, &mut pos))
+                        next_or_bt!(scm::MatchByteArraySet(bytes).matches(input, dir, &mut pos))
                     }
                     &Insn::ByteSet3(bytes) => {
-                        next_or_bt!(scm::MatchByteArraySet { bytes }.matches(input, dir, &mut pos))
+                        next_or_bt!(scm::MatchByteArraySet(bytes).matches(input, dir, &mut pos))
                     }
                     &Insn::ByteSet4(bytes) => {
-                        next_or_bt!(scm::MatchByteArraySet { bytes }.matches(input, dir, &mut pos))
+                        next_or_bt!(scm::MatchByteArraySet(bytes).matches(input, dir, &mut pos))
                     }
 
                     Insn::ByteSeq1(v) => {
@@ -626,23 +730,17 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                         next_or_bt!(cursor::try_match_lit(input, dir, &mut pos, v))
                     }
 
-                    &Insn::CharICase(c) => {
-                        let m = match <<Input as indexing::InputIndexer>::Element as indexing::ElementType>::try_from(c) {
-                            Some(c) => scm::CharICase { c }.matches(input, dir, &mut pos),
-                            None => false,
-                        };
-                        next_or_bt!(m)
-                    }
-
                     Insn::AsciiBracket(bitmap) => next_or_bt!(
                         scm::MatchByteSet { bytes: bitmap }.matches(input, dir, &mut pos)
                     ),
 
                     &Insn::Bracket(idx) => {
-                        next_or_bt!(scm::Bracket {
-                            bc: &self.re.brackets[idx]
-                        }
-                        .matches(input, dir, &mut pos))
+                        next_or_bt!(
+                            scm::Bracket {
+                                bc: &self.re.brackets[idx]
+                            }
+                            .matches(input, dir, &mut pos)
+                        )
                     }
 
                     Insn::MatchAny => {
@@ -667,28 +765,31 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                         next_or_bt!(is_boundary != invert)
                     }
 
-                    Insn::StartOfLine => {
+                    &Insn::WordBoundaryUnicodeICase { invert } => {
+                        let prev_wordchar = input
+                            .peek_left(pos)
+                            .is_some_and(Input::CharProps::is_word_char_unicode_icase);
+                        let curr_wordchar = input
+                            .peek_right(pos)
+                            .is_some_and(Input::CharProps::is_word_char_unicode_icase);
+                        let is_boundary = prev_wordchar != curr_wordchar;
+                        next_or_bt!(is_boundary != invert)
+                    }
+
+                    Insn::StartOfLine { multiline } => {
+                        let multiline = *multiline;
                         let matches = match input.peek_left(pos) {
                             None => true,
-                            Some(c)
-                                if re.flags.multiline
-                                    && Input::CharProps::is_line_terminator(c) =>
-                            {
-                                true
-                            }
+                            Some(c) if multiline && Input::CharProps::is_line_terminator(c) => true,
                             _ => false,
                         };
                         next_or_bt!(matches)
                     }
-                    Insn::EndOfLine => {
+                    Insn::EndOfLine { multiline } => {
+                        let multiline = *multiline;
                         let matches = match input.peek_right(pos) {
                             None => true, // we're at the right of the string
-                            Some(c)
-                                if re.flags.multiline
-                                    && Input::CharProps::is_line_terminator(c) =>
-                            {
-                                true
-                            }
+                            Some(c) if multiline && Input::CharProps::is_line_terminator(c) => true,
                             _ => false,
                         };
                         next_or_bt!(matches)
@@ -749,14 +850,17 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                         next_or_bt!(true)
                     }
 
-                    &Insn::BackRef(cg_idx) => {
+                    &Insn::BackRef {
+                        group: cg_idx,
+                        icase,
+                    } => {
                         let cg = self.s.groups.mat(cg_idx as usize);
                         // Backreferences to a capture group that did not match always succeed (ES5
                         // 15.10.2.9).
                         // Note we may be in the capture group we are examining, e.g. /(abc\1)/.
                         let matched;
                         if let Some(orig_range) = cg.as_range() {
-                            if re.flags.icase {
+                            if icase {
                                 matched = matchers::backref_icase(input, dir, orig_range, &mut pos);
                             } else {
                                 matched = matchers::backref(input, dir, orig_range, &mut pos);
@@ -933,6 +1037,30 @@ impl<Input: InputIndexer> BacktrackExecutor<'_, Input> {
         }
     }
 
+    /// \return the next match for an anchored regex that only matches at the start.
+    /// This avoids any string searching and only tries matching at the given position.
+    #[cfg(not(feature = "utf16"))]
+    fn next_match_anchored(
+        &mut self,
+        pos: Input::Position,
+        next_start: &mut Option<Input::Position>,
+    ) -> Option<Match> {
+        let inp = self.input;
+        // For anchored regexes, only try matching at the current position
+        if let Some(end) = self.matcher.try_at_pos(inp, 0, pos, Forward::new()) {
+            // If we matched the empty string, we have to increment.
+            if end != pos {
+                *next_start = Some(end)
+            } else {
+                *next_start = inp.next_right_pos(end);
+            }
+            Some(self.successful_match(pos, end))
+        } else {
+            // Anchored regex failed to match at this position, no more matches
+            None
+        }
+    }
+
     /// \return the next match, searching the remaining bytes using the given
     /// prefix searcher to quickly find the first potential match location.
     fn next_match_with_prefix_search<PrefixSearch: bytesearch::ByteSearcher>(
@@ -985,23 +1113,19 @@ impl<Input: InputIndexer> exec::MatchProducer for BacktrackExecutor<'_, Input> {
             StartPredicate::Arbitrary => {
                 self.next_match_with_prefix_search(pos, next_start, &bytesearch::EmptyString {})
             }
-            StartPredicate::ByteSeq1(bytes) => {
+            StartPredicate::StartAnchored => self.next_match_anchored(pos, next_start),
+            StartPredicate::ByteSet1(bytes) => {
                 self.next_match_with_prefix_search(pos, next_start, bytes)
             }
-            StartPredicate::ByteSeq2(bytes) => {
+            StartPredicate::ByteSet2(bytes) => {
                 self.next_match_with_prefix_search(pos, next_start, bytes)
             }
-            StartPredicate::ByteSeq3(bytes) => {
+            StartPredicate::ByteSet3(bytes) => {
                 self.next_match_with_prefix_search(pos, next_start, bytes)
             }
-            StartPredicate::ByteSeq4(bytes) => {
-                self.next_match_with_prefix_search(pos, next_start, bytes)
+            StartPredicate::ByteSeq(bytes) => {
+                self.next_match_with_prefix_search(pos, next_start, bytes.as_ref())
             }
-            &StartPredicate::ByteSet2(bytes) => self.next_match_with_prefix_search(
-                pos,
-                next_start,
-                &bytesearch::ByteArraySet(bytes),
-            ),
             StartPredicate::ByteBracket(bitmap) => {
                 self.next_match_with_prefix_search(pos, next_start, bitmap)
             }
@@ -1025,7 +1149,7 @@ impl<'r, 't> exec::Executor<'r, 't> for BacktrackExecutor<'r, AsciiInput<'t>> {
     type AsAscii = BacktrackExecutor<'r, AsciiInput<'t>>;
 
     fn new(re: &'r CompiledRegex, text: &'t str) -> Self {
-        let input = AsciiInput::new(text);
+        let input = AsciiInput::new(text, re.flags.unicode);
         Self {
             input,
             matcher: MatchAttempter::new(re, input.left_end()),

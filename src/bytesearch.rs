@@ -1,8 +1,6 @@
 use crate::insn::MAX_CHAR_SET_LENGTH;
 use core::fmt;
 extern crate memchr;
-#[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
 
 /// Facilities for searching bytes.
 pub trait ByteSearcher {
@@ -12,52 +10,30 @@ pub trait ByteSearcher {
     fn find_in(&self, rhs: &[u8]) -> Option<usize>;
 }
 
-/// Helper trait that describes matching against literal bytes.
-pub trait ByteSeq: ByteSearcher + core::fmt::Debug + Copy + Clone {
-    /// Number of bytes.
-    const LENGTH: usize;
-
-    /// Test if a slice is equal.
-    /// The slice must have exactly LENGTH bytes.
-    fn equals_known_len(&self, rhs: &[u8]) -> bool;
-}
-
-extern "C" {
-    fn memcmp(s1: *const u8, s2: *const u8, n: usize) -> i32;
-}
-
-impl<const N: usize> ByteSeq for [u8; N] {
-    const LENGTH: usize = N;
-
+impl ByteSearcher for [u8; 1] {
     #[inline(always)]
-    fn equals_known_len(&self, rhs: &[u8]) -> bool {
-        debug_assert!(rhs.len() == Self::LENGTH, "Slice has wrong length");
-        if cfg!(feature = "prohibit-unsafe") {
-            // Here's what we would like to do. However this will emit an unnecessary length compare, and an unnecessary pointer compare.
-            self == rhs
-        } else {
-            // Warning: this is delicate. We intend for the compiler to emit optimized bytewise comparisons of unaligned LENGTH bytes,
-            // where LENGTH is a compile-time constant. Rust's default == on slices will perform a pointer comparison which will always be false,
-            // and kill any vectorization.
-            // memcmp() will be optimized to the builtin.
-            unsafe { memcmp(self.as_ptr(), rhs.as_ptr(), Self::LENGTH) == 0 }
-        }
+    fn find_in(&self, rhs: &[u8]) -> Option<usize> {
+        memchr::memchr(self[0], rhs)
     }
 }
 
-impl<const N: usize> ByteSearcher for [u8; N] {
+impl ByteSearcher for [u8; 2] {
     #[inline(always)]
     fn find_in(&self, rhs: &[u8]) -> Option<usize> {
-        if N == 1 {
-            return memchr::memchr(self[0], rhs);
-        }
-        for win in rhs.windows(Self::LENGTH) {
-            if self.equals_known_len(win) {
-                // Black magic?
-                return Some((win.as_ptr() as usize) - (rhs.as_ptr() as usize));
-            }
-        }
-        None
+        memchr::memchr2(self[0], self[1], rhs)
+    }
+}
+
+impl ByteSearcher for [u8; 3] {
+    #[inline(always)]
+    fn find_in(&self, rhs: &[u8]) -> Option<usize> {
+        memchr::memchr3(self[0], self[1], self[2], rhs)
+    }
+}
+
+impl ByteSearcher for memchr::memmem::Finder<'_> {
+    fn find_in(&self, rhs: &[u8]) -> Option<usize> {
+        self.find(rhs)
     }
 }
 
@@ -270,10 +246,20 @@ impl ByteBitmap {
         self.0.iter().map(|v| v.count_ones()).sum()
     }
 
-    /// \return all set bytes, as a vec.
+    /// Return ourselves as an array of a fixed length.
+    /// Panics if the array is not large enough.
     #[allow(clippy::wrong_self_convention)]
-    pub fn to_vec(&self) -> Vec<u8> {
-        (0..=255).filter(|b| self.contains(*b)).collect()
+    #[inline(always)]
+    pub fn as_array<const N: usize>(&self) -> [u8; N] {
+        let mut array = [0u8; N];
+        let mut idx = 0;
+        for byte in 0..=255 {
+            if self.contains(byte) {
+                array[idx] = byte;
+                idx += 1;
+            }
+        }
+        array
     }
 
     /// \return the index of the first byte in the slice that is present in this
@@ -293,9 +279,9 @@ impl ByteBitmap {
         }
 
         for &chunk in body {
-            // Use LE. Here index 0 is the earliest address.
-            let byte_idxs = ((chunk >> 4) & 0x0F0F0F0F).to_le_bytes();
-            let bit_idxs = (chunk & 0x0F0F0F0F).to_le_bytes();
+            // Use native endian to match memory layout. Here index 0 is the earliest address.
+            let byte_idxs = ((chunk >> 4) & 0x0F0F0F0F).to_ne_bytes();
+            let bit_idxs = (chunk & 0x0F0F0F0F).to_ne_bytes();
             if (bm[byte_idxs[0] as usize] & (1 << bit_idxs[0])) != 0 {
                 return Some(offset);
             }

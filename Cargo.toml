@@ -1,12 +1,12 @@
 [package]
 name = "regress"
-version = "0.10.3"
+version = "0.12.0"
 authors = ["ridiculousfish <corydoras@ridiculousfish.com>"]
 description = "A regular expression engine targeting EcmaScript syntax"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/ridiculousfish/regress"
 keywords = ["regex", "regexp"]
-edition = "2021"
+edition = "2024"
 readme = "README.md"
 
 [workspace]
@@ -20,6 +20,9 @@ default = ["backend-pikevm", "std"]
 
 std = ["memchr/std"]
 
+# Enables dependencies needed for `no_std` + `alloc` builds.
+alloc = ["dep:hashbrown", "memchr/alloc"]
+
 # Enables the PikeVM backend.
 backend-pikevm = []
 
@@ -32,6 +35,9 @@ prohibit-unsafe = []
 # Enables UTF-16 support. This disables some optimizations, so it should only be used when necessary.
 utf16 = []
 
+# Enables Pattern trait implementation for str::find, str::contains, etc.
+pattern = []
+
 [dependencies]
-hashbrown = "0.16.1"
+hashbrown = { version = ">=0.16, <0.18", optional = true }
 memchr = { version = "2.4.0", default-features = false }

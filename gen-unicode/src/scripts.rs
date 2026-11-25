@@ -1,6 +1,5 @@
 use crate::{
-    codepoints_to_range, format_interval_table, pack_adjacent_codepoints, remove_codepoints,
-    GenUnicode,
+    GenUnicode, codepoints_to_range, format_interval_table, merge_sorted_ranges, remove_codepoints,
 };
 use codegen::{Block, Enum, Function};
 
@@ -15,7 +14,7 @@ struct Script {
 }
 
 // TODO: Wait for https://github.com/tc39/ecma262/issues/3190 to be resolved.
-const EXCLUDED_SCRIPTS: [&str; 2] = ["Unknown", "Katakana_Or_Hiragana"];
+const EXCLUDED_SCRIPTS: [&str; 1] = ["Katakana_Or_Hiragana"];
 
 impl GenUnicode {
     pub(crate) fn generate_scripts(&mut self) {
@@ -43,7 +42,7 @@ impl GenUnicode {
                     })
                     .collect();
                 script_ranges.sort();
-                pack_adjacent_codepoints(&mut script_ranges);
+                merge_sorted_ranges(&mut script_ranges);
 
                 let mut script_extension_ranges: Vec<_> = self
                     .script_extensions
@@ -57,7 +56,7 @@ impl GenUnicode {
                     })
                     .collect();
                 script_extension_ranges.sort();
-                pack_adjacent_codepoints(&mut script_extension_ranges);
+                merge_sorted_ranges(&mut script_extension_ranges);
                 scx_ranges.extend(script_extension_ranges.clone());
 
                 scripts.push(Script {
@@ -73,7 +72,38 @@ impl GenUnicode {
         }
 
         scx_ranges.sort();
-        pack_adjacent_codepoints(&mut scx_ranges);
+        merge_sorted_ranges(&mut scx_ranges);
+
+        // Compute Script=Unknown: the complement of all assigned-script codepoints in [0, 0x10FFFF].
+        // Scripts.txt never lists Zzzz entries; Unknown is defined by absence.
+        {
+            // Build the union of all codepoints assigned to any known script.
+            let mut assigned: Vec<(u32, u32)> = scripts
+                .iter()
+                .flat_map(|s| s.codepoints_sc.iter().copied())
+                .collect();
+            assigned.sort();
+            merge_sorted_ranges(&mut assigned);
+
+            // Complement within [0x0000, 0x10FFFF].
+            let mut unknown: Vec<(u32, u32)> = Vec::new();
+            let mut cursor: u32 = 0;
+            for (start, end) in &assigned {
+                if cursor < *start {
+                    unknown.push((cursor, *start - 1));
+                }
+                cursor = *end + 1;
+            }
+            if cursor <= 0x10FFFF {
+                unknown.push((cursor, 0x10FFFF));
+            }
+
+            // Assign to the Unknown entry.
+            if let Some(unknown_script) = scripts.iter_mut().find(|s| s.long == "Unknown") {
+                unknown_script.codepoints_sc = unknown.clone();
+                unknown_script.codepoints_scx = unknown;
+            }
+        }
 
         // Delete script extensions ranges from the "Common" and "Inherited" script extension ranges.
         for script in &mut scripts {
@@ -89,7 +119,7 @@ impl GenUnicode {
                 }
 
                 script.codepoints_scx.sort();
-                pack_adjacent_codepoints(&mut script.codepoints_scx);
+                merge_sorted_ranges(&mut script.codepoints_scx);
             }
         }
 
@@ -175,7 +205,7 @@ impl GenUnicode {
                 let mut codepoints = script.codepoints_sc.clone();
                 codepoints.extend(&script.codepoints_scx);
                 codepoints.sort();
-                pack_adjacent_codepoints(&mut codepoints);
+                merge_sorted_ranges(&mut codepoints);
 
                 self.scope.raw(format_interval_table(
                     &script.codepoints_scx_name,
@@ -212,7 +242,7 @@ impl GenUnicode {
             let test_name = script.long.to_lowercase();
 
             self.scope_tests
-                .new_fn(&format!("unicode_escape_property_script_{test_name}"))
+                .new_fn(format!("unicode_escape_property_script_{test_name}"))
                 .attr("test")
                 .line(format!(
                     "test_with_configs(unicode_escape_property_script_{test_name}_tc)"
@@ -220,33 +250,87 @@ impl GenUnicode {
 
             let f = self
                 .scope_tests
-                .new_fn(&format!("unicode_escape_property_script_{test_name}_tc"))
+                .new_fn(format!("unicode_escape_property_script_{test_name}_tc"))
                 .arg("tc", "TestConfig");
 
-            f.line(format!(
-                "const CODE_POINTS: [std::ops::RangeInclusive<u32>; {}] = [\n    {}\n];",
-                script.codepoints_sc.len(),
-                script
-                    .codepoints_sc
+            // Exclude surrogate code points (U+D800..U+DFFF) — they are not valid
+            // Rust `char` values and char::from_u32() returns None for them.
+            let test_codepoints: Vec<(u32, u32)> = script
+                .codepoints_sc
+                .iter()
+                .flat_map(|&(start, end)| {
+                    const SUR_START: u32 = 0xD800;
+                    const SUR_END: u32 = 0xDFFF;
+                    let mut parts = Vec::new();
+                    if start < SUR_START && end >= SUR_START {
+                        parts.push((start, SUR_START - 1));
+                    }
+                    if end > SUR_END && start <= SUR_END {
+                        parts.push((SUR_END + 1, end));
+                    }
+                    if end < SUR_START || start > SUR_END {
+                        parts.push((start, end));
+                    }
+                    parts
+                })
+                .collect();
+
+            // If the total number of codepoints is very large, only sample the
+            // first and last codepoint of each range to keep test runtime bounded.
+            const SAMPLE_THRESHOLD: u32 = 10_000;
+            let total: u32 = test_codepoints.iter().map(|(s, e)| e - s + 1).sum();
+            let sample_only = total > SAMPLE_THRESHOLD;
+
+            if sample_only {
+                // Emit a flat array of individual sampled codepoints.
+                let samples: Vec<u32> = test_codepoints
                     .iter()
-                    .map(|(start, end)| format!("{}..={}", start, end))
-                    .collect::<Vec<String>>()
-                    .join(", ")
-            ));
+                    .flat_map(|&(s, e)| if s == e { vec![s] } else { vec![s, e] })
+                    .collect();
+                f.line(format!(
+                    "static CODE_POINTS: [u32; {}] = [{}];",
+                    samples.len(),
+                    samples
+                        .iter()
+                        .map(|cp| cp.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ));
 
-            let mut regexes = Vec::with_capacity(script.names.len());
-            for alias in &script.names {
-                regexes.push(format!(r#""^\\p{{Script={}}}+$""#, alias));
-                regexes.push(format!(r#""^\\p{{sc={}}}+$""#, alias));
+                let mut regexes = Vec::with_capacity(script.names.len());
+                for alias in &script.names {
+                    regexes.push(format!(r#""^\\p{{Script={}}}+$""#, alias));
+                    regexes.push(format!(r#""^\\p{{sc={}}}+$""#, alias));
+                }
+                f.line(format!(
+                    "const REGEXES: [&str; {}] = [\n    {},\n];",
+                    regexes.len(),
+                    regexes.join(",\n    ")
+                ));
+                f.line(r#"for regex in REGEXES { let regex = tc.compilef(regex, "u"); for &cp in &CODE_POINTS { regex.test_succeeds(&char::from_u32(cp).unwrap().to_string()); } }"#);
+            } else {
+                f.line(format!(
+                    "static CODE_POINTS: [std::ops::RangeInclusive<u32>; {}] = [\n    {}\n];",
+                    test_codepoints.len(),
+                    test_codepoints
+                        .iter()
+                        .map(|(start, end)| format!("{}..={}", start, end))
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                ));
+
+                let mut regexes = Vec::with_capacity(script.names.len());
+                for alias in &script.names {
+                    regexes.push(format!(r#""^\\p{{Script={}}}+$""#, alias));
+                    regexes.push(format!(r#""^\\p{{sc={}}}+$""#, alias));
+                }
+                f.line(format!(
+                    "const REGEXES: [&str; {}] = [\n    {},\n];",
+                    regexes.len(),
+                    regexes.join(",\n    ")
+                ));
+                f.line(r#"for regex in REGEXES { let regex = tc.compilef(regex, "u"); for range in &CODE_POINTS { for cp in range.clone() { regex.test_succeeds(&char::from_u32(cp).unwrap().to_string()); } } }"#);
             }
-
-            f.line(format!(
-                "const REGEXES: [&str; {}] = [\n    {},\n];",
-                regexes.len(),
-                regexes.join(",\n    ")
-            ));
-
-            f.line(r#"for regex in REGEXES { let regex = tc.compilef(regex, "u"); for range in CODE_POINTS { for cp in range { regex.test_succeeds(&char::from_u32(cp).unwrap().to_string()); } } }"#);
         }
     }
 }

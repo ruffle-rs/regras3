@@ -1,22 +1,18 @@
 //! Bytecode instructions for a compiled regex
 
 #[cfg(not(feature = "std"))]
-use {
-    alloc::{string::String, vec::Vec},
-    hashbrown::HashMap,
-};
+use alloc::{boxed::Box, vec::Vec};
 
 use crate::api;
 use crate::bytesearch::{AsciiBitmap, ByteArraySet, ByteBitmap};
 use crate::types::{BracketContents, CaptureGroupID, LoopID};
+extern crate memchr;
+use memchr::memmem;
 
 type JumpTarget = u32;
 
 /// The maximum size of a byte sequence instruction.
 pub const MAX_BYTE_SEQ_LENGTH: usize = 16;
-
-/// The maximum size of an array-type-byteset instruction.
-pub const MAX_BYTE_SET_LENGTH: usize = 4;
 
 /// The maximum size of an array-type-charset instruction.
 /// This also happens to be the maximum number of characters in case-insensitive
@@ -41,14 +37,15 @@ pub enum Insn {
     /// Match a single char.
     Char(u32),
 
-    /// Match a single char, case-insensitive.
-    CharICase(u32),
-
     /// Match the start of a line (if multiline); emitted by '^'
-    StartOfLine,
+    StartOfLine {
+        multiline: bool,
+    },
 
     /// Match the end of a line; emitted by '$'
-    EndOfLine,
+    EndOfLine {
+        multiline: bool,
+    },
 
     /// Match any character except a line terminator; emitted by '.' only when
     /// the dot_all flag is set to true.
@@ -94,7 +91,10 @@ pub enum Insn {
     ResetCaptureGroup(CaptureGroupID),
 
     /// Perform a backreference match.
-    BackRef(u32),
+    BackRef {
+        group: u32,
+        icase: bool,
+    },
 
     /// Match the next character against the bracket contents, stored at the given index in the CompiledRegex.
     Bracket(usize),
@@ -121,6 +121,13 @@ pub enum Insn {
 
     /// \w or \W word boundaries.
     WordBoundary {
+        invert: bool,
+    },
+
+    /// \w or \W word boundaries in Unicode case-insensitive mode.
+    /// This considers characters that fold to ASCII word chars as word chars,
+    /// per ES9 21.2.2.6.1.
+    WordBoundaryUnicodeICase {
         invert: bool,
     },
 
@@ -158,22 +165,25 @@ pub enum Insn {
 
 /// The peeled prefix start predicate.
 /// This is a fast way of locating the first potential match.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum StartPredicate {
     /// May match an arbitrary sequence.
     Arbitrary,
 
-    /// Look for literal bytes.
-    ByteSeq1([u8; 1]),
-    ByteSeq2([u8; 2]),
-    ByteSeq3([u8; 3]),
-    ByteSeq4([u8; 4]),
-
-    /// Look for any of the contained bytes.
+    /// Look for the first instance of any of the given bytes.
+    ByteSet1([u8; 1]),
     ByteSet2([u8; 2]),
+    ByteSet3([u8; 3]),
+
+    /// Look for a byte sequence.
+    ByteSeq(Box<memmem::Finder<'static>>),
 
     /// Look for a byte which matches the bitmap.
     ByteBracket(ByteBitmap),
+
+    /// The regex is anchored to the start of the line/string.
+    /// This avoids string searching entirely and only tries matching at the beginning.
+    StartAnchored,
 }
 
 #[derive(Debug, Clone)]
