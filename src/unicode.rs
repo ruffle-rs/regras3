@@ -1,9 +1,9 @@
 use crate::codepointset::{CodePointSet, Interval};
 use crate::unicodetables::{
-    binary_property_ranges, general_category_property_value_ranges, script_extensions_value_ranges,
-    script_value_ranges, string_property_sets, unicode_property_binary_from_str,
-    unicode_property_value_general_category_from_str, unicode_property_value_script_from_str,
-    unicode_string_property_from_str, FOLDS, TO_UPPERCASE,
+    FOLDS, TO_UPPERCASE, binary_property_ranges, general_category_property_value_ranges,
+    script_extensions_value_ranges, script_value_ranges, string_property_sets,
+    unicode_property_binary_from_str, unicode_property_value_general_category_from_str,
+    unicode_property_value_script_from_str, unicode_string_property_from_str,
 };
 use crate::util::SliceHelp;
 #[cfg(not(feature = "std"))]
@@ -159,9 +159,9 @@ pub fn fold(cu: u32) -> u32 {
     });
     if let Ok(index) = searched {
         let fr: &FoldRange = if cfg!(feature = "prohibit-unsafe") {
-            unsafe { FOLDS.get_unchecked(index) }
-        } else {
             FOLDS.get(index).expect("Invalid index")
+        } else {
+            unsafe { FOLDS.get_unchecked(index) }
         };
         fr.apply(cu)
     } else {
@@ -209,38 +209,72 @@ fn fold_interval(iv: Interval, recv: &mut CodePointSet) {
             "Interval does not overlap transform"
         );
         // Find the (inclusive) range of our interval that this transform covers.
-        // TODO: could walk by modulo amount.
-        // TODO: optimize for cases when modulo is 1.
         let first_trans = core::cmp::max(fr.first(), iv.first);
         let last_trans = core::cmp::min(fr.last(), iv.last);
-        for cu in first_trans..(last_trans + 1) {
-            let cs = fr.apply(cu);
-            if cs != cu {
-                recv.add_one(cs)
+
+        let modulo = fr.predicate_mask() + 1;
+        if modulo == 1 {
+            // Optimization: when modulo is 1, every character in range gets transformed
+            for cu in first_trans..(last_trans + 1) {
+                let cs = fr.add_delta(cu);
+                if cs != cu {
+                    recv.add_one(cs);
+                }
+            }
+        } else {
+            // Optimization: walk by modulo amount instead of checking every character
+            let offset_start = first_trans - fr.first();
+            let start_aligned = first_trans + ((modulo - (offset_start % modulo)) % modulo);
+
+            let mut cu = start_aligned;
+            while cu <= last_trans {
+                let cs = fr.add_delta(cu);
+                recv.add_one(cs);
+                cu += modulo;
             }
         }
     }
 }
 
-/// This is a slow linear search across all ranges.
+/// Find all characters that fold into the given interval and add them to the given code point set.
+/// This skips characters which fold to themselves.
 fn unfold_interval(iv: Interval, recv: &mut CodePointSet) {
-    // TODO: optimize ASCII case.
+    // Note: We still need to check all ranges because the relationship between
+    // transformed_from and transformed_to intervals can be complex
     for tr in FOLDS.iter() {
         if !iv.overlaps(tr.transformed_to()) {
             continue;
         }
-        for cp in tr.transformed_from().codepoints() {
-            // TODO: this can be optimized.
+
+        let modulo = tr.predicate_mask() + 1;
+        let first_source = tr.first();
+        let last_source = tr.last();
+
+        let mut process_cp = |cp| {
             let tcp = tr.apply(cp);
             if tcp != cp && iv.contains(tcp) {
                 recv.add_one(cp);
+            }
+        };
+
+        if modulo == 1 {
+            // Optimization: when modulo is 1, every character in range gets transformed
+            for cp in first_source..(last_source + 1) {
+                process_cp(cp);
+            }
+        } else {
+            // Walk by modulo amount instead of checking every character
+            let mut cp = first_source;
+            while cp <= last_source {
+                process_cp(cp);
+                cp += modulo;
             }
         }
     }
 }
 
 /// \return all the characters which fold to c's fold.
-/// This is a slow linear search across all ranges.
+/// This is a linear search across all ranges.
 /// The result always contains c.
 pub fn unfold_char(c: u32) -> Vec<u32> {
     let mut res = vec![c];
@@ -286,6 +320,18 @@ pub(crate) fn unfold_uppercase_char(c: u32) -> Vec<u32> {
     res.sort_unstable();
     res.dedup();
     res
+}
+
+/// Expand `c` into the code points a literal `c` matches: just `c` itself when
+/// `!icase`, otherwise the unicode (full) or legacy (uppercase) unfold set.
+pub(crate) fn expand_code_point(c: u32, icase: bool, unicode: bool) -> Vec<u32> {
+    if !icase {
+        vec![c]
+    } else if unicode {
+        unfold_char(c)
+    } else {
+        unfold_uppercase_char(c)
+    }
 }
 
 // Fold every character in \p input, then find all the prefolds.
@@ -349,10 +395,8 @@ pub(crate) fn unicode_property_from_str(
                     &value,
                 )));
             }
-            if unicode_sets {
-                if let Some(value) = unicode_string_property_from_str(s) {
-                    return Some(PropertyEscapeKind::StringSet(string_property_sets(&value)));
-                }
+            if unicode_sets && let Some(value) = unicode_string_property_from_str(s) {
+                return Some(PropertyEscapeKind::StringSet(string_property_sets(&value)));
             }
             Some(PropertyEscapeKind::CharacterClass(
                 general_category_property_value_ranges(
@@ -366,6 +410,9 @@ pub(crate) fn unicode_property_from_str(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(not(feature = "std"))]
+    use hashbrown::HashMap;
+    #[cfg(feature = "std")]
     use std::collections::HashMap;
 
     // Map from folded char to the chars that folded to it.

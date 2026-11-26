@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 /// Test that \p pattern fails to parse with default flags.
 pub fn test_parse_fails(pattern: &str) {
     let res = regress::Regex::new(pattern);
@@ -92,10 +94,12 @@ impl TestCompiledRegex {
             }
         }
         match (self.tc.use_ascii(input), self.tc.backend) {
+            #[cfg(feature = "backend-pikevm")]
             (true, Backend::PikeVM) => {
                 rbe::find::<rbe::PikeVMExecutor>(&self.re, input, start).collect()
             }
 
+            #[cfg(feature = "backend-pikevm")]
             (false, Backend::PikeVM) => {
                 rbe::find::<rbe::PikeVMExecutor>(&self.re, input, start).collect()
             }
@@ -241,6 +245,7 @@ impl TestCompiledRegex {
 /// Our backend types.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Backend {
+    #[cfg(feature = "backend-pikevm")]
     PikeVM,
     Backtracking,
 }
@@ -324,20 +329,33 @@ where
 {
     let encoding = Encoding::Utf8;
     // Note we wish to be able to determine the TestConfig from the line number.
-    // Also note that optimizations are not supported for PikeVM backend, as it
-    // doesn't implement Loop1CharBody.
-    func(TestConfig {
-        ascii: true,
-        optimize: false,
-        backend: Backend::PikeVM,
-        encoding,
-    });
-    func(TestConfig {
-        ascii: false,
-        optimize: false,
-        backend: Backend::PikeVM,
-        encoding,
-    });
+    #[cfg(feature = "backend-pikevm")]
+    {
+        func(TestConfig {
+            ascii: true,
+            optimize: false,
+            backend: Backend::PikeVM,
+            encoding,
+        });
+        func(TestConfig {
+            ascii: false,
+            optimize: false,
+            backend: Backend::PikeVM,
+            encoding,
+        });
+        func(TestConfig {
+            ascii: true,
+            optimize: true,
+            backend: Backend::PikeVM,
+            encoding,
+        });
+        func(TestConfig {
+            ascii: false,
+            optimize: true,
+            backend: Backend::PikeVM,
+            encoding,
+        });
+    }
     func(TestConfig {
         ascii: true,
         optimize: false,
@@ -402,14 +420,21 @@ where
     F: Fn(TestConfig),
 {
     // Note we wish to be able to determine the TestConfig from the line number.
-    // Also note that optimizations are not supported for PikeVM backend, as it
-    // doesn't implement Loop1CharBody.
-    func(TestConfig {
-        ascii: false,
-        optimize: false,
-        backend: Backend::PikeVM,
-        encoding: Encoding::Utf8,
-    });
+    #[cfg(feature = "backend-pikevm")]
+    {
+        func(TestConfig {
+            ascii: false,
+            optimize: false,
+            backend: Backend::PikeVM,
+            encoding: Encoding::Utf8,
+        });
+        func(TestConfig {
+            ascii: false,
+            optimize: true,
+            backend: Backend::PikeVM,
+            encoding: Encoding::Utf8,
+        });
+    }
     func(TestConfig {
         ascii: false,
         optimize: false,

@@ -1,7 +1,7 @@
 use crate::{GenUnicode, UCD_PATH};
 use codegen::{Block, Enum, Function};
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::str::FromStr;
@@ -124,11 +124,11 @@ impl GenUnicode {
             ));
 
             self.scope
-                .new_fn(&format!("{}_sets", name.to_lowercase()))
+                .new_fn(format!("{}_sets", name.to_lowercase()))
                 .vis("pub(crate)")
                 .ret("&'static [&'static [u32]]")
-                .line(&format!("{}.as_slice()", name.to_uppercase()))
-                .doc(&format!(
+                .line(format!("{}.as_slice()", name.to_uppercase()))
+                .doc(format!(
                     "Return the code point ranges of the '{}' Unicode property.",
                     name
                 ));

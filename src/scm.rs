@@ -1,4 +1,4 @@
-use crate::bytesearch::{charset_contains, ByteArraySet, ByteSeq, ByteSet, SmallArraySet};
+use crate::bytesearch::{ByteArraySet, ByteSet, SmallArraySet, charset_contains};
 use crate::cursor;
 use crate::cursor::Direction;
 use crate::indexing::{ElementType, InputIndexer};
@@ -22,20 +22,6 @@ impl<Input: InputIndexer, Dir: Direction> SingleCharMatcher<Input, Dir> for Char
     fn matches(&self, input: &Input, dir: Dir, pos: &mut Input::Position) -> bool {
         match cursor::next(input, dir, pos) {
             Some(c2) => c2 == self.c,
-            _ => false,
-        }
-    }
-}
-
-/// Insn::CharICase
-pub struct CharICase<Input: InputIndexer> {
-    pub c: Input::Element,
-}
-impl<Input: InputIndexer, Dir: Direction> SingleCharMatcher<Input, Dir> for CharICase<Input> {
-    #[inline(always)]
-    fn matches(&self, input: &Input, dir: Dir, pos: &mut Input::Position) -> bool {
-        match cursor::next(input, dir, pos) {
-            Some(c2) => c2 == self.c || input.fold(c2) == self.c,
             _ => false,
         }
     }
@@ -129,9 +115,7 @@ impl<Input: InputIndexer, Dir: Direction, Bytes: ByteSet> SingleCharMatcher<Inpu
 
 /// Provide a variant for ByteArraySet where we hold it directly.
 /// The arrays are small and so we don't want to indirect through a pointer.
-pub struct MatchByteArraySet<ArraySet: SmallArraySet> {
-    pub bytes: ByteArraySet<ArraySet>,
-}
+pub struct MatchByteArraySet<ArraySet: SmallArraySet>(pub ByteArraySet<ArraySet>);
 
 impl<Input: InputIndexer, Dir: Direction, ArraySet: SmallArraySet> SingleCharMatcher<Input, Dir>
     for MatchByteArraySet<ArraySet>
@@ -139,7 +123,7 @@ impl<Input: InputIndexer, Dir: Direction, ArraySet: SmallArraySet> SingleCharMat
     #[inline(always)]
     fn matches(&self, input: &Input, dir: Dir, pos: &mut Input::Position) -> bool {
         if let Some(b) = cursor::next_byte(input, dir, pos) {
-            self.bytes.0.contains(b)
+            self.0.contains(b)
         } else {
             false
         }
@@ -147,19 +131,14 @@ impl<Input: InputIndexer, Dir: Direction, ArraySet: SmallArraySet> SingleCharMat
 }
 
 /// A ByteSeq of length <= 4 may match a single char.
-pub struct MatchByteSeq<'a, Bytes: ByteSeq> {
-    pub bytes: &'a Bytes,
-}
+pub struct MatchByteSeq<'a, const N: usize>(pub &'a [u8; N]);
 
-impl<Input: InputIndexer, Dir: Direction, Bytes: ByteSeq> SingleCharMatcher<Input, Dir>
-    for MatchByteSeq<'_, Bytes>
+impl<const N: usize, Input: InputIndexer, Dir: Direction> SingleCharMatcher<Input, Dir>
+    for MatchByteSeq<'_, N>
 {
     #[inline(always)]
     fn matches(&self, input: &Input, dir: Dir, pos: &mut Input::Position) -> bool {
-        debug_assert!(
-            Bytes::LENGTH <= 4,
-            "This looks like it could match more than one char"
-        );
-        cursor::try_match_lit(input, dir, pos, self.bytes)
+        debug_assert!(N <= 4, "This looks like it could match more than one char");
+        cursor::try_match_lit(input, dir, pos, self.0)
     }
 }
