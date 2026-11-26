@@ -6,7 +6,6 @@ use crate::insn::CompiledRegex;
 use crate::optimizer;
 use crate::parse;
 use crate::types::MAX_CAPTURE_GROUPS;
-use std::iter::FusedIterator;
 
 #[cfg(feature = "utf16")]
 use crate::{
@@ -18,13 +17,13 @@ use crate::{
 use crate::pikevm;
 use crate::util::to_char_sat;
 
-use core::{fmt, str::FromStr};
-#[cfg(feature = "std")]
 #[cfg(not(feature = "std"))]
-use {
-    alloc::{string::String, vec::Vec},
-    hashbrown::{HashMap, hash_map::Iter},
+use alloc::{
+    boxed::Box,
+    string::{String, ToString},
+    vec::Vec,
 };
+use core::{fmt, iter::FusedIterator, str::FromStr};
 
 pub use parse::Error;
 
@@ -109,17 +108,33 @@ impl From<&str> for Flags {
 
 impl fmt::Display for Flags {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.multiline {
+        // Destrucutre so we don't forget to print a field if new ones are added.
+        let Self {
+            icase,
+            multiline,
+            dot_all,
+            no_opt: _,
+            unicode,
+            unicode_sets,
+            extended,
+        } = *self;
+        if multiline {
             f.write_str("m")?;
         }
-        if self.icase {
+        if icase {
             f.write_str("i")?;
         }
-        if self.dot_all {
+        if dot_all {
             f.write_str("s")?;
         }
-        if self.unicode {
+        if unicode {
             f.write_str("u")?;
+        }
+        if unicode_sets {
+            f.write_str("v")?;
+        }
+        if extended {
+            f.write_str("x")?;
         }
         Ok(())
     }
@@ -393,7 +408,6 @@ impl Regex {
     /// An Error may be returned if the syntax is invalid.
     /// Note that this is rather expensive; prefer to cache a Regex which is
     /// intended to be used more than once.
-    #[inline]
     pub fn new(pattern: &str) -> Result<Regex, Error> {
         Self::with_flags(pattern, Flags::default())
     }
@@ -402,7 +416,7 @@ impl Regex {
     /// An Error may be returned if the syntax is invalid.
     //
     /// Note it is preferable to cache a Regex which is intended to be used more
-    /// than once, as the parse may be expensive. For example:
+    /// than once, as the parse may be expensive.
     #[inline]
     pub fn with_flags<F>(pattern: &str, flags: F) -> Result<Regex, Error>
     where
@@ -431,7 +445,6 @@ impl Regex {
     }
 
     /// Searches `text` to find the first match.
-    #[inline]
     pub fn find(&self, text: &str) -> Option<Match> {
         self.find_iter(text).next()
     }
@@ -458,15 +471,24 @@ impl Regex {
     ///   let t2 = re.find_from(text, 1).next().unwrap().range();
     ///   assert!(t2 == (1..2));
     ///   ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `start` is not on a UTF-8 character boundary of `text`. An
+    /// out-of-range `start` (`start > text.len()`) is not an error and yields an
+    /// empty iterator, mirroring JavaScript's `lastIndex` semantics.
     #[inline]
     pub fn find_from<'r, 't>(&'r self, text: &'t str, start: usize) -> Matches<'r, 't> {
+        assert!(
+            start >= text.len() || text.is_char_boundary(start),
+            "start index is not on a char boundary"
+        );
         backends::find(self, text, start)
     }
 
     /// Searches `text` to find the first match.
     /// The input text is expected to be ascii-only: only ASCII case-folding is
     /// supported.
-    #[inline]
     pub fn find_ascii(&self, text: &str) -> Option<Match> {
         self.find_iter_ascii(text).next()
     }
@@ -480,7 +502,7 @@ impl Regex {
     }
 
     /// Returns an iterator for matches found in 'text' starting at byte index
-    /// `start`.
+    /// `start`. An out-of-range `start` yields an empty iterator.
     #[inline]
     pub fn find_from_ascii<'r, 't>(&'r self, text: &'t str, start: usize) -> AsciiMatches<'r, 't> {
         backends::find(self, text, start)

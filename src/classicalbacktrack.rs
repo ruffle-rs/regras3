@@ -5,7 +5,6 @@ use crate::bytesearch;
 use crate::cursor;
 use crate::cursor::{Backward, Direction, Forward};
 use crate::exec;
-use crate::indexing;
 use crate::indexing::{AsciiInput, ElementType, InputIndexer, Utf8Input};
 #[cfg(not(feature = "utf16"))]
 use crate::insn::StartPredicate;
@@ -247,10 +246,6 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                 let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
                 Self::run_scm_loop_impl(input, pos, min, max, dir, scm::Char { c })
             }
-            &Insn::CharICase(c) => {
-                let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
-                Self::run_scm_loop_impl(input, pos, min, max, dir, scm::CharICase { c })
-            }
             &Insn::Bracket(idx) => {
                 let bc = &re.brackets[idx];
                 Self::run_scm_loop_impl(input, pos, min, max, dir, scm::Bracket { bc })
@@ -323,10 +318,6 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
             &Insn::Char(c) => {
                 let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
                 Self::compute_max_pos(input, pos, limit, dir, scm::Char { c })
-            }
-            &Insn::CharICase(c) => {
-                let c = <<Input as InputIndexer>::Element as ElementType>::try_from(c)?;
-                Self::compute_max_pos(input, pos, limit, dir, scm::CharICase { c })
             }
             &Insn::Bracket(idx) => {
                 let bc = &re.brackets[idx];
@@ -739,14 +730,6 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                         next_or_bt!(cursor::try_match_lit(input, dir, &mut pos, v))
                     }
 
-                    &Insn::CharICase(c) => {
-                        let m = match <<Input as indexing::InputIndexer>::Element as indexing::ElementType>::try_from(c) {
-                            Some(c) => scm::CharICase { c }.matches(input, dir, &mut pos),
-                            None => false,
-                        };
-                        next_or_bt!(m)
-                    }
-
                     Insn::AsciiBracket(bitmap) => next_or_bt!(
                         scm::MatchByteSet { bytes: bitmap }.matches(input, dir, &mut pos)
                     ),
@@ -867,14 +850,17 @@ impl<'a, Input: InputIndexer> MatchAttempter<'a, Input> {
                         next_or_bt!(true)
                     }
 
-                    &Insn::BackRef(cg_idx) => {
+                    &Insn::BackRef {
+                        group: cg_idx,
+                        icase,
+                    } => {
                         let cg = self.s.groups.mat(cg_idx as usize);
                         // Backreferences to a capture group that did not match always succeed (ES5
                         // 15.10.2.9).
                         // Note we may be in the capture group we are examining, e.g. /(abc\1)/.
                         let matched;
                         if let Some(orig_range) = cg.as_range() {
-                            if re.flags.icase {
+                            if icase {
                                 matched = matchers::backref_icase(input, dir, orig_range, &mut pos);
                             } else {
                                 matched = matchers::backref(input, dir, orig_range, &mut pos);

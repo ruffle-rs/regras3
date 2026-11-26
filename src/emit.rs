@@ -4,12 +4,15 @@ use crate::bytesearch::{AsciiBitmap, ByteArraySet};
 use crate::insn::{CompiledRegex, Insn, LoopFields, MAX_BYTE_SEQ_LENGTH, MAX_CHAR_SET_LENGTH};
 use crate::ir;
 use crate::ir::Node;
+#[cfg(not(feature = "utf16"))]
+use crate::literal::lower_code_point_sequence;
 use crate::startpredicate;
 use crate::types::{BracketContents, CaptureGroupID, LoopID};
+#[cfg(feature = "utf16")]
 use crate::unicode;
-use core::convert::TryInto;
 #[cfg(not(feature = "std"))]
-use {alloc::vec::Vec, hashbrown::HashMap};
+use alloc::{boxed::Box, vec::Vec};
+use core::convert::TryInto;
 
 /// \return an anchor instruction for a given IR anchor.
 fn make_anchor(anchor_type: ir::AnchorType, multiline: bool) -> Insn {
@@ -97,6 +100,68 @@ impl Emitter {
             _ => panic!("Unexpected chunk size"),
         };
         self.emit_insn(insn);
+    }
+
+    // Emit a sequence of code points, lowering to literal bytes (UTF-8).
+    #[cfg(not(feature = "utf16"))]
+    fn emit_code_point_sequence(&mut self, cps: &[u32], icase: bool) {
+        let pieces = lower_code_point_sequence(cps, icase, self.result.flags.unicode);
+        for piece in pieces {
+            self.emit_node(&Node::from(piece));
+        }
+    }
+
+    // Emit a sequence of code points, in a UTF-16 friendly way.
+    #[cfg(feature = "utf16")]
+    fn emit_code_point_sequence(&mut self, cps: &[u32], icase: bool) {
+        let unicode = self.result.flags.unicode;
+        for &cp in cps {
+            let chars = unicode::expand_code_point(cp, icase, unicode);
+            let node = match chars.len() {
+                0 => panic!("Char should always unfold to at least itself"),
+                1 => Node::Char { c: chars[0] },
+                2..=MAX_CHAR_SET_LENGTH => Node::CharSet(chars),
+                _ => panic!("Unicode case fold exceeded maximum expansion"),
+            };
+            self.emit_node(&node);
+        }
+    }
+
+    /// Lower a `Node::StringSet` to a right-leaning chain of `Insn::Alt` over the
+    /// alternatives.
+    fn emit_string_set(&mut self, alternatives: &[Box<[u32]>], icase: bool) {
+        let Some((last, priors)) = alternatives.split_last() else {
+            // Empty string sets always fail.
+            self.emit_insn(Insn::JustFail);
+            return;
+        };
+        // Instruction offsets to fix up with jumps to the string set end.
+        let mut jump_fixups: Vec<u32> = Vec::new();
+        // Iterate over all alternatives but the last.
+        for cps in priors.iter() {
+            // Start with an alt jumping to the next string.
+            let alt_idx = self.emit_insn_offset(Insn::Alt { secondary: 0 });
+            self.emit_code_point_sequence(cps, icase);
+            // On success, jump past the remaining alternatives.
+            // On failure, the Alt resumes at the next alternative.
+            jump_fixups.push(self.emit_insn_offset(Insn::Jump { target: 0 }));
+            let next = self.next_offset(); // where the next alternative starts
+            match self.get_insn(alt_idx) {
+                Insn::Alt { secondary } => *secondary = next,
+                _ => unreachable!("Instruction should be Alt"),
+            }
+        }
+        // Emit the last alternative.
+        // Note this naturally falls through to the end of the string set.
+        self.emit_code_point_sequence(last, icase);
+        // Fix up any "on success" jumps.
+        let end = self.next_offset();
+        for jump_idx in jump_fixups {
+            match self.get_insn(jump_idx) {
+                Insn::Jump { target } => *target = end,
+                _ => unreachable!("Instruction should be Jump"),
+            }
+        }
     }
 
     /// Emit an instruction.
@@ -210,19 +275,7 @@ impl Emitter {
                 Emitter::Node(node) => match node {
                     Node::Empty => {}
                     Node::Goal => self.emit_insn(Insn::Goal),
-                    Node::Char { c, icase } => {
-                        let c = *c;
-                        if !*icase {
-                            self.emit_insn(Insn::Char(c))
-                        } else {
-                            core::debug_assert!(
-                                unicode::fold_code_point(c, self.result.flags.unicode) == c,
-                                "Char {:x} should be folded",
-                                c
-                            );
-                            self.emit_insn(Insn::CharICase(c))
-                        }
-                    }
+                    Node::Char { c } => self.emit_insn(Insn::Char(*c)),
                     Node::Cat(children) => {
                         for nn in children.iter().rev() {
                             stack.push(Emitter::Node(nn));
@@ -247,6 +300,10 @@ impl Emitter {
                             self.emit_insn(Insn::Bracket(idx))
                         }
                     }
+                    Node::StringSet {
+                        alternatives,
+                        icase,
+                    } => self.emit_string_set(alternatives, *icase),
                     Node::MatchAny => self.emit_insn(Insn::MatchAny),
                     Node::MatchAnyExceptLineTerminator => {
                         self.emit_insn(Insn::MatchAnyExceptLineTerminator)
@@ -327,17 +384,23 @@ impl Emitter {
                         });
                         stack.push(Emitter::Node(contents));
                     }
-                    &Node::WordBoundary { invert } => {
-                        if self.result.flags.unicode && self.result.flags.icase {
+                    &Node::WordBoundary {
+                        invert,
+                        unicode_icase,
+                    } => {
+                        if unicode_icase {
                             self.emit_insn(Insn::WordBoundaryUnicodeICase { invert })
                         } else {
                             self.emit_insn(Insn::WordBoundary { invert })
                         }
                     }
-                    &Node::BackRef(group) => {
+                    &Node::BackRef { group, icase } => {
                         debug_assert!(group >= 1, "Group should not be zero");
                         // -1 because \1 matches the first capture group, which has index 0.
-                        self.emit_insn(Insn::BackRef(group - 1))
+                        self.emit_insn(Insn::BackRef {
+                            group: group - 1,
+                            icase,
+                        })
                     }
 
                     Node::ByteSet(bytes) => self.emit_byte_set_insn(bytes),

@@ -4,6 +4,7 @@
 // Work around dead code warnings: rust-lang issue #46379
 pub mod common;
 use common::*;
+use regress::Regex;
 
 fn test_zero_length_matches_tc(tc: TestConfig) {
     tc.compile(".*?").match_all("a").test_eq(vec!["", ""]);
@@ -156,6 +157,74 @@ fn group_modifiers_tc(tc: TestConfig) {
 #[test]
 fn group_modifiers() {
     test_with_configs(group_modifiers_tc)
+}
+
+fn group_modifier_backref_icase_tc(tc: TestConfig) {
+    // Backreference inside a case-insensitive modifier group should inherit icase.
+    // (?i:(a)\1) — both (a) and \1 are inside (?i:...), so the backreference
+    // should match case-insensitively.
+    let re = tc.compile(r"(?i:(a)\1)");
+    assert!(re.find("aA").is_some());
+    assert!(re.find("Aa").is_some());
+    assert!(re.find("aa").is_some());
+    assert!(re.find("AA").is_some());
+
+    // Backreference outside the modifier group should NOT inherit icase.
+    // (?i:(a))\1 — \1 is outside (?i:...), so it must match the captured text exactly.
+    let re = tc.compile(r"(?i:(a))\1");
+    assert!(re.find("aa").is_some()); // captures 'a', backref matches 'a'
+    assert!(re.find("AA").is_some()); // captures 'A', backref matches 'A'
+    assert!(re.find("aA").is_none()); // captures 'a', backref needs 'a' but gets 'A'
+    assert!(re.find("Aa").is_none()); // captures 'A', backref needs 'A' but gets 'a'
+
+    // Verify that without modifier group, global icase flag works on backrefs.
+    let re = tc.compilef(r"(a)\1", "i");
+    assert!(re.find("aA").is_some());
+    assert!(re.find("Aa").is_some());
+
+    // Without any icase, backreference is case-sensitive.
+    let re = tc.compile(r"(a)\1");
+    assert!(re.find("aa").is_some());
+    assert!(re.find("aA").is_none());
+}
+
+#[test]
+fn group_modifier_backref_icase() {
+    test_with_configs(group_modifier_backref_icase_tc)
+}
+
+fn unicode_property_escape_icase_tc(tc: TestConfig) {
+    // \p{Lu} matches uppercase letters. With icase flag, it should also match lowercase.
+    let re = tc.compilef(r"^\p{Lu}+$", "iu");
+    re.test_succeeds("ABC");
+    re.test_succeeds("abc"); // icase: lowercase should match too
+    re.test_succeeds("AbC");
+
+    // Without icase, \p{Lu} only matches uppercase.
+    let re = tc.compilef(r"^\p{Lu}+$", "u");
+    re.test_succeeds("ABC");
+    re.test_fails("abc");
+    re.test_fails("AbC");
+
+    // \P{Lu} (negated) with icase should match everything — per ES2024 existential
+    // quantifier semantics, for any char c there exists a case variant in complement(Lu)
+    // whose fold equals fold(c).
+    let re = tc.compilef(r"^\P{Lu}+$", "iu");
+    re.test_succeeds("123");
+    re.test_succeeds("abc");
+    re.test_succeeds("ABC"); // even uppercase matches because of existential semantics
+
+    // \P{Lu} without icase excludes uppercase.
+    let re = tc.compilef(r"^\P{Lu}+$", "u");
+    re.test_succeeds("123");
+    re.test_succeeds("abc");
+    re.test_fails("ABC");
+    re.test_fails("AbC");
+}
+
+#[test]
+fn unicode_property_escape_icase() {
+    test_with_configs(unicode_property_escape_icase_tc)
 }
 
 fn test_dotall_tc(tc: TestConfig) {
@@ -2299,6 +2368,26 @@ fn test_duplicate_named_groups_same_alternative_rejected() {
     assert!(Regex::new(r"(?<a>x)(?:(?<a>y))").is_err());
 }
 
+// Allow nested brackets in v mode.
+#[test]
+fn test_v_mode_nested_class_scan() {
+    let re = regress::Regex::with_flags(r"^(?<n>[[0-9]\q{ab|cd}])$", "v").unwrap();
+    assert_eq!(re.find("5").unwrap().group(1), Some(0..1));
+    assert_eq!(re.find("ab").unwrap().group(1), Some(0..2));
+    assert_eq!(re.find("cd").unwrap().group(1), Some(0..2));
+    assert!(re.find("x").is_none());
+    assert!(re.find("12").is_none());
+
+    // The two `(?<x>)` groups share an alternative, so this is a duplicate name.
+    assert!(regress::Regex::with_flags(r"(?<x>1)[[a]\q{b|c}](?<x>2)", "v").is_err());
+
+    // Without `v`, classes don't nest: `[[a]]` is the class `[[a]` followed by a
+    // literal `]`, so the scan stops at the first `]`.
+    let re = regress::Regex::new(r"^[[a]]$").unwrap();
+    assert!(re.find("a]").is_some());
+    assert!(re.find("a").is_none());
+}
+
 #[test]
 fn test_ascii_unicode_icase_backref() {
     test_with_configs(|tc| {
@@ -2439,4 +2528,64 @@ fn test_duplicate_named_groups_with_noncapturing_prefix() {
         re.test_fails("xy");
         re.test_fails("yx");
     })
+}
+
+// Regression test for #141.
+// Loop unrolling can be too aggressive.
+#[test]
+fn test_loop_unroll_overflow() {
+    let pattern = r"(?:(?:b(?:(?:(?:(?:(?:(?:h(?:(?:Ba){6}){3}){3,}){3,}){3}){3}){3,}){3}){3,}){3}";
+
+    // Test with optimizations.
+    let mut flags = regress::Flags::default();
+    Regex::with_flags(pattern, flags).expect("Should compile");
+
+    // Test without optimizations.
+    flags.no_opt = true;
+    Regex::with_flags(pattern, flags).expect("Should compile");
+}
+
+// Byte offsets in `find` which split a UTF-8 character panic,
+// while out-of-range offsets simply yield no matches (JS `lastIndex` semantics).
+// Regression test for #159.
+#[test]
+fn test_find_from_char_boundaries() {
+    let re = Regex::new(".").unwrap();
+
+    // Valid boundary offsets in a multi-byte string keep working.
+    let text = "a😀b"; // bytes: 'a'=0, '😀'=1..5, 'b'=5
+    assert_eq!(re.find_from(text, 0).next().unwrap().range(), 0..1);
+    assert_eq!(re.find_from(text, 1).next().unwrap().range(), 1..5);
+    assert_eq!(re.find_from(text, 5).next().unwrap().range(), 5..6);
+    assert!(re.find_from(text, text.len()).next().is_none());
+
+    // A start inside a multi-byte character must panic cleanly rather than
+    // reading out of bounds.
+    let panics_with_boundary = |f: &dyn Fn()| {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(f))
+            .err()
+            .and_then(|p| p.downcast_ref::<&str>().copied())
+            .is_some_and(|msg| msg.contains("char boundary"))
+    };
+
+    // Start inside a 4-byte character.
+    assert!(panics_with_boundary(&|| {
+        let _ = re.find_from("😀", 3).next();
+    }));
+    // Start inside a 2-byte character.
+    assert!(panics_with_boundary(&|| {
+        let _ = re.find_from("é", 1).next();
+    }));
+
+    // An out-of-range start is not an error: it yields no matches, mirroring
+    // JavaScript's `lastIndex` semantics rather than panicking.
+    assert!(re.find_from("abc", 4).next().is_none());
+    assert!(re.find_from("abc", 100).next().is_none());
+
+    // The ascii entry point steps byte-by-byte, so a start inside a multi-byte
+    // character is memory-safe and must NOT panic (it treats each byte as an
+    // element).
+    assert_eq!(re.find_from_ascii("😀", 3).next().unwrap().range(), 3..4);
+    // An out-of-range ascii start likewise yields no matches, not a panic.
+    assert!(re.find_from_ascii("abc", 4).next().is_none());
 }
