@@ -120,16 +120,12 @@ let re = Regex::with_flags("BC", "i").unwrap();
 assert!(re.find("abcd").is_some());
 ```
 
-
 # Comparison to regex crate
 
-regress supports features that regex does not, in particular backreferences and zero-width lookaround assertions.
+regress supports features (required by the EcmaScript spec) that regex does not, including backreferences and zero-width lookaround assertions.
 However the regex crate provides linear-time matching guarantees, while regress does not. This difference is due
 to the architecture: regex uses finite automata while regress uses "classical backtracking."
 
-# Comparison to fancy-regex crate
-
-fancy-regex wraps the regex crate and extends it with PCRE-style syntactic features. regress has more complete support for these features: backreferences may be case-insensitive, and lookbehinds may be arbitrary-width.
 
 # Architecture
 
@@ -151,7 +147,8 @@ The major interpreter is the "classical backtracking" which uses an explicit bac
 #![allow(
     clippy::upper_case_acronyms,
     clippy::match_like_matches_macro,
-    clippy::uninlined_format_args
+    clippy::uninlined_format_args,
+    clippy::collapsible_if
 )]
 // Clippy's manual_range_contains suggestion produces worse codegen.
 #![allow(clippy::manual_range_contains)]

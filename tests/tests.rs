@@ -131,6 +131,33 @@ fn test_multiline() {
     test_with_configs(test_multiline_tc)
 }
 
+fn group_modifiers_tc(tc: TestConfig) {
+    let re = tc.compile(r"(?i:foo)bar");
+    assert!(re.find("FOObar").is_some());
+    assert!(re.find("FOOBAR").is_none());
+
+    let re = tc.compilef(r"foo(?-i:bar)", "i");
+    assert!(re.find("FOObar").is_some());
+    assert!(re.find("FOOBAR").is_none());
+
+    let re = tc.compile(r"(?s:.)a");
+    assert_eq!(re.match1f("\na"), "\na");
+
+    let re = tc.compile(r".a");
+    assert!(re.find("\na").is_none());
+
+    let re = tc.compile(r"(?m:^foo)");
+    assert_eq!(re.match1f("bar\nfoo"), "foo");
+
+    let re = tc.compile(r"^foo");
+    assert!(re.find("bar\nfoo").is_none());
+}
+
+#[test]
+fn group_modifiers() {
+    test_with_configs(group_modifiers_tc)
+}
+
 fn test_dotall_tc(tc: TestConfig) {
     tc.compile(r".").test_fails("\n");
     tc.compilef(r".", "s").match1f("\n").test_eq("\n");
@@ -1764,6 +1791,16 @@ fn test_empty_brackets() {
 }
 
 #[test]
+fn test_keeps_capture_groups_for_impossible_matches() {
+    // Regression test for the following issue:
+    // branches which can never match a string but contain a capture group
+    // were being incorrectly removed, leading to capture group misnumbering.
+    test_with_configs(|tc: TestConfig| {
+        tc.test_match_succeeds(r#"(?:[](fail))?(capture)"#, "", "capture");
+    })
+}
+
+#[test]
 fn test_just_fails() {
     test_with_configs(|tc: TestConfig| {
         // Test cases where some part of the regex is guaranteed to fail.
@@ -1915,6 +1952,36 @@ fn test_pcre_extended_tc(tc: TestConfig) {
     tc.compilef(r#"a b? c"#, "x").match1f("abc").test_eq("abc");
 
     tc.compilef("a \t\r\nb", "x").match1f("ab").test_eq("ab");
+}
+
+#[test]
+fn test_python_named_groups() {
+    test_with_configs(test_python_named_groups_tc);
+}
+
+fn test_python_named_groups_tc(tc: TestConfig) {
+    tc.compile(r"(?P<n>a)").match1f("a").test_eq("a,a");
+    tc.compile(r"(?P<n>a)b")
+        .match1_named_group("ab", "n")
+        .test_eq("a");
+    tc.compile(r"(?P<n>a)\k<n>").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?P<x>a)|(?P<y>b)")
+        .match1_named_group("b", "y")
+        .test_eq("b");
+    tc.compile(r"(?i:(?P<n>a))")
+        .match1_named_group("A", "n")
+        .test_eq("A");
+
+    // Combined with the other PCRE extensions.
+    tc.compilef(
+        r"(?#comment) ((?P<protocol>[a-z]+: \/\/) (?P<host>[^:\/]*))? (?P<path>[^?]*)",
+        "x",
+    )
+    .match1_named_group("http://example.org/abc", "host")
+    .test_eq("example.org");
+
+    // `(?P` without a `<` is neither a named group nor a modifier group.
+    test_parse_fails(r"(?Pa)");
 }
 
 #[cfg(feature = "utf16")]
@@ -2124,4 +2191,14 @@ fn test_non_greedy_quantifiers_tc(tc: TestConfig) {
 
     // Test zero-width non-greedy match
     tc.compile(r"a.*?a").match1f("aa").test_eq("aa");
+}
+
+#[test]
+fn test_empty_alternation_in_capture() {
+    test_with_configs(test_empty_alternation_in_capture_tc)
+}
+
+fn test_empty_alternation_in_capture_tc(tc: TestConfig) {
+    // Regression tests for empty alternations in capture groups.
+    tc.compile("(z|)*?x").match1f("z0x").test_eq("x,");
 }

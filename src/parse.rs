@@ -492,13 +492,19 @@ where
                 // Term :: Assertion :: ^
                 '^' => {
                     self.consume('^');
-                    result.push(ir::Node::Anchor(ir::AnchorType::StartOfLine));
+                    result.push(ir::Node::Anchor {
+                        anchor_type: ir::AnchorType::StartOfLine,
+                        multiline: self.flags.multiline,
+                    });
                     quantifier_allowed = false;
                 }
                 // Term :: Assertion :: $
                 '$' => {
                     self.consume('$');
-                    result.push(ir::Node::Anchor(ir::AnchorType::EndOfLine));
+                    result.push(ir::Node::Anchor {
+                        anchor_type: ir::AnchorType::EndOfLine,
+                        multiline: self.flags.multiline,
+                    });
                     quantifier_allowed = false;
                 }
 
@@ -606,6 +612,8 @@ where
                                 }
                             }
                         }
+                    } else if let Some(group) = self.try_consume_modifier_group()? {
+                        result.push(group);
                     } else {
                         // Capturing group.
                         self.consume('(');
@@ -699,7 +707,7 @@ where
                 // Note we don't want to do this as part of parsing the quantiifer in some cases
                 // an incomplete quantifier is not recognized as a quantifier, e.g. `/{3/` is
                 // valid.
-                if quant.min > quant.max {
+                if matches!(quant.max, Some(max) if quant.min > max) {
                     return error("Invalid quantifier");
                 }
                 let quantifee = result.split_off(start_offset);
@@ -715,6 +723,93 @@ where
             }
         }
         Ok(make_cat(result))
+    }
+
+    fn try_consume_modifier_group(&mut self) -> Result<Option<ir::Node>, Error> {
+        let mut cursor = self.input.clone();
+        if cursor.next() != Some('(' as u32) {
+            return Ok(None);
+        }
+        if cursor.next() != Some('?' as u32) {
+            return Ok(None);
+        }
+        let Some(mut current) = cursor.next() else {
+            return Ok(None);
+        };
+
+        // `(?<name>` is a named capture group, and so is the Python style `(?P<name>`.
+        if to_char_sat(current) == '<'
+            || (to_char_sat(current) == 'P' && cursor.peek() == Some(&('<' as u32)))
+        {
+            return Ok(None);
+        }
+
+        let mut seen_hyphen = false;
+        let mut saw_flag = false;
+        let mut icase_override: Option<bool> = None;
+        let mut multiline_override: Option<bool> = None;
+        let mut dot_all_override: Option<bool> = None;
+
+        loop {
+            let ch = to_char_sat(current);
+            match ch {
+                'i' | 'm' | 's' => {
+                    let value = !seen_hyphen;
+                    let target = match ch {
+                        'i' => &mut icase_override,
+                        'm' => &mut multiline_override,
+                        's' => &mut dot_all_override,
+                        _ => unreachable!(),
+                    };
+                    if target.is_some() {
+                        return error("Invalid group modifier");
+                    }
+                    *target = Some(value);
+                    saw_flag = true;
+                }
+                '-' => {
+                    if seen_hyphen {
+                        return error("Invalid group modifier");
+                    }
+                    seen_hyphen = true;
+                }
+                ':' => {
+                    if !saw_flag {
+                        return error("Invalid group modifier");
+                    }
+                    self.input = cursor;
+                    let mut new_flags = self.flags;
+                    if let Some(value) = icase_override {
+                        new_flags.icase = value;
+                    }
+                    if let Some(value) = multiline_override {
+                        new_flags.multiline = value;
+                    }
+                    if let Some(value) = dot_all_override {
+                        new_flags.dot_all = value;
+                    }
+                    let saved_flags = self.flags;
+                    self.flags = new_flags;
+                    let contents = match self.consume_disjunction() {
+                        Ok(node) => node,
+                        Err(err) => {
+                            self.flags = saved_flags;
+                            return Err(err);
+                        }
+                    };
+                    self.flags = saved_flags;
+                    return Ok(Some(contents));
+                }
+                _ => {
+                    return error("Invalid group modifier");
+                }
+            }
+
+            current = match cursor.next() {
+                Some(next) => next,
+                None => return error("Invalid group modifier"),
+            };
+        }
     }
 
     /// ES6 21.2.2.13 CharacterClass.
@@ -1211,13 +1306,11 @@ where
             0x28 /* ( */ | 0x29 /* ) */ | 0x7B /* { */ | 0x7D /* } */ | 0x2F /* / */
             | 0x2D /* - */ | 0x7C /* | */ => error("Invalid class set character"),
             _ => {
-                if Self::is_class_set_reserved_double_punctuator(cp) {
-                    if let Some(cp) = self.peek() {
-                        if Self::is_class_set_reserved_double_punctuator(cp) {
+                if Self::is_class_set_reserved_double_punctuator(cp)
+                    && let Some(cp) = self.peek()
+                        && Self::is_class_set_reserved_double_punctuator(cp) {
                             return error("Invalid class set character");
                         }
-                    }
-                }
                 Ok(cp)
             }
         }
@@ -1263,7 +1356,7 @@ where
                 self.consume('+');
                 Ok(Some(ir::Quantifier {
                     min: 1,
-                    max: usize::MAX,
+                    max: None,
                     greedy: true,
                 }))
             }
@@ -1271,7 +1364,7 @@ where
                 self.consume('*');
                 Ok(Some(ir::Quantifier {
                     min: 0,
-                    max: usize::MAX,
+                    max: None,
                     greedy: true,
                 }))
             }
@@ -1279,7 +1372,7 @@ where
                 self.consume('?');
                 Ok(Some(ir::Quantifier {
                     min: 0,
-                    max: 1,
+                    max: Some(1),
                     greedy: true,
                 }))
             }
@@ -1303,24 +1396,21 @@ where
         let pre_input = self.input.clone();
         self.consume('{');
         let optmin = self.try_consume_decimal_integer_literal();
-        if optmin.is_none() {
+        let Some(optmin) = optmin else {
             // not a valid quantifier, rollback consumption
             self.input = pre_input;
             return None;
-        }
+        };
         let mut quant = ir::Quantifier {
-            min: optmin.unwrap(),
-            max: optmin.unwrap(),
+            min: optmin,
+            max: Some(optmin),
             greedy: true,
         };
         if self.try_consume(',') {
-            if let Some(max) = self.try_consume_decimal_integer_literal() {
-                // Like {3,4}
-                quant.max = max;
-            } else {
-                // Like {3,}
-                quant.max = usize::MAX;
-            }
+            let max = self.try_consume_decimal_integer_literal();
+            // Either like {3,4} in which case we want to set the max;
+            // or like {3,} in which case the max should be None to indicate unbounded.
+            quant.max = max;
         } else {
             // Like {3}.
         }
@@ -1383,10 +1473,10 @@ where
             'v' => Ok(0xB),
             // CharacterEscape :: c AsciiLetter
             'c' => {
-                if let Some(nc) = self.next().and_then(char::from_u32) {
-                    if nc.is_ascii_lowercase() || nc.is_ascii_uppercase() {
-                        return Ok((nc as u32) % 32);
-                    }
+                if let Some(nc) = self.next().and_then(char::from_u32)
+                    && (nc.is_ascii_lowercase() || nc.is_ascii_uppercase())
+                {
+                    return Ok((nc as u32) % 32);
                 }
                 error("Invalid character escape")
             }
@@ -1774,16 +1864,14 @@ where
                         continue;
                     }
 
-                    if self.try_consume('?') {
-                        if let Some(name) = self.try_consume_named_capture_group_name() {
-                            if self
-                                .named_group_indices
-                                .insert(name, self.group_count_max)
-                                .is_some()
-                            {
-                                return error("Duplicate capture group name");
-                            }
-                        }
+                    if self.try_consume_str("?")
+                        && let Some(name) = self.try_consume_named_capture_group_name()
+                        && self
+                            .named_group_indices
+                            .insert(name, self.group_count_max)
+                            .is_some()
+                    {
+                        return error("Duplicate capture group name");
                     }
                     self.group_count_max = if self.group_count_max + 1 > MAX_CAPTURE_GROUPS as u32 {
                         MAX_CAPTURE_GROUPS as u32
