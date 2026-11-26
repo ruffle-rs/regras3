@@ -33,6 +33,76 @@ fn non_matching_captures() {
     test_with_configs(non_matching_captures_tc)
 }
 
+fn test_captures_tc(tc: TestConfig) {
+    // Zero explicit groups - but group zero is the entire match.
+    let m = tc.compile("derp").find("derp").unwrap();
+    assert_eq!(m.group(0), Some(0..4));
+    let g = m.groups();
+    assert_eq!(g.size_hint(), (1, Some(1)));
+    assert!(g.eq([Some(0..4)]));
+    let ng = m.named_groups();
+    assert_eq!(ng.size_hint(), (0, Some(0)));
+    assert!(ng.eq([]));
+
+    // One group.
+    let m = tc.compile("d(er)p").find("derp").unwrap();
+    assert_eq!(m.group(0), Some(0..4));
+    assert_eq!(m.group(1), Some(1..3));
+    let mut g = m.groups();
+    assert_eq!(g.size_hint(), (2, Some(2)));
+    assert_eq!(g.next(), Some(Some(0..4)));
+    assert_eq!(g.next(), Some(Some(1..3)));
+    assert_eq!(g.next(), None);
+    let ng = m.named_groups();
+    assert_eq!(ng.size_hint(), (0, Some(0)));
+    assert!(ng.eq([]));
+
+    // Multiple groups.
+    let m = tc.compile("(d)(er)(p)").find("derp").unwrap();
+    assert_eq!(m.group(0), Some(0..4));
+    assert_eq!(m.group(1), Some(0..1));
+    assert_eq!(m.group(2), Some(1..3));
+    assert_eq!(m.group(3), Some(3..4));
+    let g = m.groups();
+    assert_eq!(g.size_hint(), (4, Some(4)));
+    assert!(g.eq([Some(0..4), Some(0..1), Some(1..3), Some(3..4)]));
+    let ng = m.named_groups();
+    assert_eq!(ng.size_hint(), (0, Some(0)));
+    assert!(ng.eq([]));
+
+    // Optional group not matched.
+    let m = tc.compile("d(er)?p").find("dp").unwrap();
+    assert_eq!(m.group(0), Some(0..2));
+    assert_eq!(m.group(1), None);
+    let g = m.groups();
+    assert_eq!(g.size_hint(), (2, Some(2)));
+    assert!(g.eq([Some(0..2), None]));
+    let ng = m.named_groups();
+    assert_eq!(ng.size_hint(), (0, Some(0)));
+
+    // Named groups skip groups without names.
+    let m = tc
+        .compile(r"(?<first>d)(?:(er)|(?<skip>unmatched))(?<third>p)")
+        .find("derp")
+        .unwrap();
+    assert_eq!(m.group(0), Some(0..4));
+    assert_eq!(m.group(1), Some(0..1));
+    assert_eq!(m.group(2), Some(1..3));
+    assert_eq!(m.group(3), None);
+    assert_eq!(m.group(4), Some(3..4));
+
+    let g = m.groups();
+    assert!(g.eq([Some(0..4), Some(0..1), Some(1..3), None, Some(3..4)]));
+
+    let ng = m.named_groups();
+    assert!(ng.eq([("first", Some(0..1)), ("skip", None), ("third", Some(3..4))]));
+}
+
+#[test]
+fn test_captures() {
+    test_with_configs(test_captures_tc)
+}
+
 fn test_multiline_tc(tc: TestConfig) {
     tc.compilef(r"^abc", "").match1f("abc").test_eq("abc");
     tc.compile(r"^def").test_fails("abc\ndef");
@@ -1972,4 +2042,86 @@ fn test_range_from_utf16() {
             assert_eq!(&weird_utf8[utf8_range], utf16_to_utf8);
         }
     }
+}
+
+#[test]
+fn test_anchored_optimization() {
+    test_with_configs(test_anchored_optimization_tc)
+}
+
+fn test_anchored_optimization_tc(tc: TestConfig) {
+    // Test basic anchored matching with ^
+    tc.compile(r"^hello")
+        .match1f("hello world")
+        .test_eq("hello");
+    tc.compile(r"^hello").test_fails("  hello world"); // Should not match when not at start
+
+    // Test anchored regex with whitespace
+    tc.compile(r"^hello\s+world")
+        .match1f("hello   world")
+        .test_eq("hello   world");
+    tc.compile(r"^hello\s+world").test_fails("  hello world"); // Should not match when not at start
+
+    // Test anchored regex with capture groups
+    tc.compile(r"^(\w+)=(\d+)")
+        .match1f("key=123 other=456")
+        .test_eq("key=123,key,123");
+    tc.compile(r"^(\w+)=(\d+)").test_fails(" key=123"); // Should not match when not at start
+
+    // Test anchored alternation
+    tc.compile(r"^(abc|def)").match1f("abc").test_eq("abc,abc");
+    tc.compile(r"^(abc|def)").match1f("def").test_eq("def,def");
+    tc.compile(r"^(abc|def)").test_fails(" abc");
+
+    // Test anchored regex with multiline flag
+    tc.compilef(r"^hello", "m")
+        .match1f("world\nhello")
+        .test_eq("hello");
+
+    // Test that non-anchored regexes still work normally
+    tc.compile(r"abc").match1f("xabc").test_eq("abc");
+    tc.compile(r"abc").match1f("abcx").test_eq("abc");
+}
+
+#[test]
+fn test_non_greedy_quantifiers() {
+    test_with_configs(test_non_greedy_quantifiers_tc)
+}
+
+fn test_non_greedy_quantifiers_tc(tc: TestConfig) {
+    // Test that non-greedy quantifiers match minimally
+    tc.compile(r"a.*?b")
+        .match1f("aXXXXbYYYYb")
+        .test_eq("aXXXXb");
+    tc.compile(r"a.+?b")
+        .match1f("aXXXXbYYYYb")
+        .test_eq("aXXXXb");
+
+    // Test difference between greedy and non-greedy
+    tc.compile(r"a.*b")
+        .match1f("aXXXXbYYYYb")
+        .test_eq("aXXXXbYYYYb");
+    tc.compile(r"a.*?b")
+        .match1f("aXXXXbYYYYb")
+        .test_eq("aXXXXb");
+
+    // Test non-greedy with capture groups
+    tc.compile(r"a(.*?)b")
+        .match1f("aXXXXbYYYYb")
+        .test_eq("aXXXXb,XXXX");
+    tc.compile(r"a(.*)b")
+        .match1f("aXXXXbYYYYb")
+        .test_eq("aXXXXbYYYYb,XXXXbYYYY");
+
+    // Test non-greedy quantifier at end of string
+    tc.compile(r"a.*?$").match1f("aXXXX").test_eq("aXXXX");
+
+    // Test multiple non-greedy quantifiers
+    tc.compile(r"a.*?b.*?c").match1f("aXbYcZ").test_eq("aXbYc");
+
+    // Test non-greedy with alternation
+    tc.compile(r"(a|b)*?c").match1f("ababc").test_eq("ababc,b");
+
+    // Test zero-width non-greedy match
+    tc.compile(r"a.*?a").match1f("aa").test_eq("aa");
 }

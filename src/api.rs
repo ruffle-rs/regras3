@@ -5,6 +5,8 @@ use crate::indexing;
 use crate::insn::CompiledRegex;
 use crate::optimizer;
 use crate::parse;
+use crate::types::MAX_CAPTURE_GROUPS;
+use std::iter::FusedIterator;
 
 #[cfg(feature = "utf16")]
 use crate::{
@@ -21,7 +23,7 @@ use core::{fmt, str::FromStr};
 #[cfg(not(feature = "std"))]
 use {
     alloc::{string::String, vec::Vec},
-    hashbrown::{hash_map::Iter, HashMap},
+    hashbrown::{HashMap, hash_map::Iter},
 };
 
 pub use parse::Error;
@@ -163,8 +165,10 @@ impl Match {
     pub fn group(&self, idx: usize) -> Option<Range> {
         if idx == 0 {
             Some(self.range.clone())
-        } else {
+        } else if idx <= self.captures.len() {
             self.captures[idx - 1].clone()
+        } else {
+            None
         }
     }
 
@@ -181,7 +185,7 @@ impl Match {
 
     /// Return an iterator over the named groups of a Match.
     #[inline]
-    pub fn named_groups(&self) -> NamedGroups {
+    pub fn named_groups(&self) -> NamedGroups<'_> {
         NamedGroups::new(self)
     }
 
@@ -206,10 +210,27 @@ impl Match {
         self.range.end
     }
 
+    /// Returns the matched text as a string slice.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use regress::Regex;
+    ///
+    /// let re = Regex::new(r"\d+").unwrap();
+    /// let text = "Price: $123";
+    /// let m = re.find(text).unwrap();
+    /// assert_eq!(m.as_str(text), "123");
+    /// ```
+    #[inline]
+    pub fn as_str<'t>(&self, text: &'t str) -> &'t str {
+        &text[self.range()]
+    }
+
     /// Return an iterator over a Match. The first returned value is the total
     /// match, and subsequent values represent the capture groups.
     #[inline]
-    pub fn groups(&self) -> Groups {
+    pub fn groups(&self) -> Groups<'_> {
         Groups::new(self)
     }
 }
@@ -223,7 +244,12 @@ impl Match {
 #[derive(Clone)]
 pub struct Groups<'m> {
     mat: &'m Match,
-    i: usize,
+
+    // The next group index to return, where 0 references the total match.
+    next_group_idx: usize,
+
+    // The maximum group index to return, with a +1 for the implicit total match.
+    // For example, in a regex with 1 capture group, this will be 2.
     max: usize,
 }
 
@@ -232,8 +258,8 @@ impl<'m> Groups<'m> {
     fn new(mat: &'m Match) -> Self {
         Self {
             mat,
-            i: 0,
-            max: mat.captures.len() + 1,
+            next_group_idx: 0,
+            max: mat.captures.len() + 1, // +1 for the total match
         }
     }
 }
@@ -243,15 +269,23 @@ impl Iterator for Groups<'_> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        let i = self.i;
+        let i = self.next_group_idx;
         if i < self.max {
-            self.i += 1;
+            self.next_group_idx += 1;
             Some(self.mat.group(i))
         } else {
             None
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let size = self.max.saturating_sub(self.next_group_idx);
+        (size, Some(size))
+    }
 }
+
+impl<'m> ExactSizeIterator for Groups<'m> {}
+impl<'m> FusedIterator for Groups<'m> {}
 
 /// An iterator over the named capture groups of a [`Match`]
 ///
@@ -262,7 +296,11 @@ impl Iterator for Groups<'_> {
 #[derive(Clone)]
 pub struct NamedGroups<'m> {
     mat: &'m Match,
-    next_group_name_idx: usize,
+
+    // The next group name index to return.
+    // Note unlike `Groups` this does NOT include the implicit total match.
+    // That is, group 0 is the first capture group, NOT the total match.
+    next_group_idx: usize,
 }
 
 impl<'m> NamedGroups<'m> {
@@ -270,7 +308,7 @@ impl<'m> NamedGroups<'m> {
     fn new(mat: &'m Match) -> Self {
         Self {
             mat,
-            next_group_name_idx: 0,
+            next_group_idx: 0,
         }
     }
 }
@@ -280,10 +318,10 @@ impl<'m> Iterator for NamedGroups<'m> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        // Increment next_group_name_idx until we find a non-empty name.
-        debug_assert!(self.next_group_name_idx <= self.mat.group_names.len());
+        // Increment next_group_idx until we find a non-empty name.
+        debug_assert!(self.next_group_idx <= self.mat.group_names.len());
         let end = self.mat.group_names.len();
-        let mut idx = self.next_group_name_idx;
+        let mut idx = self.next_group_idx;
         while idx < end && self.mat.group_names[idx].is_empty() {
             idx += 1;
         }
@@ -292,10 +330,22 @@ impl<'m> Iterator for NamedGroups<'m> {
         }
         let name = self.mat.group_names[idx].as_ref();
         let range = self.mat.captures[idx].clone();
-        self.next_group_name_idx = idx + 1;
+        self.next_group_idx = idx + 1;
         Some((name, range))
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let size = self.mat.group_names[self.next_group_idx..]
+            .iter()
+            .filter(|s| !s.is_empty())
+            .count();
+
+        (size, Some(size))
+    }
 }
+
+impl<'m> ExactSizeIterator for NamedGroups<'m> {}
+impl<'m> FusedIterator for NamedGroups<'m> {}
 
 /// A Regex is the compiled version of a pattern.
 #[derive(Debug, Clone)]
@@ -442,6 +492,213 @@ impl Regex {
             start,
         )
     }
+
+    /// Replaces the first match of the regex in `text` with the replacement string.
+    ///
+    /// The replacement string may contain capture group references in the form `$1`, `$2`, etc.,
+    /// where `$1` refers to the first capture group, `$2` to the second, and so on.
+    /// `$0` refers to the entire match. Use `$$` to insert a literal `$`.
+    ///
+    /// If no match is found, the original text is returned unchanged.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use regress::Regex;
+    ///
+    /// let re = Regex::new(r"(\w+)\s+(\w+)").unwrap();
+    /// let result = re.replace("hello world", "$2 $1");
+    /// assert_eq!(result, "world hello");
+    ///
+    /// let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
+    /// let result = re.replace("2023-12-25", "$2/$3/$1");
+    /// assert_eq!(result, "12/25/2023");
+    /// ```
+    pub fn replace(&self, text: &str, replacement: &str) -> String {
+        match self.find(text) {
+            Some(m) => {
+                let mut result = String::with_capacity(text.len());
+                result.push_str(&text[..m.start()]);
+                self.expand_replacement(&m, text, replacement, &mut result);
+                result.push_str(&text[m.end()..]);
+                result
+            }
+            None => text.to_string(),
+        }
+    }
+
+    /// Replaces all matches of the regex in `text` with the replacement string.
+    ///
+    /// The replacement string may contain capture group references in the form `$1`, `$2`, etc.,
+    /// where `$1` refers to the first capture group, `$2` to the second, and so on.
+    /// `$0` refers to the entire match. Use `$$` to insert a literal `$`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use regress::Regex;
+    ///
+    /// let re = Regex::new(r"(\w+)\s+(\w+)").unwrap();
+    /// let result = re.replace_all("hello world foo bar", "$2-$1");
+    /// assert_eq!(result, "world-hello bar-foo");
+    ///
+    /// let re = Regex::new(r"\b(\w)(\w+)").unwrap();
+    /// let result = re.replace_all("hello world", "$1.$2");
+    /// assert_eq!(result, "h.ello w.orld");
+    /// ```
+    pub fn replace_all(&self, text: &str, replacement: &str) -> String {
+        let mut result = String::with_capacity(text.len());
+        let mut last_end = 0;
+
+        for m in self.find_iter(text) {
+            result.push_str(&text[last_end..m.start()]);
+            self.expand_replacement(&m, text, replacement, &mut result);
+            last_end = m.end();
+        }
+
+        result.push_str(&text[last_end..]);
+        result
+    }
+
+    /// Replaces the first match of the regex in `text` using a closure.
+    ///
+    /// The closure receives a `&Match` and should return the replacement string.
+    /// This is useful for dynamic replacements that depend on the match details.
+    ///
+    /// If no match is found, the original text is returned unchanged.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use regress::Regex;
+    ///
+    /// let re = Regex::new(r"\d+").unwrap();
+    /// let text = "Price: $123";
+    /// let result = re.replace_with(text, |m| {
+    ///     let num: i32 = m.as_str(text).parse().unwrap();
+    ///     format!("{}", num * 2)
+    /// });
+    /// assert_eq!(result, "Price: $246");
+    /// ```
+    pub fn replace_with<F>(&self, text: &str, replacement: F) -> String
+    where
+        F: FnOnce(&Match) -> String,
+    {
+        match self.find(text) {
+            Some(m) => {
+                let mut result = String::with_capacity(text.len());
+                result.push_str(&text[..m.start()]);
+                result.push_str(&replacement(&m));
+                result.push_str(&text[m.end()..]);
+                result
+            }
+            None => text.to_string(),
+        }
+    }
+
+    /// Replaces all matches of the regex in `text` using a closure.
+    ///
+    /// The closure receives a `&Match` and should return the replacement string.
+    /// This is useful for dynamic replacements that depend on the match details.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use regress::Regex;
+    ///
+    /// let re = Regex::new(r"\d+").unwrap();
+    /// let text = "Items: 5, 10, 15";
+    /// let result = re.replace_all_with(text, |m| {
+    ///     let num: i32 = m.as_str(text).parse().unwrap();
+    ///     format!("[{}]", num * 10)
+    /// });
+    /// assert_eq!(result, "Items: [50], [100], [150]");
+    /// ```
+    pub fn replace_all_with<F>(&self, text: &str, replacement: F) -> String
+    where
+        F: Fn(&Match) -> String,
+    {
+        let mut result = String::with_capacity(text.len());
+        let mut last_end = 0;
+
+        for m in self.find_iter(text) {
+            result.push_str(&text[last_end..m.start()]);
+            result.push_str(&replacement(&m));
+            last_end = m.end();
+        }
+
+        result.push_str(&text[last_end..]);
+        result
+    }
+
+    /// Helper method to expand replacement strings with capture group substitutions.
+    fn expand_replacement(&self, m: &Match, text: &str, replacement: &str, output: &mut String) {
+        let mut chars = replacement.chars().peekable();
+
+        while let Some(ch) = chars.next() {
+            if ch == '$' {
+                match chars.peek() {
+                    Some('$') => {
+                        // $$ -> literal $
+                        chars.next();
+                        output.push('$');
+                    }
+                    Some(&digit) if digit.is_ascii_digit() => {
+                        // Parse the group number
+                        let mut group_num = 0;
+                        while let Some(&digit) = chars.peek() {
+                            if digit.is_ascii_digit() {
+                                chars.next();
+                                group_num = group_num * 10 + (digit as u32 - '0' as u32) as usize;
+                                // Limit to reasonable group numbers to avoid overflow
+                                if group_num > MAX_CAPTURE_GROUPS {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+
+                        // Get the matched text for this group
+                        if let Some(range) = m.group(group_num) {
+                            output.push_str(&text[range]);
+                        }
+                        // If group doesn't exist or didn't match, add nothing
+                    }
+                    Some('{') => {
+                        // Handle ${name} syntax for named groups
+                        chars.next(); // consume '{'
+                        let mut name = String::new();
+                        let mut found_closing_brace = false;
+
+                        for ch in chars.by_ref() {
+                            if ch == '}' {
+                                found_closing_brace = true;
+                                break;
+                            }
+                            name.push(ch);
+                        }
+
+                        if found_closing_brace {
+                            if let Some(range) = m.named_group(&name) {
+                                output.push_str(&text[range]);
+                            }
+                        } else {
+                            // Malformed ${...}, treat as literal
+                            output.push_str("${");
+                            output.push_str(&name);
+                        }
+                    }
+                    _ => {
+                        // Just a $ at end or followed by non-digit
+                        output.push('$');
+                    }
+                }
+            } else {
+                output.push(ch);
+            }
+        }
+    }
 }
 
 impl FromStr for Regex {
@@ -454,13 +711,184 @@ impl FromStr for Regex {
     }
 }
 
+// Pattern trait implementation for str::find, str::contains, etc.
+#[cfg(feature = "pattern")]
+mod pattern_impl {
+    use super::*;
+    use core::str::pattern::{Pattern, ReverseSearcher, SearchStep, Searcher};
+
+    /// A searcher for a regex pattern.
+    pub struct RegexSearcher<'r, 't> {
+        haystack: &'t str,
+        regex: &'r Regex,
+        current_pos: usize,
+        done: bool,
+        // For reverse searching
+        reverse_pos: usize,
+        reverse_done: bool,
+    }
+
+    impl<'r, 't> RegexSearcher<'r, 't> {
+        fn new(regex: &'r Regex, haystack: &'t str) -> Self {
+            Self {
+                haystack,
+                regex,
+                current_pos: 0,
+                done: false,
+                reverse_pos: haystack.len(),
+                reverse_done: false,
+            }
+        }
+
+        fn find_last_match_before(&self, pos: usize) -> Option<super::Match> {
+            // Find all matches up to the given position and return the last one
+            let mut last_match = None;
+            for m in self.regex.find_from(self.haystack, 0) {
+                if m.end() <= pos {
+                    last_match = Some(m);
+                } else {
+                    break;
+                }
+            }
+            last_match
+        }
+    }
+
+    unsafe impl<'r, 't> Searcher<'t> for RegexSearcher<'r, 't> {
+        fn haystack(&self) -> &'t str {
+            self.haystack
+        }
+
+        fn next(&mut self) -> SearchStep {
+            if self.done {
+                return SearchStep::Done;
+            }
+
+            // Try to find the next match starting from current position
+            if let Some(m) = self.regex.find_from(self.haystack, self.current_pos).next() {
+                let match_start = m.start();
+                let match_end = m.end();
+
+                // Handle any gap between current position and match start
+                if self.current_pos < match_start {
+                    let reject_end = match_start;
+                    let reject_start = self.current_pos;
+                    self.current_pos = match_start;
+                    return SearchStep::Reject(reject_start, reject_end);
+                }
+
+                // Return the match
+                self.current_pos = match_end;
+
+                // Handle zero-width matches to avoid infinite loops
+                if match_start == match_end {
+                    // For zero-width matches, we need to advance at least one byte
+                    // to avoid infinite loops
+                    if match_end < self.haystack.len() {
+                        // Find the next character boundary
+                        let mut next_pos = match_end + 1;
+                        while next_pos < self.haystack.len()
+                            && !self.haystack.is_char_boundary(next_pos)
+                        {
+                            next_pos += 1;
+                        }
+                        self.current_pos = next_pos;
+                    } else {
+                        // We're at the end of the string
+                        self.done = true;
+                    }
+                }
+
+                SearchStep::Match(match_start, match_end)
+            } else {
+                // No more matches, reject remaining text if any
+                if self.current_pos < self.haystack.len() {
+                    let reject_start = self.current_pos;
+                    let reject_end = self.haystack.len();
+                    self.current_pos = self.haystack.len();
+                    self.done = true;
+                    SearchStep::Reject(reject_start, reject_end)
+                } else {
+                    self.done = true;
+                    SearchStep::Done
+                }
+            }
+        }
+    }
+
+    unsafe impl<'r, 't> ReverseSearcher<'t> for RegexSearcher<'r, 't> {
+        fn next_back(&mut self) -> SearchStep {
+            if self.reverse_done {
+                return SearchStep::Done;
+            }
+
+            // Try to find the last match before current reverse position
+            if let Some(m) = self.find_last_match_before(self.reverse_pos) {
+                let match_start = m.start();
+                let match_end = m.end();
+
+                // Handle any gap between match end and current reverse position
+                if match_end < self.reverse_pos {
+                    let reject_start = match_end;
+                    let reject_end = self.reverse_pos;
+                    self.reverse_pos = match_end;
+                    return SearchStep::Reject(reject_start, reject_end);
+                }
+
+                // Return the match
+                self.reverse_pos = match_start;
+
+                // Handle zero-width matches
+                if match_start == match_end {
+                    // For zero-width matches, move back by one character
+                    if match_start > 0 {
+                        let mut prev_pos = match_start - 1;
+                        while prev_pos > 0 && !self.haystack.is_char_boundary(prev_pos) {
+                            prev_pos -= 1;
+                        }
+                        self.reverse_pos = prev_pos;
+                    } else {
+                        // We're at the beginning of the string
+                        self.reverse_done = true;
+                    }
+                }
+
+                SearchStep::Match(match_start, match_end)
+            } else {
+                // No more matches, reject remaining text if any
+                if self.reverse_pos > 0 {
+                    let reject_start = 0;
+                    let reject_end = self.reverse_pos;
+                    self.reverse_pos = 0;
+                    self.reverse_done = true;
+                    SearchStep::Reject(reject_start, reject_end)
+                } else {
+                    self.reverse_done = true;
+                    SearchStep::Done
+                }
+            }
+        }
+    }
+
+    impl<'r> Pattern for &'r Regex {
+        type Searcher<'a> = RegexSearcher<'r, 'a>;
+
+        fn into_searcher(self, haystack: &str) -> Self::Searcher<'_> {
+            RegexSearcher::new(self, haystack)
+        }
+    }
+}
+
+#[cfg(feature = "pattern")]
+pub use pattern_impl::*;
+
 // Support for using regress with different regex backends.
 // Currently there is only the classical backtracking, and PikeVM.
 #[doc(hidden)]
 pub mod backends {
+    use super::Regex;
     use super::exec;
     use super::indexing;
-    use super::Regex;
     pub use crate::emit::emit;
     pub use crate::optimizer::optimize;
     pub use crate::parse::try_parse;
@@ -498,4 +926,39 @@ pub mod backends {
     ) -> exec::Matches<Executor::AsAscii> {
         find::<Executor::AsAscii>(re, text, start)
     }
+}
+
+/// Escapes all special regex characters in a string to make it a literal match.
+///
+/// This function takes a string and returns a new string with all special
+/// regex characters escaped with backslashes, so the resulting string can be
+/// used as a literal pattern in a regular expression.
+///
+/// # Example
+///
+/// ```
+/// use regress::escape;
+///
+/// let escaped = escape("Hello. How are you?");
+/// assert_eq!(escaped, "Hello\\. How are you\\?");
+///
+/// let escaped = escape("$100 + tax (15%)");
+/// assert_eq!(escaped, "\\$100 \\+ tax \\(15%\\)");
+/// ```
+pub fn escape(text: &str) -> String {
+    let mut result = String::with_capacity(text.len());
+
+    for c in text.chars() {
+        match c {
+            // Characters that have special meaning in regex and need escaping
+            '\\' | '^' | '$' | '.' | '|' | '?' | '*' | '+' | '(' | ')' | '[' | ']' | '{' | '}' => {
+                result.push('\\');
+                result.push(c);
+            }
+            // All other characters are literal
+            _ => result.push(c),
+        }
+    }
+
+    result
 }

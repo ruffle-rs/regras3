@@ -1,12 +1,12 @@
 [package]
 name = "regress"
-version = "0.10.3"
+version = "0.10.4"
 authors = ["ridiculousfish <corydoras@ridiculousfish.com>"]
 description = "A regular expression engine targeting EcmaScript syntax"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/ridiculousfish/regress"
 keywords = ["regex", "regexp"]
-edition = "2021"
+edition = "2024"
 readme = "README.md"
 
 [workspace]
@@ -31,6 +31,9 @@ prohibit-unsafe = []
 
 # Enables UTF-16 support. This disables some optimizations, so it should only be used when necessary.
 utf16 = []
+
+# Enables Pattern trait implementation for str::find, str::contains, etc.
+pattern = []
 
 [dependencies]
 hashbrown = "0.16.1"

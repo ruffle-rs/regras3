@@ -1,4 +1,4 @@
-use crate::{codepoints_to_range, format_interval_table, pack_adjacent_codepoints, GenUnicode};
+use crate::{GenUnicode, codepoints_to_range, format_interval_table, pack_adjacent_codepoints};
 use codegen::{Block, Enum, Function};
 use std::collections::HashMap;
 
@@ -49,8 +49,8 @@ impl GenUnicode {
                 .new_fn(&format!("{}_ranges", orig_name.to_lowercase()))
                 .vis("pub(crate)")
                 .ret("&'static [Interval]")
-                .line(&format!("&{}", orig_name.to_uppercase()))
-                .doc(&format!(
+                .line(format!("&{}", orig_name.to_uppercase()))
+                .doc(format!(
                     "Return the code point ranges of the '{}' Unicode property.",
                     orig_name
                 ));
@@ -96,8 +96,8 @@ impl GenUnicode {
                 .new_fn(&format!("{}_ranges", orig_name.to_lowercase()))
                 .vis("pub(crate)")
                 .ret("&'static [Interval]")
-                .line(&format!("&{}", orig_name.to_uppercase()))
-                .doc(&format!(
+                .line(format!("&{}", orig_name.to_uppercase()))
+                .doc(format!(
                     "Return the code point ranges of the '{}' Unicode property.",
                     orig_name
                 ));
@@ -292,14 +292,70 @@ impl GenUnicode {
 
 // Structure: (Alias, Alias, Name, CamelCaseName, CommaSeparatedValueNames)
 const GENERAL_CATEGORY_VALUES_DERIVED: &[(&str, &str, &str, &str, &str, &str); 8] = &[
-    ("", "LC", "Cased_Letter", "CasedLetter", "Lowercase_Letter,Titlecase_Letter,Uppercase_Letter", "Ll,Lt,Lu"),
-    ("", "C", "Other", "Other", "Control,Format,Surrogate,Unassigned,Private_Use", "Cc,Cf,Cs,Cn,Co"),
-    ("", "L", "Letter", "Letter", "Lowercase_Letter,Modifier_Letter,Other_Letter,Titlecase_Letter,Uppercase_Letter", "Ll,Lm,Lo,Lt,Lu"),
-    ("Combining_Mark", "M", "Mark", "Mark", "Spacing_Mark,Enclosing_Mark,Nonspacing_Mark", "Mc,Me,Mn"),
-    ("", "N", "Number", "Number","Decimal_Number,Letter_Number,Other_Number", "Nd,Nl,No"),
-    ("punct", "P", "Punctuation", "Punctuation", "Connector_Punctuation,Dash_Punctuation,Close_Punctuation,Final_Punctuation,Initial_Punctuation,Other_Punctuation,Open_Punctuation", "Pc,Pd,Pe,Pf,Pi,Po,Ps"),
-    ("", "S", "Symbol", "Symbol", "Currency_Symbol,Modifier_Symbol,Math_Symbol,Other_Symbol", "Sc,Sk,Sm,So"),
-    ("", "Z", "Separator", "Separator", "Line_Separator,Paragraph_Separator,Space_Separator", "Zl,Zp,Zs"),
+    (
+        "",
+        "LC",
+        "Cased_Letter",
+        "CasedLetter",
+        "Lowercase_Letter,Titlecase_Letter,Uppercase_Letter",
+        "Ll,Lt,Lu",
+    ),
+    (
+        "",
+        "C",
+        "Other",
+        "Other",
+        "Control,Format,Surrogate,Unassigned,Private_Use",
+        "Cc,Cf,Cs,Cn,Co",
+    ),
+    (
+        "",
+        "L",
+        "Letter",
+        "Letter",
+        "Lowercase_Letter,Modifier_Letter,Other_Letter,Titlecase_Letter,Uppercase_Letter",
+        "Ll,Lm,Lo,Lt,Lu",
+    ),
+    (
+        "Combining_Mark",
+        "M",
+        "Mark",
+        "Mark",
+        "Spacing_Mark,Enclosing_Mark,Nonspacing_Mark",
+        "Mc,Me,Mn",
+    ),
+    (
+        "",
+        "N",
+        "Number",
+        "Number",
+        "Decimal_Number,Letter_Number,Other_Number",
+        "Nd,Nl,No",
+    ),
+    (
+        "punct",
+        "P",
+        "Punctuation",
+        "Punctuation",
+        "Connector_Punctuation,Dash_Punctuation,Close_Punctuation,Final_Punctuation,Initial_Punctuation,Other_Punctuation,Open_Punctuation",
+        "Pc,Pd,Pe,Pf,Pi,Po,Ps",
+    ),
+    (
+        "",
+        "S",
+        "Symbol",
+        "Symbol",
+        "Currency_Symbol,Modifier_Symbol,Math_Symbol,Other_Symbol",
+        "Sc,Sk,Sm,So",
+    ),
+    (
+        "",
+        "Z",
+        "Separator",
+        "Separator",
+        "Line_Separator,Paragraph_Separator,Space_Separator",
+        "Zl,Zp,Zs",
+    ),
 ];
 
 // Structure: (Alias, Alias, Name, CamelCaseName)

@@ -13,7 +13,7 @@ pub trait ByteSearcher {
 }
 
 /// Helper trait that describes matching against literal bytes.
-pub trait ByteSeq: ByteSearcher + core::fmt::Debug + Copy + Clone {
+pub trait ByteSeq: core::fmt::Debug + Copy + Clone {
     /// Number of bytes.
     const LENGTH: usize;
 
@@ -22,7 +22,7 @@ pub trait ByteSeq: ByteSearcher + core::fmt::Debug + Copy + Clone {
     fn equals_known_len(&self, rhs: &[u8]) -> bool;
 }
 
-extern "C" {
+unsafe extern "C" {
     fn memcmp(s1: *const u8, s2: *const u8, n: usize) -> i32;
 }
 
@@ -45,19 +45,30 @@ impl<const N: usize> ByteSeq for [u8; N] {
     }
 }
 
-impl<const N: usize> ByteSearcher for [u8; N] {
+impl ByteSearcher for [u8; 1] {
     #[inline(always)]
     fn find_in(&self, rhs: &[u8]) -> Option<usize> {
-        if N == 1 {
-            return memchr::memchr(self[0], rhs);
-        }
-        for win in rhs.windows(Self::LENGTH) {
-            if self.equals_known_len(win) {
-                // Black magic?
-                return Some((win.as_ptr() as usize) - (rhs.as_ptr() as usize));
-            }
-        }
-        None
+        memchr::memchr(self[0], rhs)
+    }
+}
+
+impl ByteSearcher for [u8; 2] {
+    #[inline(always)]
+    fn find_in(&self, rhs: &[u8]) -> Option<usize> {
+        memchr::memchr2(self[0], self[1], rhs)
+    }
+}
+
+impl ByteSearcher for [u8; 3] {
+    #[inline(always)]
+    fn find_in(&self, rhs: &[u8]) -> Option<usize> {
+        memchr::memchr3(self[0], self[1], self[2], rhs)
+    }
+}
+
+impl ByteSearcher for memchr::memmem::Finder<'_> {
+    fn find_in(&self, rhs: &[u8]) -> Option<usize> {
+        self.find(rhs)
     }
 }
 
@@ -270,10 +281,20 @@ impl ByteBitmap {
         self.0.iter().map(|v| v.count_ones()).sum()
     }
 
-    /// \return all set bytes, as a vec.
+    /// Return ourselves as an array of a fixed length.
+    /// Panics if the array is not large enough.
     #[allow(clippy::wrong_self_convention)]
-    pub fn to_vec(&self) -> Vec<u8> {
-        (0..=255).filter(|b| self.contains(*b)).collect()
+    #[inline(always)]
+    pub fn as_array<const N: usize>(&self) -> [u8; N] {
+        let mut array = [0u8; N];
+        let mut idx = 0;
+        for byte in 0..=255 {
+            if self.contains(byte) {
+                array[idx] = byte;
+                idx += 1;
+            }
+        }
+        array
     }
 
     /// \return the index of the first byte in the slice that is present in this

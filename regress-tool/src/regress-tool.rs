@@ -1,4 +1,6 @@
-use regress::{backends, Error, Flags, Regex};
+#![allow(clippy::uninlined_format_args)]
+
+use regress::{Error, Flags, Regex, backends};
 use std::{
     fs,
     path::{Path, PathBuf},

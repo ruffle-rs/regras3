@@ -186,7 +186,7 @@ fn propagate_early_fails(n: &mut Node, _w: &Walk) -> PassAction {
                 PassAction::Keep
             }
         }
-        Node::Alt(ref mut left, ref mut right) => {
+        Node::Alt(left, right) => {
             // If both sides are early fails, we are an early fail.
             let left_fails = left.match_always_fails();
             let right_fails = right.match_always_fails();
@@ -262,7 +262,7 @@ fn decat(n: &mut Node, _w: &Walk) -> PassAction {
 /// Unfold icase chars.
 /// That means for case-insensitive characters, figure out everything that they
 /// could match.
-/// TODO: should cache unfolding.
+/// TODO: evaluate unfolding performance and consider a cache within the optimizer.
 fn unfold_icase_chars(n: &mut Node, w: &Walk) -> PassAction {
     match *n {
         Node::Char { c, icase } if icase && !w.unicode => {
@@ -480,7 +480,7 @@ fn try_reduce_bracket(bc: &BracketContents) -> Option<Node> {
 }
 
 /// Optimize brackets like [a-b].
-/// Optimize certain stupid brackets like [a] to a single char.
+/// Optimize certain stupid brackets like `[a]` to a single char.
 /// Invert a bracket if it would *reduce* the number of ranges.
 /// Note we only run this once.
 fn simplify_brackets(n: &mut Node, _walk: &Walk) -> PassAction {
