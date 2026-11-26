@@ -1939,6 +1939,19 @@ fn test_pcre_comment_tc(tc: TestConfig) {
         .test_eq("abc");
 
     tc.compile(r"x(?#c)yz").match1f("xyz").test_eq("xyz");
+
+    // A comment ends at the first ')', and nothing inside it counts as a
+    // capture group, so a \N beyond the real groups stays an octal escape.
+    tc.compile(r"(a)\2(?#(b)")
+        .match1f("a\x02")
+        .test_eq("a\x02,a");
+    tc.compile(r"(?#(b)(a)\1").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?#[)(a)\1").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?#|)(a)\1").match1f("aa").test_eq("aa,a");
+    tc.compile(r"(?#\)a").match1f("a").test_eq("a");
+    tc.compile(r"(?#(?<n>)(?<n>a)\k<n>")
+        .match1f("aa")
+        .test_eq("aa,a");
 }
 
 #[test]
@@ -2201,4 +2214,194 @@ fn test_empty_alternation_in_capture() {
 fn test_empty_alternation_in_capture_tc(tc: TestConfig) {
     // Regression tests for empty alternations in capture groups.
     tc.compile("(z|)*?x").match1f("z0x").test_eq("x,");
+}
+
+// TC39 proposal: duplicate named capturing groups in different alternatives
+fn test_duplicate_named_groups_tc(tc: TestConfig) {
+    // Basic duplicate named groups in alternatives - the example from the TC39 proposal
+    let m = tc
+        .compile(r"(?<year>[0-9]{4})-[0-9]{2}|[0-9]{2}-(?<year>[0-9]{4})")
+        .find("2025-12")
+        .unwrap();
+    assert_eq!(m.group(0), Some(0..7));
+    assert_eq!(m.group(1), Some(0..4));
+    let ng = m.named_groups();
+    assert!(ng.eq([("year", Some(0..4))]));
+
+    // Test the other alternative
+    let m = tc
+        .compile(r"(?<year>[0-9]{4})-[0-9]{2}|[0-9]{2}-(?<year>[0-9]{4})")
+        .find("12-2025")
+        .unwrap();
+    assert_eq!(m.group(0), Some(0..7));
+    assert_eq!(m.group(2), Some(3..7));
+    let ng = m.named_groups();
+    assert!(ng.eq([("year", Some(3..7))]));
+
+    // Duplicate names in nested alternatives
+    let m = tc.compile(r"(?:(?<a>x)|(?<a>y))").find("x").unwrap();
+    let ng = m.named_groups();
+    assert!(ng.eq([("a", Some(0..1))]));
+
+    let m = tc.compile(r"(?:(?<a>x)|(?<a>y))").find("y").unwrap();
+    let ng = m.named_groups();
+    assert!(ng.eq([("a", Some(0..1))]));
+
+    // Multiple duplicate names
+    let m = tc
+        .compile(r"(?<x>a)(?<y>b)|(?<x>c)(?<y>d)")
+        .find("ab")
+        .unwrap();
+    let ng = m.named_groups();
+    assert!(ng.eq([("x", Some(0..1)), ("y", Some(1..2))]));
+
+    let m = tc
+        .compile(r"(?<x>a)(?<y>b)|(?<x>c)(?<y>d)")
+        .find("cd")
+        .unwrap();
+    let ng = m.named_groups();
+    assert!(ng.eq([("x", Some(0..1)), ("y", Some(1..2))]));
+
+    // Backreferences with duplicate names
+    // TODO: Backreferences with duplicate named groups require additional work
+    // in the matcher to determine which group participated. This is deferred.
+    //let m = tc.compile(r"(?:(?<a>x)|(?<a>y))\k<a>")
+    //    .find("xx")
+    //    .unwrap();
+    //assert_eq!(m.group(0), Some(0..2));
+
+    //let m = tc.compile(r"(?:(?<a>x)|(?<a>y))\k<a>")
+    //    .find("yy")
+    //    .unwrap();
+    //assert_eq!(m.group(0), Some(0..2));
+
+    //// Should NOT match when backreference doesn't match
+    //assert!(tc.compile(r"(?:(?<a>x)|(?<a>y))\k<a>")
+    //    .find("xy")
+    //    .is_none());
+}
+
+#[test]
+fn test_duplicate_named_groups() {
+    test_with_configs(test_duplicate_named_groups_tc)
+}
+
+// Test that duplicates in the SAME alternative are still rejected
+#[test]
+fn test_duplicate_named_groups_same_alternative_rejected() {
+    use regress::Regex;
+
+    // Should reject duplicates in the same alternative
+    assert!(Regex::new(r"(?<name>a)(?<name>b)").is_err());
+    assert!(Regex::new(r"(?<x>a)b(?<x>c)").is_err());
+
+    // Should reject duplicates in nested groups within same alternative
+    assert!(Regex::new(r"(?<a>x)(?:(?<a>y))").is_err());
+}
+
+#[test]
+fn test_ascii_unicode_icase_backref() {
+    test_with_configs(|tc| {
+        // Regression test for ASCII with Unicode case-insensitive folding.
+        let re = tc.compilef(r"^(x)\1$", "iu");
+        re.test_succeeds("xx");
+        re.test_succeeds("XX");
+        re.test_fails("xy");
+        re.test_fails("XY");
+    })
+}
+
+#[test]
+fn test_duplicate_named_groups_distinct_alternations_backref() {
+    test_with_configs(test_duplicate_named_groups_distinct_alternations_backref_tc)
+}
+
+// A named backreference to an alternation with duplicate named groups
+// should only match the group which participated in the match.
+fn test_duplicate_named_groups_distinct_alternations_backref_tc(tc: TestConfig) {
+    let pattern = r"^(?:(?<a>x)|(?<a>y))\k<a>$";
+
+    // Alterations with duplicate names groups: backref should match whichever group matched.
+    let re = tc.compile(pattern);
+    re.test_succeeds("xx");
+    re.test_succeeds("yy");
+    re.test_fails("xy");
+    re.test_fails("yx");
+
+    // Same but icase
+    let re = tc.compilef(pattern, "i");
+    re.test_succeeds("XX");
+    re.test_succeeds("YY");
+    re.test_fails("XY");
+    re.test_fails("YX");
+
+    // Same but unicode
+    let re = tc.compilef(pattern, "u");
+    re.test_succeeds("xx");
+    re.test_succeeds("yy");
+    re.test_fails("xy");
+    re.test_fails("yx");
+
+    // Same but icase unicode
+    let re = tc.compilef(pattern, "iu");
+    re.test_succeeds("XX");
+    re.test_succeeds("YY");
+    re.test_fails("XY");
+    re.test_fails("YX");
+}
+
+#[test]
+fn test_regression_142() {
+    // Regression test for issue #142.
+    use regress::Regex;
+    let _ = Regex::with_flags(r"\p{scx=Cyrl}", "u").expect("Should succeed");
+}
+
+#[test]
+fn test_high_unicode_folds_to_ascii() {
+    test_with_configs(test_high_unicode_folds_to_ascii_tc)
+}
+
+fn test_high_unicode_folds_to_ascii_tc(tc: TestConfig) {
+    // The Kelvin character (U+212A) case-folds to lowercase k,
+    // which means that it's a word character iff we're using case-insensitive Unicode.
+    tc.test_match_fails(r"\b\u212A", "", "\u{212A}");
+    tc.test_match_succeeds(r"\b\u212A", "iu", "\u{212A}");
+    tc.test_match_fails(r"^\w$", "", "\u{212A}");
+    tc.test_match_succeeds(r"^\w$", "iu", "\u{212A}");
+    // \W should NOT match Kelvin in icase unicode mode (since it's a word char)
+    tc.test_match_succeeds(r"^\W$", "", "\u{212A}");
+    tc.test_match_fails(r"^\W$", "iu", "\u{212A}");
+
+    // U+017F (Latin Small Letter Long S) case-folds to 's'.
+    tc.test_match_fails(r"\b\u017F", "", "\u{017F}");
+    tc.test_match_succeeds(r"\b\u017F", "iu", "\u{017F}");
+    tc.test_match_fails(r"^\w$", "", "\u{017F}");
+    tc.test_match_succeeds(r"^\w$", "iu", "\u{017F}");
+    tc.test_match_succeeds(r"^\W$", "", "\u{017F}");
+    tc.test_match_fails(r"^\W$", "iu", "\u{017F}");
+
+    // U+0131 (Latin Small Letter Dotless I) does NOT case-fold to ASCII.
+    tc.test_match_fails(r"\b\u0131", "", "\u{0131}");
+    tc.test_match_fails(r"\b\u0131", "iu", "\u{0131}");
+    tc.test_match_fails(r"^\w$", "", "\u{0131}");
+    tc.test_match_fails(r"^\w$", "iu", "\u{0131}");
+    tc.test_match_succeeds(r"^\W$", "", "\u{0131}");
+    tc.test_match_succeeds(r"^\W$", "iu", "\u{0131}");
+}
+
+// Regression test for the case where a non-capturing group precedes the named groups,
+// which could cause off-by-one errors in group index tracking.
+#[test]
+fn test_duplicate_named_groups_with_noncapturing_prefix() {
+    test_with_configs(|tc| {
+        let pattern = r"^(?:(?<a>x)|(?<a>y))\k<a>$";
+
+        // Backrefs should match whichever group matched.
+        let re = tc.compile(pattern);
+        re.test_succeeds("xx");
+        re.test_succeeds("yy");
+        re.test_fails("xy");
+        re.test_fails("yx");
+    })
 }

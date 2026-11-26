@@ -313,7 +313,8 @@ fn make_alt(nodes: ir::NodeList) -> ir::Node {
 
 /// \return a CodePointSet for a given character escape (positive or negative).
 /// See ES9 21.2.2.12.
-fn codepoints_from_class(ct: CharacterClassType, positive: bool) -> CodePointSet {
+/// Returns the positive (non-inverted) code point set for a character class.
+fn codepoints_from_class_positive(ct: CharacterClassType) -> CodePointSet {
     let mut cps;
     match ct {
         CharacterClassType::Digits => {
@@ -328,19 +329,28 @@ fn codepoints_from_class(ct: CharacterClassType, positive: bool) -> CodePointSet
                 cps.add(iv)
             }
         }
-    };
-    if !positive {
-        cps = cps.inverted()
     }
     cps
 }
 
+/// Returns code points for a character class, optionally inverted.
+fn codepoints_from_class(ct: CharacterClassType, positive: bool) -> CodePointSet {
+    let cps = codepoints_from_class_positive(ct);
+    if positive { cps } else { cps.inverted() }
+}
+
 /// \return a Bracket for a given character escape (positive or negative).
-fn make_bracket_class(ct: CharacterClassType, positive: bool) -> ir::Node {
-    ir::Node::Bracket(BracketContents {
-        invert: false,
-        cps: codepoints_from_class(ct, positive),
-    })
+/// For icase mode, we expand the positive set first, then invert if needed.
+fn make_bracket_class(ct: CharacterClassType, positive: bool, icase: bool) -> ir::Node {
+    // Get the positive (non-inverted) set, perform any icase expansion, then maybe invert.
+    let mut cps = codepoints_from_class_positive(ct);
+    if icase {
+        cps = unicode::add_icase_code_points(cps);
+    }
+    if !positive {
+        cps = cps.inverted();
+    }
+    ir::Node::Bracket(BracketContents { invert: false, cps })
 }
 
 fn add_class_atom(bc: &mut BracketContents, atom: ClassAtom) {
@@ -367,6 +377,30 @@ struct LookaroundParams {
     backwards: bool,
 }
 
+/// Represents an alternative path in a regex pattern.
+/// For example, in `/(?<a>x)|(?<a>y)/`, the two occurrences of 'a' are in different
+/// alternative paths (separated by |), so they don't conflict.
+/// Each element in the vector is (depth, alternative_index) where:
+/// - depth: parenthesis nesting level (0 = top level)
+/// - alternative_index: which alternative at that depth (0 = first, 1 = second after |, etc.)
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct AlternativePath {
+    /// Vector of (depth, alternative_index) pairs representing the path through alternatives
+    segments: Vec<(usize, usize)>,
+}
+
+impl AlternativePath {
+    /// Check if two alternative paths conflict (i.e., are in the same alternative branch).
+    /// Two paths conflict if they share the same alternative indices at all common depth levels.
+    /// Example:
+    ///   - [(0, 0)] and [(0, 0), (1, 0)] conflict (second is nested within first)
+    ///   - [(0, 0)] and [(0, 1)] don't conflict (different alternatives at depth 0)
+    fn conflicts_with(&self, other: &AlternativePath) -> bool {
+        let min_len = self.segments.len().min(other.segments.len());
+        self.segments[..min_len] == other.segments[..min_len]
+    }
+}
+
 /// Represents the state used to parse a regex.
 struct Parser<I>
 where
@@ -387,8 +421,10 @@ where
     /// Maximum number of capturing groups.
     group_count_max: u32,
 
-    /// Named capture group references.
-    named_group_indices: HashMap<CaptureGroupName, u32>,
+    /// A map each from capture group name to corresponding group indices in order.
+    /// Note duplicate names may appear in distinct alternations, per the TC39 proposal.
+    /// See <https://github.com/tc39/proposal-duplicate-named-capturing-groups>
+    named_group_indices: HashMap<CaptureGroupName, Vec<u32>>,
 
     /// Whether a lookbehind was encountered.
     has_lookbehind: bool,
@@ -623,25 +659,20 @@ where
                         }
                         self.group_count += 1;
 
-                        // Parse capture group name.
+                        // Maybe the capture group has a name!
+                        let mut group_name = None;
                         if self.try_consume_str("?") {
-                            let group_name = if let Some(group_name) =
-                                self.try_consume_named_capture_group_name()
-                            {
-                                group_name
-                            } else {
+                            group_name = self.try_consume_named_capture_group_name();
+                            if group_name.is_none() {
                                 return error("Invalid token at named capture group identifier");
                             };
-                            let contents = self.consume_disjunction()?;
-                            result.push(ir::Node::NamedCaptureGroup(
-                                Box::new(contents),
-                                group,
-                                group_name,
-                            ))
-                        } else {
-                            let contents = self.consume_disjunction()?;
-                            result.push(ir::Node::CaptureGroup(Box::new(contents), group))
                         }
+                        let contents = Box::new(self.consume_disjunction()?);
+                        result.push(ir::Node::CaptureGroup {
+                            id: group,
+                            contents,
+                            name: group_name,
+                        })
                     }
                     if !self.try_consume(')') {
                         return error("Unbalanced parenthesis");
@@ -1566,6 +1597,7 @@ where
                 Ok(make_bracket_class(
                     CharacterClassType::Digits,
                     c == 'd' as u32,
+                    self.flags.icase,
                 ))
             }
 
@@ -1574,6 +1606,7 @@ where
                 Ok(make_bracket_class(
                     CharacterClassType::Spaces,
                     c == 's' as u32,
+                    self.flags.icase,
                 ))
             }
 
@@ -1582,6 +1615,7 @@ where
                 Ok(make_bracket_class(
                     CharacterClassType::Words,
                     c == 'w' as u32,
+                    self.flags.icase,
                 ))
             }
 
@@ -1649,21 +1683,40 @@ where
 
             // [+NamedCaptureGroups] k GroupName
             'k' if self.flags.unicode || !self.named_group_indices.is_empty() => {
-                self.consume('k');
-
                 // The sequence `\k` must be the start of a backreference to a named capture group.
-                if let Some(group_name) = self.try_consume_named_capture_group_name() {
-                    if let Some(index) = self.named_group_indices.get(&group_name) {
-                        Ok(ir::Node::BackRef(*index + 1))
-                    } else {
-                        error(format!(
-                            "Backreference to invalid named capture group: {}",
-                            &group_name
-                        ))
+                // Note multiple capture groups may have the same name; we must map all of them to their indices.
+                self.consume('k');
+                // Must have a valid group name.
+                let Some(group_name) = self.try_consume_named_capture_group_name() else {
+                    return error("Invalid named backreference syntax");
+                };
+                // The group name must be the name of a previously defined capture group.
+                let Some(group_indices) = self.named_group_indices.get(&group_name) else {
+                    return error(format!(
+                        "Backreference to invalid named capture group: {}",
+                        &group_name
+                    ));
+                };
+                // Note backreferences are 1-based.
+                let node = match group_indices.len() {
+                    0 => unreachable!("Should not have empty indices for group name"),
+                    1 => {
+                        // Common case of a backref matching a single group.
+                        ir::Node::BackRef(group_indices[0] + 1)
                     }
-                } else {
-                    error("Unexpected end of named backreference")
-                }
+                    _ => {
+                        // Unusual case of multiple groups sharing a name: the backref should try each in turn.
+                        // Lower to alternations of backreferences. Reverse to keep it right-associative: a | (b | (c | d))...
+                        let backrefs = group_indices
+                            .iter()
+                            .rev()
+                            .map(|group_index| ir::Node::BackRef(*group_index + 1));
+                        backrefs
+                            .reduce(|right, left| ir::Node::Alt(Box::new(left), Box::new(right)))
+                            .unwrap()
+                    }
+                };
+                Ok(node)
             }
 
             // [~NamedCaptureGroups] k GroupName
@@ -1839,8 +1892,33 @@ where
     }
 
     // Quickly parse all capture groups.
+    // Per TC39 proposal, duplicate named groups are allowed in different alternatives.
     fn parse_capture_groups(&mut self) -> Result<(), Error> {
         let orig_input = self.input.clone();
+
+        // Pass 1: Collect all named capture groups with their alternative paths
+        let named_group_locations = self.collect_named_group_locations()?;
+
+        // Pass 2: Check for conflicts (duplicates in the same alternative path)
+        self.check_duplicate_conflicts(&named_group_locations)?;
+
+        self.input = orig_input;
+
+        Ok(())
+    }
+
+    /// Pass 1: Collect all named capture groups and record which alternative path each appears in.
+    fn collect_named_group_locations(
+        &mut self,
+    ) -> Result<HashMap<String, Vec<AlternativePath>>, Error> {
+        // Track parenthesis depth and alternative index at each depth
+        let mut paren_depth: usize = 0;
+        // Map from depth to current alternative index at that depth
+        let mut alt_indices: HashMap<usize, usize> = HashMap::new();
+        alt_indices.insert(0, 0);
+
+        // Map from group name to all alternative paths where it appears
+        let mut named_group_locations: HashMap<String, Vec<AlternativePath>> = HashMap::new();
 
         loop {
             match self.next().map(to_char_sat) {
@@ -1860,32 +1938,95 @@ where
                     }
                 },
                 Some('(') => {
-                    if self.try_consume('#') {
+                    if self.try_consume_str("?#") {
+                        // PCRE comment. It ends at the first ')', without escapes, and
+                        // nothing inside it is a group, so skip it entirely, as the
+                        // parser does.
+                        while !matches!(self.next().map(to_char_sat), None | Some(')')) {}
                         continue;
                     }
 
-                    if self.try_consume_str("?")
-                        && let Some(name) = self.try_consume_named_capture_group_name()
-                        && self
-                            .named_group_indices
-                            .insert(name, self.group_count_max)
-                            .is_some()
-                    {
-                        return error("Duplicate capture group name");
-                    }
-                    self.group_count_max = if self.group_count_max + 1 > MAX_CAPTURE_GROUPS as u32 {
-                        MAX_CAPTURE_GROUPS as u32
+                    // Determine whether we're a capturing group, and optionally the name.
+                    let is_capturing;
+                    let group_name;
+                    if self.try_consume_str("?") {
+                        group_name = self.try_consume_named_capture_group_name();
+                        is_capturing = group_name.is_some(); // (?:, (?=, (?!, etc. are non-capturing.
                     } else {
-                        self.group_count_max + 1
-                    };
+                        is_capturing = true;
+                        group_name = None; // Unnamed capture group
+                    }
+
+                    if let Some(name) = group_name {
+                        // Build current alternative path from depth 0 to current depth.
+                        let mut segments = Vec::new();
+                        for d in 0..=paren_depth {
+                            segments.push((d, *alt_indices.get(&d).unwrap_or(&0)));
+                        }
+
+                        // Record this location.
+                        named_group_locations
+                            .entry(name.clone())
+                            .or_default()
+                            .push(AlternativePath { segments });
+
+                        // Store all occurrences in named_group_indices.
+                        self.named_group_indices
+                            .entry(name)
+                            .or_default()
+                            .push(self.group_count_max);
+                    }
+
+                    if is_capturing {
+                        self.group_count_max =
+                            if self.group_count_max + 1 > MAX_CAPTURE_GROUPS as u32 {
+                                MAX_CAPTURE_GROUPS as u32
+                            } else {
+                                self.group_count_max + 1
+                            };
+                    }
+
+                    // Entering a new group.
+                    paren_depth += 1;
+                    alt_indices.insert(paren_depth, 0);
+                }
+                Some(')') => {
+                    // Exiting a group
+                    if paren_depth > 0 {
+                        alt_indices.remove(&paren_depth);
+                        paren_depth -= 1;
+                    }
+                }
+                Some('|') => {
+                    // Moving to next alternative at current depth
+                    *alt_indices.entry(paren_depth).or_insert(0) += 1;
                 }
                 Some(_) => continue,
                 None => break,
             }
         }
 
-        self.input = orig_input;
+        Ok(named_group_locations)
+    }
 
+    /// Pass 2: Check that named groups with the same name don't conflict.
+    /// Groups conflict if they appear in the same alternative path.
+    /// Per TC39 proposal, `/(?<a>x)|(?<a>y)/` is valid (different alternatives),
+    /// but `/(?<a>x)(?<a>y)/` is invalid (same alternative).
+    fn check_duplicate_conflicts(
+        &self,
+        named_group_locations: &HashMap<String, Vec<AlternativePath>>,
+    ) -> Result<(), Error> {
+        for paths in named_group_locations.values() {
+            // Check each pair of paths for this group name
+            for i in 0..paths.len() {
+                for j in (i + 1)..paths.len() {
+                    if paths[i].conflicts_with(&paths[j]) {
+                        return error("Duplicate capture group name");
+                    }
+                }
+            }
+        }
         Ok(())
     }
 

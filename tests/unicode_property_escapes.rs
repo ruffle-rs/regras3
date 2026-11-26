@@ -7,7 +7,7 @@ fn unicode_escape_property_script_adlam() {
 }
 
 fn unicode_escape_property_script_adlam_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [125184..=125259, 125264..=125273, 125278..=125279];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Adlam}+$",
@@ -17,8 +17,8 @@ fn unicode_escape_property_script_adlam_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -31,7 +31,7 @@ fn unicode_escape_property_script_caucasian_albanian() {
 }
 
 fn unicode_escape_property_script_caucasian_albanian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66864..=66915, 66927..=66927];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66864..=66915, 66927..=66927];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Caucasian_Albanian}+$",
         "^\\p{sc=Caucasian_Albanian}+$",
@@ -40,8 +40,8 @@ fn unicode_escape_property_script_caucasian_albanian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -54,13 +54,13 @@ fn unicode_escape_property_script_ahom() {
 }
 
 fn unicode_escape_property_script_ahom_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [71424..=71450, 71453..=71467, 71472..=71494];
     const REGEXES: [&str; 2] = ["^\\p{Script=Ahom}+$", "^\\p{sc=Ahom}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -73,7 +73,7 @@ fn unicode_escape_property_script_arabic() {
 }
 
 fn unicode_escape_property_script_arabic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 58] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 56] = [
         1536..=1540,
         1542..=1547,
         1549..=1562,
@@ -84,20 +84,18 @@ fn unicode_escape_property_script_arabic_tc(tc: TestConfig) {
         1649..=1756,
         1758..=1791,
         1872..=1919,
-        2160..=2190,
-        2192..=2193,
-        2200..=2273,
+        2160..=2193,
+        2199..=2273,
         2275..=2303,
-        64336..=64450,
-        64467..=64829,
-        64832..=64911,
-        64914..=64967,
-        64975..=64975,
+        64336..=64829,
+        64832..=64975,
         65008..=65023,
         65136..=65140,
         65142..=65276,
         69216..=69246,
-        69373..=69375,
+        69314..=69319,
+        69328..=69336,
+        69370..=69375,
         126464..=126467,
         126469..=126495,
         126497..=126498,
@@ -141,8 +139,8 @@ fn unicode_escape_property_script_arabic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -155,7 +153,7 @@ fn unicode_escape_property_script_imperial_aramaic() {
 }
 
 fn unicode_escape_property_script_imperial_aramaic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67648..=67669, 67671..=67679];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67648..=67669, 67671..=67679];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Imperial_Aramaic}+$",
         "^\\p{sc=Imperial_Aramaic}+$",
@@ -164,8 +162,8 @@ fn unicode_escape_property_script_imperial_aramaic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -178,7 +176,7 @@ fn unicode_escape_property_script_armenian() {
 }
 
 fn unicode_escape_property_script_armenian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [1329..=1366, 1369..=1418, 1421..=1423, 64275..=64279];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Armenian}+$",
@@ -188,8 +186,8 @@ fn unicode_escape_property_script_armenian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -202,7 +200,7 @@ fn unicode_escape_property_script_avestan() {
 }
 
 fn unicode_escape_property_script_avestan_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68352..=68405, 68409..=68415];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68352..=68405, 68409..=68415];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Avestan}+$",
         "^\\p{sc=Avestan}+$",
@@ -211,8 +209,8 @@ fn unicode_escape_property_script_avestan_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -225,7 +223,7 @@ fn unicode_escape_property_script_balinese() {
 }
 
 fn unicode_escape_property_script_balinese_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [6912..=6988, 6992..=7038];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [6912..=6988, 6990..=7039];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Balinese}+$",
         "^\\p{sc=Balinese}+$",
@@ -234,8 +232,8 @@ fn unicode_escape_property_script_balinese_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -248,7 +246,7 @@ fn unicode_escape_property_script_bamum() {
 }
 
 fn unicode_escape_property_script_bamum_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [42656..=42743, 92160..=92728];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [42656..=42743, 92160..=92728];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Bamum}+$",
         "^\\p{sc=Bamum}+$",
@@ -257,8 +255,8 @@ fn unicode_escape_property_script_bamum_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -271,7 +269,7 @@ fn unicode_escape_property_script_bassa_vah() {
 }
 
 fn unicode_escape_property_script_bassa_vah_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [92880..=92909, 92912..=92917];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [92880..=92909, 92912..=92917];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Bassa_Vah}+$",
         "^\\p{sc=Bassa_Vah}+$",
@@ -280,8 +278,8 @@ fn unicode_escape_property_script_bassa_vah_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -294,7 +292,7 @@ fn unicode_escape_property_script_batak() {
 }
 
 fn unicode_escape_property_script_batak_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [7104..=7155, 7164..=7167];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [7104..=7155, 7164..=7167];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Batak}+$",
         "^\\p{sc=Batak}+$",
@@ -303,8 +301,8 @@ fn unicode_escape_property_script_batak_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -317,7 +315,7 @@ fn unicode_escape_property_script_bengali() {
 }
 
 fn unicode_escape_property_script_bengali_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
         2432..=2435,
         2437..=2444,
         2447..=2448,
@@ -341,8 +339,31 @@ fn unicode_escape_property_script_bengali_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_beria_erfe() {
+    test_with_configs(unicode_escape_property_script_beria_erfe_tc)
+}
+
+fn unicode_escape_property_script_beria_erfe_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [93856..=93880, 93883..=93907];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Beria_Erfe}+$",
+        "^\\p{sc=Beria_Erfe}+$",
+        "^\\p{Script=Berf}+$",
+        "^\\p{sc=Berf}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -355,7 +376,7 @@ fn unicode_escape_property_script_bhaiksuki() {
 }
 
 fn unicode_escape_property_script_bhaiksuki_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [72704..=72712, 72714..=72758, 72760..=72773, 72784..=72812];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Bhaiksuki}+$",
@@ -365,8 +386,8 @@ fn unicode_escape_property_script_bhaiksuki_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -379,7 +400,7 @@ fn unicode_escape_property_script_bopomofo() {
 }
 
 fn unicode_escape_property_script_bopomofo_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [746..=747, 12549..=12591, 12704..=12735];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Bopomofo}+$",
@@ -389,8 +410,8 @@ fn unicode_escape_property_script_bopomofo_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -403,7 +424,7 @@ fn unicode_escape_property_script_brahmi() {
 }
 
 fn unicode_escape_property_script_brahmi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [69632..=69709, 69714..=69749, 69759..=69759];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Brahmi}+$",
@@ -413,8 +434,8 @@ fn unicode_escape_property_script_brahmi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -427,7 +448,7 @@ fn unicode_escape_property_script_braille() {
 }
 
 fn unicode_escape_property_script_braille_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [10240..=10495];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [10240..=10495];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Braille}+$",
         "^\\p{sc=Braille}+$",
@@ -436,8 +457,8 @@ fn unicode_escape_property_script_braille_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -450,7 +471,7 @@ fn unicode_escape_property_script_buginese() {
 }
 
 fn unicode_escape_property_script_buginese_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [6656..=6683, 6686..=6687];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [6656..=6683, 6686..=6687];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Buginese}+$",
         "^\\p{sc=Buginese}+$",
@@ -459,8 +480,8 @@ fn unicode_escape_property_script_buginese_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -473,7 +494,7 @@ fn unicode_escape_property_script_buhid() {
 }
 
 fn unicode_escape_property_script_buhid_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [5952..=5971];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [5952..=5971];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Buhid}+$",
         "^\\p{sc=Buhid}+$",
@@ -482,8 +503,8 @@ fn unicode_escape_property_script_buhid_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -496,7 +517,7 @@ fn unicode_escape_property_script_chakma() {
 }
 
 fn unicode_escape_property_script_chakma_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [69888..=69940, 69942..=69959];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [69888..=69940, 69942..=69959];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Chakma}+$",
         "^\\p{sc=Chakma}+$",
@@ -505,8 +526,8 @@ fn unicode_escape_property_script_chakma_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -519,7 +540,7 @@ fn unicode_escape_property_script_canadian_aboriginal() {
 }
 
 fn unicode_escape_property_script_canadian_aboriginal_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [5120..=5759, 6320..=6389, 72368..=72383];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Canadian_Aboriginal}+$",
@@ -529,8 +550,8 @@ fn unicode_escape_property_script_canadian_aboriginal_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -543,7 +564,7 @@ fn unicode_escape_property_script_carian() {
 }
 
 fn unicode_escape_property_script_carian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66208..=66256];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66208..=66256];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Carian}+$",
         "^\\p{sc=Carian}+$",
@@ -552,8 +573,8 @@ fn unicode_escape_property_script_carian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -566,13 +587,13 @@ fn unicode_escape_property_script_cham() {
 }
 
 fn unicode_escape_property_script_cham_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [43520..=43574, 43584..=43597, 43600..=43609, 43612..=43615];
     const REGEXES: [&str; 2] = ["^\\p{Script=Cham}+$", "^\\p{sc=Cham}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -585,7 +606,7 @@ fn unicode_escape_property_script_cherokee() {
 }
 
 fn unicode_escape_property_script_cherokee_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [5024..=5109, 5112..=5117, 43888..=43967];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Cherokee}+$",
@@ -595,8 +616,8 @@ fn unicode_escape_property_script_cherokee_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -609,7 +630,7 @@ fn unicode_escape_property_script_chorasmian() {
 }
 
 fn unicode_escape_property_script_chorasmian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69552..=69579];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69552..=69579];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Chorasmian}+$",
         "^\\p{sc=Chorasmian}+$",
@@ -618,8 +639,8 @@ fn unicode_escape_property_script_chorasmian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -632,7 +653,7 @@ fn unicode_escape_property_script_coptic() {
 }
 
 fn unicode_escape_property_script_coptic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [994..=1007, 11392..=11507, 11513..=11519];
     const REGEXES: [&str; 6] = [
         "^\\p{Script=Coptic}+$",
@@ -644,8 +665,8 @@ fn unicode_escape_property_script_coptic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -658,7 +679,7 @@ fn unicode_escape_property_script_cypro_minoan() {
 }
 
 fn unicode_escape_property_script_cypro_minoan_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [77712..=77810];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [77712..=77810];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Cypro_Minoan}+$",
         "^\\p{sc=Cypro_Minoan}+$",
@@ -667,8 +688,8 @@ fn unicode_escape_property_script_cypro_minoan_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -681,7 +702,7 @@ fn unicode_escape_property_script_cypriot() {
 }
 
 fn unicode_escape_property_script_cypriot_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
         67584..=67589,
         67592..=67592,
         67594..=67637,
@@ -697,8 +718,8 @@ fn unicode_escape_property_script_cypriot_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -711,10 +732,10 @@ fn unicode_escape_property_script_cyrillic() {
 }
 
 fn unicode_escape_property_script_cyrillic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 10] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 10] = [
         1024..=1156,
         1159..=1327,
-        7296..=7304,
+        7296..=7306,
         7467..=7467,
         7544..=7544,
         11744..=11775,
@@ -731,8 +752,8 @@ fn unicode_escape_property_script_cyrillic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -745,7 +766,7 @@ fn unicode_escape_property_script_devanagari() {
 }
 
 fn unicode_escape_property_script_devanagari_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
         2304..=2384,
         2389..=2403,
         2406..=2431,
@@ -760,8 +781,8 @@ fn unicode_escape_property_script_devanagari_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -774,7 +795,7 @@ fn unicode_escape_property_script_dives_akuru() {
 }
 
 fn unicode_escape_property_script_dives_akuru_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 8] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 8] = [
         71936..=71942,
         71945..=71945,
         71948..=71955,
@@ -792,8 +813,8 @@ fn unicode_escape_property_script_dives_akuru_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -806,7 +827,7 @@ fn unicode_escape_property_script_dogra() {
 }
 
 fn unicode_escape_property_script_dogra_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [71680..=71739];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [71680..=71739];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Dogra}+$",
         "^\\p{sc=Dogra}+$",
@@ -815,8 +836,8 @@ fn unicode_escape_property_script_dogra_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -829,7 +850,7 @@ fn unicode_escape_property_script_deseret() {
 }
 
 fn unicode_escape_property_script_deseret_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66560..=66639];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66560..=66639];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Deseret}+$",
         "^\\p{sc=Deseret}+$",
@@ -838,8 +859,8 @@ fn unicode_escape_property_script_deseret_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -852,7 +873,7 @@ fn unicode_escape_property_script_duployan() {
 }
 
 fn unicode_escape_property_script_duployan_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
         113664..=113770,
         113776..=113788,
         113792..=113800,
@@ -867,8 +888,8 @@ fn unicode_escape_property_script_duployan_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -881,7 +902,7 @@ fn unicode_escape_property_script_egyptian_hieroglyphs() {
 }
 
 fn unicode_escape_property_script_egyptian_hieroglyphs_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [77824..=78933];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [77824..=78933, 78944..=82938];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Egyptian_Hieroglyphs}+$",
         "^\\p{sc=Egyptian_Hieroglyphs}+$",
@@ -890,8 +911,8 @@ fn unicode_escape_property_script_egyptian_hieroglyphs_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -904,7 +925,7 @@ fn unicode_escape_property_script_elbasan() {
 }
 
 fn unicode_escape_property_script_elbasan_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66816..=66855];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66816..=66855];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Elbasan}+$",
         "^\\p{sc=Elbasan}+$",
@@ -913,8 +934,8 @@ fn unicode_escape_property_script_elbasan_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -927,7 +948,7 @@ fn unicode_escape_property_script_elymaic() {
 }
 
 fn unicode_escape_property_script_elymaic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69600..=69622];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69600..=69622];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Elymaic}+$",
         "^\\p{sc=Elymaic}+$",
@@ -936,8 +957,8 @@ fn unicode_escape_property_script_elymaic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -950,7 +971,7 @@ fn unicode_escape_property_script_ethiopic() {
 }
 
 fn unicode_escape_property_script_ethiopic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 36] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 36] = [
         4608..=4680,
         4682..=4685,
         4688..=4694,
@@ -996,8 +1017,32 @@ fn unicode_escape_property_script_ethiopic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_garay() {
+    test_with_configs(unicode_escape_property_script_garay_tc)
+}
+
+fn unicode_escape_property_script_garay_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+        [68928..=68965, 68969..=68997, 69006..=69007];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Garay}+$",
+        "^\\p{sc=Garay}+$",
+        "^\\p{Script=Gara}+$",
+        "^\\p{sc=Gara}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1010,7 +1055,7 @@ fn unicode_escape_property_script_georgian() {
 }
 
 fn unicode_escape_property_script_georgian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 10] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 10] = [
         4256..=4293,
         4295..=4295,
         4301..=4301,
@@ -1030,8 +1075,8 @@ fn unicode_escape_property_script_georgian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1044,7 +1089,7 @@ fn unicode_escape_property_script_glagolitic() {
 }
 
 fn unicode_escape_property_script_glagolitic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
         11264..=11359,
         122880..=122886,
         122888..=122904,
@@ -1060,8 +1105,8 @@ fn unicode_escape_property_script_glagolitic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1074,7 +1119,7 @@ fn unicode_escape_property_script_gunjala_gondi() {
 }
 
 fn unicode_escape_property_script_gunjala_gondi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
         73056..=73061,
         73063..=73064,
         73066..=73102,
@@ -1090,8 +1135,8 @@ fn unicode_escape_property_script_gunjala_gondi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1104,7 +1149,7 @@ fn unicode_escape_property_script_masaram_gondi() {
 }
 
 fn unicode_escape_property_script_masaram_gondi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
         72960..=72966,
         72968..=72969,
         72971..=73014,
@@ -1121,8 +1166,8 @@ fn unicode_escape_property_script_masaram_gondi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1135,7 +1180,7 @@ fn unicode_escape_property_script_gothic() {
 }
 
 fn unicode_escape_property_script_gothic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66352..=66378];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66352..=66378];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Gothic}+$",
         "^\\p{sc=Gothic}+$",
@@ -1144,8 +1189,8 @@ fn unicode_escape_property_script_gothic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1158,7 +1203,7 @@ fn unicode_escape_property_script_grantha() {
 }
 
 fn unicode_escape_property_script_grantha_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 15] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 15] = [
         70400..=70403,
         70405..=70412,
         70415..=70416,
@@ -1183,8 +1228,8 @@ fn unicode_escape_property_script_grantha_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1197,7 +1242,7 @@ fn unicode_escape_property_script_greek() {
 }
 
 fn unicode_escape_property_script_greek_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 36] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 36] = [
         880..=883,
         885..=887,
         890..=893,
@@ -1243,8 +1288,8 @@ fn unicode_escape_property_script_greek_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1257,7 +1302,7 @@ fn unicode_escape_property_script_gujarati() {
 }
 
 fn unicode_escape_property_script_gujarati_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
         2689..=2691,
         2693..=2701,
         2703..=2705,
@@ -1281,8 +1326,31 @@ fn unicode_escape_property_script_gujarati_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_gurung_khema() {
+    test_with_configs(unicode_escape_property_script_gurung_khema_tc)
+}
+
+fn unicode_escape_property_script_gurung_khema_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [90368..=90425];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Gurung_Khema}+$",
+        "^\\p{sc=Gurung_Khema}+$",
+        "^\\p{Script=Gukh}+$",
+        "^\\p{sc=Gukh}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1295,7 +1363,7 @@ fn unicode_escape_property_script_gurmukhi() {
 }
 
 fn unicode_escape_property_script_gurmukhi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 16] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 16] = [
         2561..=2563,
         2565..=2570,
         2575..=2576,
@@ -1321,8 +1389,8 @@ fn unicode_escape_property_script_gurmukhi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1335,7 +1403,7 @@ fn unicode_escape_property_script_hangul() {
 }
 
 fn unicode_escape_property_script_hangul_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
         4352..=4607,
         12334..=12335,
         12593..=12686,
@@ -1359,8 +1427,8 @@ fn unicode_escape_property_script_hangul_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1373,7 +1441,7 @@ fn unicode_escape_property_script_han() {
 }
 
 fn unicode_escape_property_script_han_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 22] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 21] = [
         11904..=11929,
         11931..=12019,
         12032..=12245,
@@ -1386,16 +1454,15 @@ fn unicode_escape_property_script_han_tc(tc: TestConfig) {
         63744..=64109,
         64112..=64217,
         94178..=94179,
-        94192..=94193,
+        94192..=94198,
         131072..=173791,
-        173824..=177977,
-        177984..=178205,
-        178208..=183969,
+        173824..=178205,
+        178208..=183981,
         183984..=191456,
         191472..=192093,
         194560..=195101,
         196608..=201546,
-        201552..=205743,
+        201552..=210041,
     ];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Han}+$",
@@ -1405,8 +1472,8 @@ fn unicode_escape_property_script_han_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1419,7 +1486,7 @@ fn unicode_escape_property_script_hanunoo() {
 }
 
 fn unicode_escape_property_script_hanunoo_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [5920..=5940];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [5920..=5940];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Hanunoo}+$",
         "^\\p{sc=Hanunoo}+$",
@@ -1428,8 +1495,8 @@ fn unicode_escape_property_script_hanunoo_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1442,7 +1509,7 @@ fn unicode_escape_property_script_hatran() {
 }
 
 fn unicode_escape_property_script_hatran_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [67808..=67826, 67828..=67829, 67835..=67839];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Hatran}+$",
@@ -1452,8 +1519,8 @@ fn unicode_escape_property_script_hatran_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1466,7 +1533,7 @@ fn unicode_escape_property_script_hebrew() {
 }
 
 fn unicode_escape_property_script_hebrew_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 9] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 9] = [
         1425..=1479,
         1488..=1514,
         1519..=1524,
@@ -1485,8 +1552,8 @@ fn unicode_escape_property_script_hebrew_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1499,7 +1566,7 @@ fn unicode_escape_property_script_hiragana() {
 }
 
 fn unicode_escape_property_script_hiragana_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
         12353..=12438,
         12445..=12447,
         110593..=110879,
@@ -1515,8 +1582,8 @@ fn unicode_escape_property_script_hiragana_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1529,7 +1596,7 @@ fn unicode_escape_property_script_anatolian_hieroglyphs() {
 }
 
 fn unicode_escape_property_script_anatolian_hieroglyphs_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [82944..=83526];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [82944..=83526];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Anatolian_Hieroglyphs}+$",
         "^\\p{sc=Anatolian_Hieroglyphs}+$",
@@ -1538,8 +1605,8 @@ fn unicode_escape_property_script_anatolian_hieroglyphs_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1552,7 +1619,7 @@ fn unicode_escape_property_script_pahawh_hmong() {
 }
 
 fn unicode_escape_property_script_pahawh_hmong_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
         92928..=92997,
         93008..=93017,
         93019..=93025,
@@ -1567,8 +1634,8 @@ fn unicode_escape_property_script_pahawh_hmong_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1581,7 +1648,7 @@ fn unicode_escape_property_script_nyiakeng_puachue_hmong() {
 }
 
 fn unicode_escape_property_script_nyiakeng_puachue_hmong_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] = [
         123136..=123180,
         123184..=123197,
         123200..=123209,
@@ -1595,8 +1662,8 @@ fn unicode_escape_property_script_nyiakeng_puachue_hmong_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1609,7 +1676,7 @@ fn unicode_escape_property_script_old_hungarian() {
 }
 
 fn unicode_escape_property_script_old_hungarian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [68736..=68786, 68800..=68850, 68858..=68863];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Hungarian}+$",
@@ -1619,8 +1686,8 @@ fn unicode_escape_property_script_old_hungarian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1633,7 +1700,7 @@ fn unicode_escape_property_script_old_italic() {
 }
 
 fn unicode_escape_property_script_old_italic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66304..=66339, 66349..=66351];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66304..=66339, 66349..=66351];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Italic}+$",
         "^\\p{sc=Old_Italic}+$",
@@ -1642,8 +1709,8 @@ fn unicode_escape_property_script_old_italic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1656,7 +1723,7 @@ fn unicode_escape_property_script_javanese() {
 }
 
 fn unicode_escape_property_script_javanese_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [43392..=43469, 43472..=43481, 43486..=43487];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Javanese}+$",
@@ -1666,8 +1733,8 @@ fn unicode_escape_property_script_javanese_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1680,7 +1747,7 @@ fn unicode_escape_property_script_kayah_li() {
 }
 
 fn unicode_escape_property_script_kayah_li_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43264..=43309, 43311..=43311];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43264..=43309, 43311..=43311];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Kayah_Li}+$",
         "^\\p{sc=Kayah_Li}+$",
@@ -1689,8 +1756,8 @@ fn unicode_escape_property_script_kayah_li_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1703,7 +1770,7 @@ fn unicode_escape_property_script_katakana() {
 }
 
 fn unicode_escape_property_script_katakana_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
         12449..=12538,
         12541..=12543,
         12784..=12799,
@@ -1727,8 +1794,8 @@ fn unicode_escape_property_script_katakana_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1741,13 +1808,13 @@ fn unicode_escape_property_script_kawi() {
 }
 
 fn unicode_escape_property_script_kawi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
-        [73472..=73488, 73490..=73530, 73534..=73561];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+        [73472..=73488, 73490..=73530, 73534..=73562];
     const REGEXES: [&str; 2] = ["^\\p{Script=Kawi}+$", "^\\p{sc=Kawi}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1760,7 +1827,7 @@ fn unicode_escape_property_script_kharoshthi() {
 }
 
 fn unicode_escape_property_script_kharoshthi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 8] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 8] = [
         68096..=68099,
         68101..=68102,
         68108..=68115,
@@ -1778,8 +1845,8 @@ fn unicode_escape_property_script_kharoshthi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1792,7 +1859,7 @@ fn unicode_escape_property_script_khmer() {
 }
 
 fn unicode_escape_property_script_khmer_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [6016..=6109, 6112..=6121, 6128..=6137, 6624..=6655];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Khmer}+$",
@@ -1802,8 +1869,8 @@ fn unicode_escape_property_script_khmer_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1816,7 +1883,7 @@ fn unicode_escape_property_script_khojki() {
 }
 
 fn unicode_escape_property_script_khojki_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70144..=70161, 70163..=70209];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70144..=70161, 70163..=70209];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Khojki}+$",
         "^\\p{sc=Khojki}+$",
@@ -1825,8 +1892,8 @@ fn unicode_escape_property_script_khojki_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1839,7 +1906,8 @@ fn unicode_escape_property_script_khitan_small_script() {
 }
 
 fn unicode_escape_property_script_khitan_small_script_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [94180..=94180, 101120..=101589];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+        [94180..=94180, 101120..=101589, 101631..=101631];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Khitan_Small_Script}+$",
         "^\\p{sc=Khitan_Small_Script}+$",
@@ -1848,8 +1916,8 @@ fn unicode_escape_property_script_khitan_small_script_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1862,7 +1930,7 @@ fn unicode_escape_property_script_kannada() {
 }
 
 fn unicode_escape_property_script_kannada_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 13] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 13] = [
         3200..=3212,
         3214..=3216,
         3218..=3240,
@@ -1872,7 +1940,7 @@ fn unicode_escape_property_script_kannada_tc(tc: TestConfig) {
         3270..=3272,
         3274..=3277,
         3285..=3286,
-        3293..=3294,
+        3292..=3294,
         3296..=3299,
         3302..=3311,
         3313..=3315,
@@ -1885,8 +1953,31 @@ fn unicode_escape_property_script_kannada_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_kirat_rai() {
+    test_with_configs(unicode_escape_property_script_kirat_rai_tc)
+}
+
+fn unicode_escape_property_script_kirat_rai_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [93504..=93561];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Kirat_Rai}+$",
+        "^\\p{sc=Kirat_Rai}+$",
+        "^\\p{Script=Krai}+$",
+        "^\\p{sc=Krai}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1899,7 +1990,7 @@ fn unicode_escape_property_script_kaithi() {
 }
 
 fn unicode_escape_property_script_kaithi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [69760..=69826, 69837..=69837];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [69760..=69826, 69837..=69837];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Kaithi}+$",
         "^\\p{sc=Kaithi}+$",
@@ -1908,8 +1999,8 @@ fn unicode_escape_property_script_kaithi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1922,7 +2013,7 @@ fn unicode_escape_property_script_tai_tham() {
 }
 
 fn unicode_escape_property_script_tai_tham_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
         6688..=6750,
         6752..=6780,
         6783..=6793,
@@ -1937,8 +2028,8 @@ fn unicode_escape_property_script_tai_tham_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1951,7 +2042,7 @@ fn unicode_escape_property_script_lao() {
 }
 
 fn unicode_escape_property_script_lao_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 11] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 11] = [
         3713..=3714,
         3716..=3716,
         3718..=3722,
@@ -1972,8 +2063,8 @@ fn unicode_escape_property_script_lao_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -1986,7 +2077,7 @@ fn unicode_escape_property_script_latin() {
 }
 
 fn unicode_escape_property_script_latin_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 39] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 36] = [
         65..=90,
         97..=122,
         170..=170,
@@ -2010,11 +2101,8 @@ fn unicode_escape_property_script_latin_tc(tc: TestConfig) {
         8544..=8584,
         11360..=11391,
         42786..=42887,
-        42891..=42954,
-        42960..=42961,
-        42963..=42963,
-        42965..=42969,
-        42994..=43007,
+        42891..=42972,
+        42993..=43007,
         43824..=43866,
         43868..=43876,
         43878..=43881,
@@ -2035,8 +2123,8 @@ fn unicode_escape_property_script_latin_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2049,7 +2137,8 @@ fn unicode_escape_property_script_lepcha() {
 }
 
 fn unicode_escape_property_script_lepcha_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] = [7168..=7223, 7227..=7241, 7245..=7247];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+        [7168..=7223, 7227..=7241, 7245..=7247];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Lepcha}+$",
         "^\\p{sc=Lepcha}+$",
@@ -2058,8 +2147,8 @@ fn unicode_escape_property_script_lepcha_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2072,7 +2161,7 @@ fn unicode_escape_property_script_limbu() {
 }
 
 fn unicode_escape_property_script_limbu_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
         6400..=6430,
         6432..=6443,
         6448..=6459,
@@ -2087,8 +2176,8 @@ fn unicode_escape_property_script_limbu_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2101,7 +2190,7 @@ fn unicode_escape_property_script_linear_a() {
 }
 
 fn unicode_escape_property_script_linear_a_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [67072..=67382, 67392..=67413, 67424..=67431];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Linear_A}+$",
@@ -2111,8 +2200,8 @@ fn unicode_escape_property_script_linear_a_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2125,7 +2214,7 @@ fn unicode_escape_property_script_linear_b() {
 }
 
 fn unicode_escape_property_script_linear_b_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
         65536..=65547,
         65549..=65574,
         65576..=65594,
@@ -2142,8 +2231,8 @@ fn unicode_escape_property_script_linear_b_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2156,12 +2245,12 @@ fn unicode_escape_property_script_lisu() {
 }
 
 fn unicode_escape_property_script_lisu_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [42192..=42239, 73648..=73648];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [42192..=42239, 73648..=73648];
     const REGEXES: [&str; 2] = ["^\\p{Script=Lisu}+$", "^\\p{sc=Lisu}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2174,7 +2263,7 @@ fn unicode_escape_property_script_lycian() {
 }
 
 fn unicode_escape_property_script_lycian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66176..=66204];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66176..=66204];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Lycian}+$",
         "^\\p{sc=Lycian}+$",
@@ -2183,8 +2272,8 @@ fn unicode_escape_property_script_lycian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2197,7 +2286,7 @@ fn unicode_escape_property_script_lydian() {
 }
 
 fn unicode_escape_property_script_lydian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67872..=67897, 67903..=67903];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67872..=67897, 67903..=67903];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Lydian}+$",
         "^\\p{sc=Lydian}+$",
@@ -2206,8 +2295,8 @@ fn unicode_escape_property_script_lydian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2220,7 +2309,7 @@ fn unicode_escape_property_script_mahajani() {
 }
 
 fn unicode_escape_property_script_mahajani_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69968..=70006];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69968..=70006];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Mahajani}+$",
         "^\\p{sc=Mahajani}+$",
@@ -2229,8 +2318,8 @@ fn unicode_escape_property_script_mahajani_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2243,7 +2332,7 @@ fn unicode_escape_property_script_makasar() {
 }
 
 fn unicode_escape_property_script_makasar_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [73440..=73464];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [73440..=73464];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Makasar}+$",
         "^\\p{sc=Makasar}+$",
@@ -2252,8 +2341,8 @@ fn unicode_escape_property_script_makasar_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2266,7 +2355,7 @@ fn unicode_escape_property_script_mandaic() {
 }
 
 fn unicode_escape_property_script_mandaic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [2112..=2139, 2142..=2142];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [2112..=2139, 2142..=2142];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Mandaic}+$",
         "^\\p{sc=Mandaic}+$",
@@ -2275,8 +2364,8 @@ fn unicode_escape_property_script_mandaic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2289,7 +2378,7 @@ fn unicode_escape_property_script_manichaean() {
 }
 
 fn unicode_escape_property_script_manichaean_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68288..=68326, 68331..=68342];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68288..=68326, 68331..=68342];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Manichaean}+$",
         "^\\p{sc=Manichaean}+$",
@@ -2298,8 +2387,8 @@ fn unicode_escape_property_script_manichaean_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2312,7 +2401,7 @@ fn unicode_escape_property_script_marchen() {
 }
 
 fn unicode_escape_property_script_marchen_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [72816..=72847, 72850..=72871, 72873..=72886];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Marchen}+$",
@@ -2322,8 +2411,8 @@ fn unicode_escape_property_script_marchen_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2336,7 +2425,7 @@ fn unicode_escape_property_script_medefaidrin() {
 }
 
 fn unicode_escape_property_script_medefaidrin_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [93760..=93850];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [93760..=93850];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Medefaidrin}+$",
         "^\\p{sc=Medefaidrin}+$",
@@ -2345,8 +2434,8 @@ fn unicode_escape_property_script_medefaidrin_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2359,7 +2448,7 @@ fn unicode_escape_property_script_mende_kikakui() {
 }
 
 fn unicode_escape_property_script_mende_kikakui_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [124928..=125124, 125127..=125142];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [124928..=125124, 125127..=125142];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Mende_Kikakui}+$",
         "^\\p{sc=Mende_Kikakui}+$",
@@ -2368,8 +2457,8 @@ fn unicode_escape_property_script_mende_kikakui_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2382,7 +2471,7 @@ fn unicode_escape_property_script_meroitic_cursive() {
 }
 
 fn unicode_escape_property_script_meroitic_cursive_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [68000..=68023, 68028..=68047, 68050..=68095];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Meroitic_Cursive}+$",
@@ -2392,8 +2481,8 @@ fn unicode_escape_property_script_meroitic_cursive_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2406,7 +2495,7 @@ fn unicode_escape_property_script_meroitic_hieroglyphs() {
 }
 
 fn unicode_escape_property_script_meroitic_hieroglyphs_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [67968..=67999];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [67968..=67999];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Meroitic_Hieroglyphs}+$",
         "^\\p{sc=Meroitic_Hieroglyphs}+$",
@@ -2415,8 +2504,8 @@ fn unicode_escape_property_script_meroitic_hieroglyphs_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2429,7 +2518,7 @@ fn unicode_escape_property_script_malayalam() {
 }
 
 fn unicode_escape_property_script_malayalam_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
         3328..=3340,
         3342..=3344,
         3346..=3396,
@@ -2446,8 +2535,8 @@ fn unicode_escape_property_script_malayalam_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2460,12 +2549,12 @@ fn unicode_escape_property_script_modi() {
 }
 
 fn unicode_escape_property_script_modi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71168..=71236, 71248..=71257];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71168..=71236, 71248..=71257];
     const REGEXES: [&str; 2] = ["^\\p{Script=Modi}+$", "^\\p{sc=Modi}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2478,7 +2567,7 @@ fn unicode_escape_property_script_mongolian() {
 }
 
 fn unicode_escape_property_script_mongolian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 6] = [
         6144..=6145,
         6148..=6148,
         6150..=6169,
@@ -2494,8 +2583,8 @@ fn unicode_escape_property_script_mongolian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2508,7 +2597,7 @@ fn unicode_escape_property_script_mro() {
 }
 
 fn unicode_escape_property_script_mro_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [92736..=92766, 92768..=92777, 92782..=92783];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Mro}+$",
@@ -2518,8 +2607,8 @@ fn unicode_escape_property_script_mro_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2532,7 +2621,7 @@ fn unicode_escape_property_script_meetei_mayek() {
 }
 
 fn unicode_escape_property_script_meetei_mayek_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [43744..=43766, 43968..=44013, 44016..=44025];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Meetei_Mayek}+$",
@@ -2542,8 +2631,8 @@ fn unicode_escape_property_script_meetei_mayek_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2556,7 +2645,7 @@ fn unicode_escape_property_script_multani() {
 }
 
 fn unicode_escape_property_script_multani_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 5] = [
         70272..=70278,
         70280..=70280,
         70282..=70285,
@@ -2571,8 +2660,8 @@ fn unicode_escape_property_script_multani_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2585,8 +2674,8 @@ fn unicode_escape_property_script_myanmar() {
 }
 
 fn unicode_escape_property_script_myanmar_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
-        [4096..=4255, 43488..=43518, 43616..=43647];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+        [4096..=4255, 43488..=43518, 43616..=43647, 71376..=71395];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Myanmar}+$",
         "^\\p{sc=Myanmar}+$",
@@ -2595,8 +2684,8 @@ fn unicode_escape_property_script_myanmar_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2609,7 +2698,7 @@ fn unicode_escape_property_script_nag_mundari() {
 }
 
 fn unicode_escape_property_script_nag_mundari_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [124112..=124153];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [124112..=124153];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Nag_Mundari}+$",
         "^\\p{sc=Nag_Mundari}+$",
@@ -2618,8 +2707,8 @@ fn unicode_escape_property_script_nag_mundari_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2632,7 +2721,7 @@ fn unicode_escape_property_script_nandinagari() {
 }
 
 fn unicode_escape_property_script_nandinagari_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [72096..=72103, 72106..=72151, 72154..=72164];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Nandinagari}+$",
@@ -2642,8 +2731,8 @@ fn unicode_escape_property_script_nandinagari_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2656,7 +2745,7 @@ fn unicode_escape_property_script_old_north_arabian() {
 }
 
 fn unicode_escape_property_script_old_north_arabian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [68224..=68255];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [68224..=68255];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_North_Arabian}+$",
         "^\\p{sc=Old_North_Arabian}+$",
@@ -2665,8 +2754,8 @@ fn unicode_escape_property_script_old_north_arabian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2679,7 +2768,7 @@ fn unicode_escape_property_script_nabataean() {
 }
 
 fn unicode_escape_property_script_nabataean_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67712..=67742, 67751..=67759];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67712..=67742, 67751..=67759];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Nabataean}+$",
         "^\\p{sc=Nabataean}+$",
@@ -2688,8 +2777,8 @@ fn unicode_escape_property_script_nabataean_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2702,12 +2791,12 @@ fn unicode_escape_property_script_newa() {
 }
 
 fn unicode_escape_property_script_newa_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70656..=70747, 70749..=70753];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70656..=70747, 70749..=70753];
     const REGEXES: [&str; 2] = ["^\\p{Script=Newa}+$", "^\\p{sc=Newa}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2720,7 +2809,7 @@ fn unicode_escape_property_script_nko() {
 }
 
 fn unicode_escape_property_script_nko_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [1984..=2042, 2045..=2047];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [1984..=2042, 2045..=2047];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Nko}+$",
         "^\\p{sc=Nko}+$",
@@ -2729,8 +2818,8 @@ fn unicode_escape_property_script_nko_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2743,7 +2832,7 @@ fn unicode_escape_property_script_nushu() {
 }
 
 fn unicode_escape_property_script_nushu_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [94177..=94177, 110960..=111355];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [94177..=94177, 110960..=111355];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Nushu}+$",
         "^\\p{sc=Nushu}+$",
@@ -2752,8 +2841,8 @@ fn unicode_escape_property_script_nushu_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2766,7 +2855,7 @@ fn unicode_escape_property_script_ogham() {
 }
 
 fn unicode_escape_property_script_ogham_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [5760..=5788];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [5760..=5788];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Ogham}+$",
         "^\\p{sc=Ogham}+$",
@@ -2775,8 +2864,8 @@ fn unicode_escape_property_script_ogham_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2789,7 +2878,7 @@ fn unicode_escape_property_script_ol_chiki() {
 }
 
 fn unicode_escape_property_script_ol_chiki_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [7248..=7295];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [7248..=7295];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Ol_Chiki}+$",
         "^\\p{sc=Ol_Chiki}+$",
@@ -2798,8 +2887,31 @@ fn unicode_escape_property_script_ol_chiki_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_ol_onal() {
+    test_with_configs(unicode_escape_property_script_ol_onal_tc)
+}
+
+fn unicode_escape_property_script_ol_onal_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [124368..=124410, 124415..=124415];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Ol_Onal}+$",
+        "^\\p{sc=Ol_Onal}+$",
+        "^\\p{Script=Onao}+$",
+        "^\\p{sc=Onao}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2812,7 +2924,7 @@ fn unicode_escape_property_script_old_turkic() {
 }
 
 fn unicode_escape_property_script_old_turkic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [68608..=68680];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [68608..=68680];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Turkic}+$",
         "^\\p{sc=Old_Turkic}+$",
@@ -2821,8 +2933,8 @@ fn unicode_escape_property_script_old_turkic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2835,7 +2947,7 @@ fn unicode_escape_property_script_oriya() {
 }
 
 fn unicode_escape_property_script_oriya_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 14] = [
         2817..=2819,
         2821..=2828,
         2831..=2832,
@@ -2859,8 +2971,8 @@ fn unicode_escape_property_script_oriya_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2873,7 +2985,7 @@ fn unicode_escape_property_script_osage() {
 }
 
 fn unicode_escape_property_script_osage_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66736..=66771, 66776..=66811];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66736..=66771, 66776..=66811];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Osage}+$",
         "^\\p{sc=Osage}+$",
@@ -2882,8 +2994,8 @@ fn unicode_escape_property_script_osage_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2896,7 +3008,7 @@ fn unicode_escape_property_script_osmanya() {
 }
 
 fn unicode_escape_property_script_osmanya_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66688..=66717, 66720..=66729];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66688..=66717, 66720..=66729];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Osmanya}+$",
         "^\\p{sc=Osmanya}+$",
@@ -2905,8 +3017,8 @@ fn unicode_escape_property_script_osmanya_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2919,7 +3031,7 @@ fn unicode_escape_property_script_old_uyghur() {
 }
 
 fn unicode_escape_property_script_old_uyghur_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69488..=69513];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69488..=69513];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Uyghur}+$",
         "^\\p{sc=Old_Uyghur}+$",
@@ -2928,8 +3040,8 @@ fn unicode_escape_property_script_old_uyghur_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2942,7 +3054,7 @@ fn unicode_escape_property_script_palmyrene() {
 }
 
 fn unicode_escape_property_script_palmyrene_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [67680..=67711];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [67680..=67711];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Palmyrene}+$",
         "^\\p{sc=Palmyrene}+$",
@@ -2951,8 +3063,8 @@ fn unicode_escape_property_script_palmyrene_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2965,7 +3077,7 @@ fn unicode_escape_property_script_pau_cin_hau() {
 }
 
 fn unicode_escape_property_script_pau_cin_hau_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [72384..=72440];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [72384..=72440];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Pau_Cin_Hau}+$",
         "^\\p{sc=Pau_Cin_Hau}+$",
@@ -2974,8 +3086,8 @@ fn unicode_escape_property_script_pau_cin_hau_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -2988,7 +3100,7 @@ fn unicode_escape_property_script_old_permic() {
 }
 
 fn unicode_escape_property_script_old_permic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66384..=66426];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66384..=66426];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Permic}+$",
         "^\\p{sc=Old_Permic}+$",
@@ -2997,8 +3109,8 @@ fn unicode_escape_property_script_old_permic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3011,7 +3123,7 @@ fn unicode_escape_property_script_phags_pa() {
 }
 
 fn unicode_escape_property_script_phags_pa_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [43072..=43127];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [43072..=43127];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Phags_Pa}+$",
         "^\\p{sc=Phags_Pa}+$",
@@ -3020,8 +3132,8 @@ fn unicode_escape_property_script_phags_pa_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3034,7 +3146,7 @@ fn unicode_escape_property_script_inscriptional_pahlavi() {
 }
 
 fn unicode_escape_property_script_inscriptional_pahlavi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68448..=68466, 68472..=68479];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68448..=68466, 68472..=68479];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Inscriptional_Pahlavi}+$",
         "^\\p{sc=Inscriptional_Pahlavi}+$",
@@ -3043,8 +3155,8 @@ fn unicode_escape_property_script_inscriptional_pahlavi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3057,7 +3169,7 @@ fn unicode_escape_property_script_psalter_pahlavi() {
 }
 
 fn unicode_escape_property_script_psalter_pahlavi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [68480..=68497, 68505..=68508, 68521..=68527];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Psalter_Pahlavi}+$",
@@ -3067,8 +3179,8 @@ fn unicode_escape_property_script_psalter_pahlavi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3081,7 +3193,7 @@ fn unicode_escape_property_script_phoenician() {
 }
 
 fn unicode_escape_property_script_phoenician_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67840..=67867, 67871..=67871];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [67840..=67867, 67871..=67871];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Phoenician}+$",
         "^\\p{sc=Phoenician}+$",
@@ -3090,8 +3202,8 @@ fn unicode_escape_property_script_phoenician_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3104,7 +3216,7 @@ fn unicode_escape_property_script_miao() {
 }
 
 fn unicode_escape_property_script_miao_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [93952..=94026, 94031..=94087, 94095..=94111];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Miao}+$",
@@ -3114,8 +3226,8 @@ fn unicode_escape_property_script_miao_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3128,7 +3240,7 @@ fn unicode_escape_property_script_inscriptional_parthian() {
 }
 
 fn unicode_escape_property_script_inscriptional_parthian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68416..=68437, 68440..=68447];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68416..=68437, 68440..=68447];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Inscriptional_Parthian}+$",
         "^\\p{sc=Inscriptional_Parthian}+$",
@@ -3137,8 +3249,8 @@ fn unicode_escape_property_script_inscriptional_parthian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3151,7 +3263,7 @@ fn unicode_escape_property_script_rejang() {
 }
 
 fn unicode_escape_property_script_rejang_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43312..=43347, 43359..=43359];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43312..=43347, 43359..=43359];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Rejang}+$",
         "^\\p{sc=Rejang}+$",
@@ -3160,8 +3272,8 @@ fn unicode_escape_property_script_rejang_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3174,7 +3286,7 @@ fn unicode_escape_property_script_hanifi_rohingya() {
 }
 
 fn unicode_escape_property_script_hanifi_rohingya_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68864..=68903, 68912..=68921];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [68864..=68903, 68912..=68921];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Hanifi_Rohingya}+$",
         "^\\p{sc=Hanifi_Rohingya}+$",
@@ -3183,8 +3295,8 @@ fn unicode_escape_property_script_hanifi_rohingya_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3197,7 +3309,7 @@ fn unicode_escape_property_script_runic() {
 }
 
 fn unicode_escape_property_script_runic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [5792..=5866, 5870..=5880];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [5792..=5866, 5870..=5880];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Runic}+$",
         "^\\p{sc=Runic}+$",
@@ -3206,8 +3318,8 @@ fn unicode_escape_property_script_runic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3220,7 +3332,7 @@ fn unicode_escape_property_script_samaritan() {
 }
 
 fn unicode_escape_property_script_samaritan_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [2048..=2093, 2096..=2110];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [2048..=2093, 2096..=2110];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Samaritan}+$",
         "^\\p{sc=Samaritan}+$",
@@ -3229,8 +3341,8 @@ fn unicode_escape_property_script_samaritan_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3243,7 +3355,7 @@ fn unicode_escape_property_script_old_south_arabian() {
 }
 
 fn unicode_escape_property_script_old_south_arabian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [68192..=68223];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [68192..=68223];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_South_Arabian}+$",
         "^\\p{sc=Old_South_Arabian}+$",
@@ -3252,8 +3364,8 @@ fn unicode_escape_property_script_old_south_arabian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3266,7 +3378,7 @@ fn unicode_escape_property_script_saurashtra() {
 }
 
 fn unicode_escape_property_script_saurashtra_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43136..=43205, 43214..=43225];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43136..=43205, 43214..=43225];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Saurashtra}+$",
         "^\\p{sc=Saurashtra}+$",
@@ -3275,8 +3387,8 @@ fn unicode_escape_property_script_saurashtra_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3289,7 +3401,7 @@ fn unicode_escape_property_script_signwriting() {
 }
 
 fn unicode_escape_property_script_signwriting_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [120832..=121483, 121499..=121503, 121505..=121519];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=SignWriting}+$",
@@ -3299,8 +3411,8 @@ fn unicode_escape_property_script_signwriting_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3313,7 +3425,7 @@ fn unicode_escape_property_script_shavian() {
 }
 
 fn unicode_escape_property_script_shavian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66640..=66687];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [66640..=66687];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Shavian}+$",
         "^\\p{sc=Shavian}+$",
@@ -3322,8 +3434,8 @@ fn unicode_escape_property_script_shavian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3336,7 +3448,7 @@ fn unicode_escape_property_script_sharada() {
 }
 
 fn unicode_escape_property_script_sharada_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [70016..=70111];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70016..=70111, 72544..=72551];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Sharada}+$",
         "^\\p{sc=Sharada}+$",
@@ -3345,8 +3457,8 @@ fn unicode_escape_property_script_sharada_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3359,7 +3471,7 @@ fn unicode_escape_property_script_siddham() {
 }
 
 fn unicode_escape_property_script_siddham_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71040..=71093, 71096..=71133];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71040..=71093, 71096..=71133];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Siddham}+$",
         "^\\p{sc=Siddham}+$",
@@ -3368,8 +3480,31 @@ fn unicode_escape_property_script_siddham_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_sidetic() {
+    test_with_configs(unicode_escape_property_script_sidetic_tc)
+}
+
+fn unicode_escape_property_script_sidetic_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [67904..=67929];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Sidetic}+$",
+        "^\\p{sc=Sidetic}+$",
+        "^\\p{Script=Sidt}+$",
+        "^\\p{sc=Sidt}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3382,7 +3517,7 @@ fn unicode_escape_property_script_khudawadi() {
 }
 
 fn unicode_escape_property_script_khudawadi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70320..=70378, 70384..=70393];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70320..=70378, 70384..=70393];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Khudawadi}+$",
         "^\\p{sc=Khudawadi}+$",
@@ -3391,8 +3526,8 @@ fn unicode_escape_property_script_khudawadi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3405,7 +3540,7 @@ fn unicode_escape_property_script_sinhala() {
 }
 
 fn unicode_escape_property_script_sinhala_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 13] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 13] = [
         3457..=3459,
         3461..=3478,
         3482..=3505,
@@ -3428,8 +3563,8 @@ fn unicode_escape_property_script_sinhala_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3442,7 +3577,7 @@ fn unicode_escape_property_script_sogdian() {
 }
 
 fn unicode_escape_property_script_sogdian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69424..=69465];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69424..=69465];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Sogdian}+$",
         "^\\p{sc=Sogdian}+$",
@@ -3451,8 +3586,8 @@ fn unicode_escape_property_script_sogdian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3465,7 +3600,7 @@ fn unicode_escape_property_script_old_sogdian() {
 }
 
 fn unicode_escape_property_script_old_sogdian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69376..=69415];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [69376..=69415];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Sogdian}+$",
         "^\\p{sc=Old_Sogdian}+$",
@@ -3474,8 +3609,8 @@ fn unicode_escape_property_script_old_sogdian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3488,7 +3623,7 @@ fn unicode_escape_property_script_sora_sompeng() {
 }
 
 fn unicode_escape_property_script_sora_sompeng_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [69840..=69864, 69872..=69881];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [69840..=69864, 69872..=69881];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Sora_Sompeng}+$",
         "^\\p{sc=Sora_Sompeng}+$",
@@ -3497,8 +3632,8 @@ fn unicode_escape_property_script_sora_sompeng_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3511,7 +3646,7 @@ fn unicode_escape_property_script_soyombo() {
 }
 
 fn unicode_escape_property_script_soyombo_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [72272..=72354];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [72272..=72354];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Soyombo}+$",
         "^\\p{sc=Soyombo}+$",
@@ -3520,8 +3655,8 @@ fn unicode_escape_property_script_soyombo_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3534,7 +3669,7 @@ fn unicode_escape_property_script_sundanese() {
 }
 
 fn unicode_escape_property_script_sundanese_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [7040..=7103, 7360..=7367];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [7040..=7103, 7360..=7367];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Sundanese}+$",
         "^\\p{sc=Sundanese}+$",
@@ -3543,8 +3678,31 @@ fn unicode_escape_property_script_sundanese_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_sunuwar() {
+    test_with_configs(unicode_escape_property_script_sunuwar_tc)
+}
+
+fn unicode_escape_property_script_sunuwar_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [72640..=72673, 72688..=72697];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Sunuwar}+$",
+        "^\\p{sc=Sunuwar}+$",
+        "^\\p{Script=Sunu}+$",
+        "^\\p{sc=Sunu}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3557,7 +3715,7 @@ fn unicode_escape_property_script_syloti_nagri() {
 }
 
 fn unicode_escape_property_script_syloti_nagri_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [43008..=43052];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [43008..=43052];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Syloti_Nagri}+$",
         "^\\p{sc=Syloti_Nagri}+$",
@@ -3566,8 +3724,8 @@ fn unicode_escape_property_script_syloti_nagri_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3580,7 +3738,7 @@ fn unicode_escape_property_script_syriac() {
 }
 
 fn unicode_escape_property_script_syriac_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [1792..=1805, 1807..=1866, 1869..=1871, 2144..=2154];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Syriac}+$",
@@ -3590,8 +3748,8 @@ fn unicode_escape_property_script_syriac_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3604,7 +3762,8 @@ fn unicode_escape_property_script_tagbanwa() {
 }
 
 fn unicode_escape_property_script_tagbanwa_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] = [5984..=5996, 5998..=6000, 6002..=6003];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+        [5984..=5996, 5998..=6000, 6002..=6003];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tagbanwa}+$",
         "^\\p{sc=Tagbanwa}+$",
@@ -3613,8 +3772,8 @@ fn unicode_escape_property_script_tagbanwa_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3627,7 +3786,7 @@ fn unicode_escape_property_script_takri() {
 }
 
 fn unicode_escape_property_script_takri_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71296..=71353, 71360..=71369];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71296..=71353, 71360..=71369];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Takri}+$",
         "^\\p{sc=Takri}+$",
@@ -3636,8 +3795,8 @@ fn unicode_escape_property_script_takri_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3650,7 +3809,7 @@ fn unicode_escape_property_script_tai_le() {
 }
 
 fn unicode_escape_property_script_tai_le_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [6480..=6509, 6512..=6516];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [6480..=6509, 6512..=6516];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tai_Le}+$",
         "^\\p{sc=Tai_Le}+$",
@@ -3659,8 +3818,8 @@ fn unicode_escape_property_script_tai_le_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3673,7 +3832,7 @@ fn unicode_escape_property_script_new_tai_lue() {
 }
 
 fn unicode_escape_property_script_new_tai_lue_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [6528..=6571, 6576..=6601, 6608..=6618, 6622..=6623];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=New_Tai_Lue}+$",
@@ -3683,8 +3842,8 @@ fn unicode_escape_property_script_new_tai_lue_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3697,7 +3856,7 @@ fn unicode_escape_property_script_tamil() {
 }
 
 fn unicode_escape_property_script_tamil_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 18] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 18] = [
         2946..=2947,
         2949..=2954,
         2958..=2960,
@@ -3725,8 +3884,8 @@ fn unicode_escape_property_script_tamil_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3739,11 +3898,11 @@ fn unicode_escape_property_script_tangut() {
 }
 
 fn unicode_escape_property_script_tangut_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] = [
         94176..=94176,
-        94208..=100343,
-        100352..=101119,
-        101632..=101640,
+        94208..=101119,
+        101632..=101662,
+        101760..=101874,
     ];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tangut}+$",
@@ -3753,8 +3912,8 @@ fn unicode_escape_property_script_tangut_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3767,7 +3926,7 @@ fn unicode_escape_property_script_tai_viet() {
 }
 
 fn unicode_escape_property_script_tai_viet_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43648..=43714, 43739..=43743];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [43648..=43714, 43739..=43743];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tai_Viet}+$",
         "^\\p{sc=Tai_Viet}+$",
@@ -3776,8 +3935,32 @@ fn unicode_escape_property_script_tai_viet_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_tai_yo() {
+    test_with_configs(unicode_escape_property_script_tai_yo_tc)
+}
+
+fn unicode_escape_property_script_tai_yo_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+        [124608..=124638, 124640..=124661, 124670..=124671];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Tai_Yo}+$",
+        "^\\p{sc=Tai_Yo}+$",
+        "^\\p{Script=Tayo}+$",
+        "^\\p{sc=Tayo}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3790,7 +3973,7 @@ fn unicode_escape_property_script_telugu() {
 }
 
 fn unicode_escape_property_script_telugu_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 13] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 13] = [
         3072..=3084,
         3086..=3088,
         3090..=3112,
@@ -3800,7 +3983,7 @@ fn unicode_escape_property_script_telugu_tc(tc: TestConfig) {
         3146..=3149,
         3157..=3158,
         3160..=3162,
-        3165..=3165,
+        3164..=3165,
         3168..=3171,
         3174..=3183,
         3191..=3199,
@@ -3813,8 +3996,8 @@ fn unicode_escape_property_script_telugu_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3827,7 +4010,7 @@ fn unicode_escape_property_script_tifinagh() {
 }
 
 fn unicode_escape_property_script_tifinagh_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [11568..=11623, 11631..=11632, 11647..=11647];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tifinagh}+$",
@@ -3837,8 +4020,8 @@ fn unicode_escape_property_script_tifinagh_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3851,7 +4034,7 @@ fn unicode_escape_property_script_tagalog() {
 }
 
 fn unicode_escape_property_script_tagalog_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [5888..=5909, 5919..=5919];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [5888..=5909, 5919..=5919];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tagalog}+$",
         "^\\p{sc=Tagalog}+$",
@@ -3860,8 +4043,8 @@ fn unicode_escape_property_script_tagalog_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3874,7 +4057,7 @@ fn unicode_escape_property_script_thaana() {
 }
 
 fn unicode_escape_property_script_thaana_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [1920..=1969];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [1920..=1969];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Thaana}+$",
         "^\\p{sc=Thaana}+$",
@@ -3883,8 +4066,8 @@ fn unicode_escape_property_script_thaana_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3897,12 +4080,12 @@ fn unicode_escape_property_script_thai() {
 }
 
 fn unicode_escape_property_script_thai_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [3585..=3642, 3648..=3675];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [3585..=3642, 3648..=3675];
     const REGEXES: [&str; 2] = ["^\\p{Script=Thai}+$", "^\\p{sc=Thai}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3915,7 +4098,7 @@ fn unicode_escape_property_script_tibetan() {
 }
 
 fn unicode_escape_property_script_tibetan_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 7] = [
         3840..=3911,
         3913..=3948,
         3953..=3991,
@@ -3932,8 +4115,8 @@ fn unicode_escape_property_script_tibetan_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3946,7 +4129,7 @@ fn unicode_escape_property_script_tirhuta() {
 }
 
 fn unicode_escape_property_script_tirhuta_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70784..=70855, 70864..=70873];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [70784..=70855, 70864..=70873];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tirhuta}+$",
         "^\\p{sc=Tirhuta}+$",
@@ -3955,8 +4138,8 @@ fn unicode_escape_property_script_tirhuta_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3969,7 +4152,7 @@ fn unicode_escape_property_script_tangsa() {
 }
 
 fn unicode_escape_property_script_tangsa_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [92784..=92862, 92864..=92873];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [92784..=92862, 92864..=92873];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Tangsa}+$",
         "^\\p{sc=Tangsa}+$",
@@ -3978,8 +4161,54 @@ fn unicode_escape_property_script_tangsa_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_todhri() {
+    test_with_configs(unicode_escape_property_script_todhri_tc)
+}
+
+fn unicode_escape_property_script_todhri_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [67008..=67059];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Todhri}+$",
+        "^\\p{sc=Todhri}+$",
+        "^\\p{Script=Todr}+$",
+        "^\\p{sc=Todr}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_tolong_siki() {
+    test_with_configs(unicode_escape_property_script_tolong_siki_tc)
+}
+
+fn unicode_escape_property_script_tolong_siki_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [73136..=73179, 73184..=73193];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Tolong_Siki}+$",
+        "^\\p{sc=Tolong_Siki}+$",
+        "^\\p{Script=Tols}+$",
+        "^\\p{sc=Tols}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -3992,12 +4221,47 @@ fn unicode_escape_property_script_toto() {
 }
 
 fn unicode_escape_property_script_toto_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [123536..=123566];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [123536..=123566];
     const REGEXES: [&str; 2] = ["^\\p{Script=Toto}+$", "^\\p{sc=Toto}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
+                regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn unicode_escape_property_script_tulu_tigalari() {
+    test_with_configs(unicode_escape_property_script_tulu_tigalari_tc)
+}
+
+fn unicode_escape_property_script_tulu_tigalari_tc(tc: TestConfig) {
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 11] = [
+        70528..=70537,
+        70539..=70539,
+        70542..=70542,
+        70544..=70581,
+        70583..=70592,
+        70594..=70594,
+        70597..=70597,
+        70599..=70602,
+        70604..=70613,
+        70615..=70616,
+        70625..=70626,
+    ];
+    const REGEXES: [&str; 4] = [
+        "^\\p{Script=Tulu_Tigalari}+$",
+        "^\\p{sc=Tulu_Tigalari}+$",
+        "^\\p{Script=Tutg}+$",
+        "^\\p{sc=Tutg}+$",
+    ];
+    for regex in REGEXES {
+        let regex = tc.compilef(regex, "u");
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4010,7 +4274,7 @@ fn unicode_escape_property_script_ugaritic() {
 }
 
 fn unicode_escape_property_script_ugaritic_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66432..=66461, 66463..=66463];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66432..=66461, 66463..=66463];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Ugaritic}+$",
         "^\\p{sc=Ugaritic}+$",
@@ -4019,8 +4283,8 @@ fn unicode_escape_property_script_ugaritic_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4033,7 +4297,7 @@ fn unicode_escape_property_script_vai() {
 }
 
 fn unicode_escape_property_script_vai_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [42240..=42539];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [42240..=42539];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Vai}+$",
         "^\\p{sc=Vai}+$",
@@ -4042,8 +4306,8 @@ fn unicode_escape_property_script_vai_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4056,7 +4320,7 @@ fn unicode_escape_property_script_vithkuqi() {
 }
 
 fn unicode_escape_property_script_vithkuqi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 8] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 8] = [
         66928..=66938,
         66940..=66954,
         66956..=66962,
@@ -4074,8 +4338,8 @@ fn unicode_escape_property_script_vithkuqi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4088,7 +4352,7 @@ fn unicode_escape_property_script_warang_citi() {
 }
 
 fn unicode_escape_property_script_warang_citi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71840..=71922, 71935..=71935];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [71840..=71922, 71935..=71935];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Warang_Citi}+$",
         "^\\p{sc=Warang_Citi}+$",
@@ -4097,8 +4361,8 @@ fn unicode_escape_property_script_warang_citi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4111,7 +4375,7 @@ fn unicode_escape_property_script_wancho() {
 }
 
 fn unicode_escape_property_script_wancho_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [123584..=123641, 123647..=123647];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [123584..=123641, 123647..=123647];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Wancho}+$",
         "^\\p{sc=Wancho}+$",
@@ -4120,8 +4384,8 @@ fn unicode_escape_property_script_wancho_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4134,7 +4398,7 @@ fn unicode_escape_property_script_old_persian() {
 }
 
 fn unicode_escape_property_script_old_persian_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66464..=66499, 66504..=66517];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [66464..=66499, 66504..=66517];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Old_Persian}+$",
         "^\\p{sc=Old_Persian}+$",
@@ -4143,8 +4407,8 @@ fn unicode_escape_property_script_old_persian_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4157,7 +4421,7 @@ fn unicode_escape_property_script_cuneiform() {
 }
 
 fn unicode_escape_property_script_cuneiform_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 4] =
         [73728..=74649, 74752..=74862, 74864..=74868, 74880..=75075];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Cuneiform}+$",
@@ -4167,8 +4431,8 @@ fn unicode_escape_property_script_cuneiform_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4181,7 +4445,7 @@ fn unicode_escape_property_script_yezidi() {
 }
 
 fn unicode_escape_property_script_yezidi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 3] =
         [69248..=69289, 69291..=69293, 69296..=69297];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Yezidi}+$",
@@ -4191,8 +4455,8 @@ fn unicode_escape_property_script_yezidi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4205,7 +4469,7 @@ fn unicode_escape_property_script_yi() {
 }
 
 fn unicode_escape_property_script_yi_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [40960..=42124, 42128..=42182];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 2] = [40960..=42124, 42128..=42182];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Yi}+$",
         "^\\p{sc=Yi}+$",
@@ -4214,8 +4478,8 @@ fn unicode_escape_property_script_yi_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4228,7 +4492,7 @@ fn unicode_escape_property_script_zanabazar_square() {
 }
 
 fn unicode_escape_property_script_zanabazar_square_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [72192..=72263];
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 1] = [72192..=72263];
     const REGEXES: [&str; 4] = [
         "^\\p{Script=Zanabazar_Square}+$",
         "^\\p{sc=Zanabazar_Square}+$",
@@ -4237,8 +4501,8 @@ fn unicode_escape_property_script_zanabazar_square_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4251,13 +4515,14 @@ fn unicode_escape_property_script_inherited() {
 }
 
 fn unicode_escape_property_script_inherited_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 29] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 30] = [
         768..=879,
         1157..=1158,
         1611..=1621,
         1648..=1648,
         2385..=2388,
-        6832..=6862,
+        6832..=6877,
+        6880..=6891,
         7376..=7378,
         7380..=7392,
         7394..=7400,
@@ -4292,8 +4557,8 @@ fn unicode_escape_property_script_inherited_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4306,7 +4571,7 @@ fn unicode_escape_property_script_common() {
 }
 
 fn unicode_escape_property_script_common_tc(tc: TestConfig) {
-    const CODE_POINTS: [std::ops::RangeInclusive<u32>; 173] = [
+    static CODE_POINTS: [std::ops::RangeInclusive<u32>; 176] = [
         0..=64,
         91..=96,
         123..=169,
@@ -4347,19 +4612,18 @@ fn unicode_escape_property_script_common_tc(tc: TestConfig) {
         8294..=8304,
         8308..=8318,
         8320..=8334,
-        8352..=8384,
+        8352..=8385,
         8448..=8485,
         8487..=8489,
         8492..=8497,
         8499..=8525,
         8527..=8543,
         8585..=8587,
-        8592..=9254,
+        8592..=9257,
         9280..=9290,
         9312..=10239,
         10496..=11123,
-        11126..=11157,
-        11159..=11263,
+        11126..=11263,
         11776..=11869,
         12272..=12292,
         12294..=12294,
@@ -4370,7 +4634,7 @@ fn unicode_escape_property_script_common_tc(tc: TestConfig) {
         12448..=12448,
         12539..=12540,
         12688..=12703,
-        12736..=12771,
+        12736..=12773,
         12783..=12783,
         12832..=12895,
         12927..=13007,
@@ -4405,6 +4669,10 @@ fn unicode_escape_property_script_common_tc(tc: TestConfig) {
         66000..=66044,
         66273..=66299,
         113824..=113827,
+        117760..=118012,
+        118016..=118451,
+        118458..=118480,
+        118496..=118512,
         118608..=118723,
         118784..=119029,
         119040..=119078,
@@ -4453,11 +4721,10 @@ fn unicode_escape_property_script_common_tc(tc: TestConfig) {
         127552..=127560,
         127568..=127569,
         127584..=127589,
-        127744..=128727,
+        127744..=128728,
         128732..=128748,
         128752..=128764,
-        128768..=128886,
-        128891..=128985,
+        128768..=128985,
         128992..=129003,
         129008..=129008,
         129024..=129035,
@@ -4465,19 +4732,20 @@ fn unicode_escape_property_script_common_tc(tc: TestConfig) {
         129104..=129113,
         129120..=129159,
         129168..=129197,
-        129200..=129201,
-        129280..=129619,
+        129200..=129211,
+        129216..=129217,
+        129232..=129240,
+        129280..=129623,
         129632..=129645,
         129648..=129660,
-        129664..=129672,
-        129680..=129725,
-        129727..=129733,
-        129742..=129755,
-        129760..=129768,
-        129776..=129784,
+        129664..=129674,
+        129678..=129734,
+        129736..=129736,
+        129741..=129756,
+        129759..=129770,
+        129775..=129784,
         129792..=129938,
-        129940..=129994,
-        130032..=130041,
+        129940..=130042,
         917505..=917505,
         917536..=917631,
     ];
@@ -4489,8 +4757,8 @@ fn unicode_escape_property_script_common_tc(tc: TestConfig) {
     ];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
-        for range in CODE_POINTS {
-            for cp in range {
+        for range in &CODE_POINTS {
+            for cp in range.clone() {
                 regex.test_succeeds(&char::from_u32(cp).unwrap().to_string());
             }
         }
@@ -4505,7 +4773,7 @@ fn unicode_escape_property_binary_alphabetic() {
 }
 
 fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
-    static CODE_POINTS: [&str; 1141] = [
+    static CODE_POINTS: [&str; 1202] = [
         "\u{41}",
         "\u{61}",
         "\u{aa}",
@@ -4519,13 +4787,14 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{1c0}",
         "\u{1c4}",
         "\u{294}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c6}",
         "\u{2e0}",
         "\u{2ec}",
         "\u{2ee}",
         "\u{345}",
+        "\u{363}",
         "\u{370}",
         "\u{374}",
         "\u{376}",
@@ -4589,6 +4858,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{860}",
         "\u{870}",
         "\u{889}",
+        "\u{897}",
         "\u{8a0}",
         "\u{8c9}",
         "\u{8d4}",
@@ -4720,7 +4990,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{c4a}",
         "\u{c55}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c62}",
         "\u{c80}",
@@ -4740,7 +5010,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{cca}",
         "\u{ccc}",
         "\u{cd5}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{ce2}",
         "\u{cf1}",
@@ -4969,7 +5239,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{1d78}",
         "\u{1d79}",
         "\u{1d9b}",
-        "\u{1de7}",
+        "\u{1dd3}",
         "\u{1e00}",
         "\u{1f18}",
         "\u{1f20}",
@@ -5077,10 +5347,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{a78b}",
         "\u{a78f}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f7}",
         "\u{a7f8}",
@@ -5244,6 +5511,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{105a3}",
         "\u{105b3}",
         "\u{105bb}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -5262,6 +5530,7 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -5284,9 +5553,20 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{10cc0}",
         "\u{10d00}",
         "\u{10d24}",
+        "\u{10d4a}",
+        "\u{10d4e}",
+        "\u{10d4f}",
+        "\u{10d50}",
+        "\u{10d69}",
+        "\u{10d6f}",
+        "\u{10d70}",
         "\u{10e80}",
         "\u{10eab}",
         "\u{10eb0}",
+        "\u{10ec2}",
+        "\u{10ec5}",
+        "\u{10ec6}",
+        "\u{10efa}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -5367,6 +5647,19 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{11357}",
         "\u{1135d}",
         "\u{11362}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113b8}",
+        "\u{113bb}",
+        "\u{113c2}",
+        "\u{113c5}",
+        "\u{113c7}",
+        "\u{113cc}",
+        "\u{113d1}",
+        "\u{113d3}",
         "\u{11400}",
         "\u{11435}",
         "\u{11438}",
@@ -5410,6 +5703,8 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{116b8}",
         "\u{11700}",
         "\u{1171d}",
+        "\u{1171e}",
+        "\u{1171f}",
         "\u{11720}",
         "\u{11722}",
         "\u{11726}",
@@ -5457,6 +5752,13 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{11a97}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11b60}",
+        "\u{11b61}",
+        "\u{11b62}",
+        "\u{11b65}",
+        "\u{11b66}",
+        "\u{11b67}",
+        "\u{11bc0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c2f}",
@@ -5491,6 +5793,9 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{11d95}",
         "\u{11d96}",
         "\u{11d98}",
+        "\u{11db0}",
+        "\u{11dd9}",
+        "\u{11dda}",
         "\u{11ee0}",
         "\u{11ef3}",
         "\u{11ef5}",
@@ -5510,7 +5815,12 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{12f90}",
         "\u{13000}",
         "\u{13441}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
+        "\u{1611e}",
+        "\u{1612a}",
+        "\u{1612d}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a70}",
@@ -5519,7 +5829,12 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{16b40}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d40}",
+        "\u{16d43}",
+        "\u{16d6b}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{16f00}",
         "\u{16f4f}",
         "\u{16f50}",
@@ -5529,9 +5844,11 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{16fe0}",
         "\u{16fe3}",
         "\u{16ff0}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -5594,6 +5911,19 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{1e2c0}",
         "\u{1e4d0}",
         "\u{1e4eb}",
+        "\u{1e5d0}",
+        "\u{1e5f0}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e3}",
+        "\u{1e6e4}",
+        "\u{1e6e6}",
+        "\u{1e6e7}",
+        "\u{1e6ee}",
+        "\u{1e6f0}",
+        "\u{1e6f5}",
+        "\u{1e6fe}",
+        "\u{1e6ff}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -5640,7 +5970,6 @@ fn unicode_escape_property_binary_alphabetic_tc(tc: TestConfig) {
         "\u{1f170}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -5663,7 +5992,7 @@ fn unicode_escape_property_binary_caseignorable() {
 }
 
 fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 491] = [
+    static CODE_POINTS: [&str; 518] = [
         "\u{27}",
         "\u{2e}",
         "\u{3a}",
@@ -5731,7 +6060,7 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{859}",
         "\u{888}",
         "\u{890}",
-        "\u{898}",
+        "\u{897}",
         "\u{8c9}",
         "\u{8ca}",
         "\u{8e2}",
@@ -5861,6 +6190,7 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{1ab0}",
         "\u{1abe}",
         "\u{1abf}",
+        "\u{1ae0}",
         "\u{1b00}",
         "\u{1b34}",
         "\u{1b36}",
@@ -5940,7 +6270,7 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{a770}",
         "\u{a788}",
         "\u{a789}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f8}",
         "\u{a802}",
         "\u{a806}",
@@ -6012,8 +6342,12 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{10a3f}",
         "\u{10ae5}",
         "\u{10d24}",
+        "\u{10d4e}",
+        "\u{10d69}",
+        "\u{10d6f}",
         "\u{10eab}",
-        "\u{10efd}",
+        "\u{10ec5}",
+        "\u{10efa}",
         "\u{10f46}",
         "\u{10f82}",
         "\u{11001}",
@@ -6046,6 +6380,11 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{11340}",
         "\u{11366}",
         "\u{11370}",
+        "\u{113bb}",
+        "\u{113ce}",
+        "\u{113d0}",
+        "\u{113d2}",
+        "\u{113e1}",
         "\u{11438}",
         "\u{11442}",
         "\u{11446}",
@@ -6066,6 +6405,7 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{116b0}",
         "\u{116b7}",
         "\u{1171d}",
+        "\u{1171f}",
         "\u{11722}",
         "\u{11727}",
         "\u{1182f}",
@@ -6084,6 +6424,9 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{11a59}",
         "\u{11a8a}",
         "\u{11a98}",
+        "\u{11b60}",
+        "\u{11b62}",
+        "\u{11b66}",
         "\u{11c30}",
         "\u{11c38}",
         "\u{11c3f}",
@@ -6099,23 +6442,30 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{11d90}",
         "\u{11d95}",
         "\u{11d97}",
+        "\u{11dd9}",
         "\u{11ef3}",
         "\u{11f00}",
         "\u{11f36}",
         "\u{11f40}",
         "\u{11f42}",
+        "\u{11f5a}",
         "\u{13430}",
         "\u{13440}",
         "\u{13447}",
+        "\u{1611e}",
+        "\u{1612d}",
         "\u{16af0}",
         "\u{16b30}",
         "\u{16b40}",
+        "\u{16d40}",
+        "\u{16d6b}",
         "\u{16f4f}",
         "\u{16f8f}",
         "\u{16f93}",
         "\u{16fe0}",
         "\u{16fe3}",
         "\u{16fe4}",
+        "\u{16ff2}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -6148,6 +6498,12 @@ fn unicode_escape_property_binary_caseignorable_tc(tc: TestConfig) {
         "\u{1e2ec}",
         "\u{1e4eb}",
         "\u{1e4ec}",
+        "\u{1e5ee}",
+        "\u{1e6e3}",
+        "\u{1e6e6}",
+        "\u{1e6ee}",
+        "\u{1e6f5}",
+        "\u{1e6ff}",
         "\u{1e8d0}",
         "\u{1e944}",
         "\u{1e94b}",
@@ -6171,7 +6527,7 @@ fn unicode_escape_property_binary_cased() {
 }
 
 fn unicode_escape_property_binary_cased_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 174] = [
+    static CODE_POINTS: [&str; 175] = [
         "\u{41}",
         "\u{61}",
         "\u{aa}",
@@ -6182,7 +6538,7 @@ fn unicode_escape_property_binary_cased_tc(tc: TestConfig) {
         "\u{f8}",
         "\u{1bc}",
         "\u{1c4}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c0}",
         "\u{2e0}",
@@ -6273,10 +6629,7 @@ fn unicode_escape_property_binary_cased_tc(tc: TestConfig) {
         "\u{a771}",
         "\u{a78b}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f8}",
         "\u{a7fa}",
@@ -6306,8 +6659,12 @@ fn unicode_escape_property_binary_cased_tc(tc: TestConfig) {
         "\u{107b2}",
         "\u{10c80}",
         "\u{10cc0}",
+        "\u{10d50}",
+        "\u{10d70}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{1d400}",
         "\u{1d456}",
         "\u{1d49e}",
@@ -6362,7 +6719,7 @@ fn unicode_escape_property_binary_changeswhencasefolded() {
 }
 
 fn unicode_escape_property_binary_changeswhencasefolded_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 622] = [
+    static CODE_POINTS: [&str; 630] = [
         "\u{41}",
         "\u{b5}",
         "\u{c0}",
@@ -6967,9 +7324,15 @@ fn unicode_escape_property_binary_changeswhencasefolded_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
+        "\u{a7da}",
+        "\u{a7dc}",
         "\u{a7f5}",
         "\u{ab70}",
         "\u{fb00}",
@@ -6982,8 +7345,10 @@ fn unicode_escape_property_binary_changeswhencasefolded_tc(tc: TestConfig) {
         "\u{1058c}",
         "\u{10594}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1e900}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Changes_When_Casefolded}+$", "^\\p{CWCF}+$"];
@@ -7001,7 +7366,7 @@ fn unicode_escape_property_binary_changeswhencasemapped() {
 }
 
 fn unicode_escape_property_binary_changeswhencasemapped_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 131] = [
+    static CODE_POINTS: [&str; 131] = [
         "\u{41}",
         "\u{61}",
         "\u{b5}",
@@ -7010,7 +7375,6 @@ fn unicode_escape_property_binary_changeswhencasemapped_tc(tc: TestConfig) {
         "\u{f8}",
         "\u{139}",
         "\u{18e}",
-        "\u{19c}",
         "\u{1ac}",
         "\u{1bc}",
         "\u{1bf}",
@@ -7022,7 +7386,6 @@ fn unicode_escape_property_binary_changeswhencasemapped_tc(tc: TestConfig) {
         "\u{25b}",
         "\u{260}",
         "\u{263}",
-        "\u{265}",
         "\u{268}",
         "\u{26f}",
         "\u{271}",
@@ -7108,8 +7471,6 @@ fn unicode_escape_property_binary_changeswhencasemapped_tc(tc: TestConfig) {
         "\u{a790}",
         "\u{a796}",
         "\u{a7b0}",
-        "\u{a7d0}",
-        "\u{a7d6}",
         "\u{a7f5}",
         "\u{ab53}",
         "\u{ab70}",
@@ -7130,8 +7491,12 @@ fn unicode_escape_property_binary_changeswhencasemapped_tc(tc: TestConfig) {
         "\u{105bb}",
         "\u{10c80}",
         "\u{10cc0}",
+        "\u{10d50}",
+        "\u{10d70}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{1e900}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Changes_When_Casemapped}+$", "^\\p{CWCM}+$"];
@@ -7149,7 +7514,7 @@ fn unicode_escape_property_binary_changeswhenlowercased() {
 }
 
 fn unicode_escape_property_binary_changeswhenlowercased_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 609] = [
+    static CODE_POINTS: [&str; 618] = [
         "\u{41}",
         "\u{c0}",
         "\u{d8}",
@@ -7425,6 +7790,7 @@ fn unicode_escape_property_binary_changeswhenlowercased_tc(tc: TestConfig) {
         "\u{10c7}",
         "\u{10cd}",
         "\u{13a0}",
+        "\u{1c89}",
         "\u{1c90}",
         "\u{1cbd}",
         "\u{1e00}",
@@ -7744,9 +8110,15 @@ fn unicode_escape_property_binary_changeswhenlowercased_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
+        "\u{a7da}",
+        "\u{a7dc}",
         "\u{a7f5}",
         "\u{ff21}",
         "\u{10400}",
@@ -7756,8 +8128,10 @@ fn unicode_escape_property_binary_changeswhenlowercased_tc(tc: TestConfig) {
         "\u{1058c}",
         "\u{10594}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1e900}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Changes_When_Lowercased}+$", "^\\p{CWL}+$"];
@@ -7775,7 +8149,7 @@ fn unicode_escape_property_binary_changeswhentitlecased() {
 }
 
 fn unicode_escape_property_binary_changeswhentitlecased_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 626] = [
+    static CODE_POINTS: [&str; 633] = [
         "\u{61}",
         "\u{b5}",
         "\u{df}",
@@ -7926,7 +8300,6 @@ fn unicode_escape_property_binary_changeswhentitlecased_tc(tc: TestConfig) {
         "\u{25b}",
         "\u{260}",
         "\u{263}",
-        "\u{265}",
         "\u{268}",
         "\u{26f}",
         "\u{271}",
@@ -8064,6 +8437,7 @@ fn unicode_escape_property_binary_changeswhentitlecased_tc(tc: TestConfig) {
         "\u{561}",
         "\u{13f8}",
         "\u{1c80}",
+        "\u{1c8a}",
         "\u{1d79}",
         "\u{1d7d}",
         "\u{1d8e}",
@@ -8383,9 +8757,14 @@ fn unicode_escape_property_binary_changeswhentitlecased_tc(tc: TestConfig) {
         "\u{a7c3}",
         "\u{a7c8}",
         "\u{a7ca}",
+        "\u{a7cd}",
+        "\u{a7cf}",
         "\u{a7d1}",
+        "\u{a7d3}",
+        "\u{a7d5}",
         "\u{a7d7}",
         "\u{a7d9}",
+        "\u{a7db}",
         "\u{a7f6}",
         "\u{ab53}",
         "\u{ab70}",
@@ -8399,8 +8778,10 @@ fn unicode_escape_property_binary_changeswhentitlecased_tc(tc: TestConfig) {
         "\u{105b3}",
         "\u{105bb}",
         "\u{10cc0}",
+        "\u{10d70}",
         "\u{118c0}",
         "\u{16e60}",
+        "\u{16ebb}",
         "\u{1e922}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Changes_When_Titlecased}+$", "^\\p{CWT}+$"];
@@ -8418,7 +8799,7 @@ fn unicode_escape_property_binary_changeswhenuppercased() {
 }
 
 fn unicode_escape_property_binary_changeswhenuppercased_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 627] = [
+    static CODE_POINTS: [&str; 634] = [
         "\u{61}",
         "\u{b5}",
         "\u{df}",
@@ -8568,7 +8949,6 @@ fn unicode_escape_property_binary_changeswhenuppercased_tc(tc: TestConfig) {
         "\u{25b}",
         "\u{260}",
         "\u{263}",
-        "\u{265}",
         "\u{268}",
         "\u{26f}",
         "\u{271}",
@@ -8708,6 +9088,7 @@ fn unicode_escape_property_binary_changeswhenuppercased_tc(tc: TestConfig) {
         "\u{10fd}",
         "\u{13f8}",
         "\u{1c80}",
+        "\u{1c8a}",
         "\u{1d79}",
         "\u{1d7d}",
         "\u{1d8e}",
@@ -9027,9 +9408,14 @@ fn unicode_escape_property_binary_changeswhenuppercased_tc(tc: TestConfig) {
         "\u{a7c3}",
         "\u{a7c8}",
         "\u{a7ca}",
+        "\u{a7cd}",
+        "\u{a7cf}",
         "\u{a7d1}",
+        "\u{a7d3}",
+        "\u{a7d5}",
         "\u{a7d7}",
         "\u{a7d9}",
+        "\u{a7db}",
         "\u{a7f6}",
         "\u{ab53}",
         "\u{ab70}",
@@ -9043,8 +9429,10 @@ fn unicode_escape_property_binary_changeswhenuppercased_tc(tc: TestConfig) {
         "\u{105b3}",
         "\u{105bb}",
         "\u{10cc0}",
+        "\u{10d70}",
         "\u{118c0}",
         "\u{16e60}",
+        "\u{16ebb}",
         "\u{1e922}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Changes_When_Uppercased}+$", "^\\p{CWU}+$"];
@@ -9062,7 +9450,7 @@ fn unicode_escape_property_binary_defaultignorablecodepoint() {
 }
 
 fn unicode_escape_property_binary_defaultignorablecodepoint_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 27] = [
+    static CODE_POINTS: [&str; 27] = [
         "\u{ad}",
         "\u{34f}",
         "\u{61c}",
@@ -9106,7 +9494,7 @@ fn unicode_escape_property_binary_graphemebase() {
 }
 
 fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
-    static CODE_POINTS: [&str; 1743] = [
+    static CODE_POINTS: [&str; 1799] = [
         "\u{20}",
         "\u{21}",
         "\u{24}",
@@ -9168,7 +9556,7 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1c0}",
         "\u{1c4}",
         "\u{294}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c2}",
         "\u{2c6}",
@@ -9374,7 +9762,7 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{c3d}",
         "\u{c41}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c66}",
         "\u{c77}",
@@ -9390,11 +9778,9 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{cb5}",
         "\u{cbd}",
         "\u{cbe}",
-        "\u{cc0}",
+        "\u{cc1}",
         "\u{cc3}",
-        "\u{cc7}",
-        "\u{cca}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{ce6}",
         "\u{cf1}",
@@ -9542,9 +9928,7 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{16ee}",
         "\u{16f1}",
         "\u{1700}",
-        "\u{1715}",
         "\u{171f}",
-        "\u{1734}",
         "\u{1735}",
         "\u{1740}",
         "\u{1760}",
@@ -9602,10 +9986,9 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1aa8}",
         "\u{1b04}",
         "\u{1b05}",
-        "\u{1b3b}",
-        "\u{1b3d}",
-        "\u{1b43}",
+        "\u{1b3e}",
         "\u{1b45}",
+        "\u{1b4e}",
         "\u{1b50}",
         "\u{1b5a}",
         "\u{1b61}",
@@ -9615,14 +9998,12 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1b83}",
         "\u{1ba1}",
         "\u{1ba6}",
-        "\u{1baa}",
         "\u{1bae}",
         "\u{1bb0}",
         "\u{1bba}",
         "\u{1be7}",
         "\u{1bea}",
         "\u{1bee}",
-        "\u{1bf2}",
         "\u{1bfc}",
         "\u{1c00}",
         "\u{1c24}",
@@ -9873,7 +10254,6 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{2b47}",
         "\u{2b4d}",
         "\u{2b76}",
-        "\u{2b97}",
         "\u{2c00}",
         "\u{2c7c}",
         "\u{2c7e}",
@@ -10054,10 +10434,7 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{a78b}",
         "\u{a78f}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f7}",
         "\u{a7f8}",
@@ -10173,13 +10550,15 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{fb43}",
         "\u{fb46}",
         "\u{fbb2}",
+        "\u{fbc3}",
         "\u{fbd3}",
         "\u{fd3e}",
         "\u{fd3f}",
         "\u{fd40}",
         "\u{fd50}",
+        "\u{fd90}",
         "\u{fd92}",
-        "\u{fdcf}",
+        "\u{fdc8}",
         "\u{fdf0}",
         "\u{fdfc}",
         "\u{fdfd}",
@@ -10328,6 +10707,7 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{105a3}",
         "\u{105b3}",
         "\u{105bb}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -10355,6 +10735,7 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1091f}",
         "\u{10920}",
         "\u{1093f}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109bc}",
         "\u{109be}",
@@ -10391,10 +10772,24 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{10cfa}",
         "\u{10d00}",
         "\u{10d30}",
+        "\u{10d40}",
+        "\u{10d4a}",
+        "\u{10d4e}",
+        "\u{10d4f}",
+        "\u{10d50}",
+        "\u{10d6e}",
+        "\u{10d6f}",
+        "\u{10d70}",
+        "\u{10d8e}",
         "\u{10e60}",
         "\u{10e80}",
         "\u{10ead}",
         "\u{10eb0}",
+        "\u{10ec2}",
+        "\u{10ec5}",
+        "\u{10ec6}",
+        "\u{10ed0}",
+        "\u{10ed1}",
         "\u{10f00}",
         "\u{10f1d}",
         "\u{10f27}",
@@ -10450,7 +10845,6 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11213}",
         "\u{1122c}",
         "\u{11232}",
-        "\u{11235}",
         "\u{11238}",
         "\u{1123f}",
         "\u{11280}",
@@ -10477,6 +10871,18 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11350}",
         "\u{1135d}",
         "\u{11362}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113b9}",
+        "\u{113ca}",
+        "\u{113cc}",
+        "\u{113d1}",
+        "\u{113d3}",
+        "\u{113d4}",
+        "\u{113d7}",
         "\u{11400}",
         "\u{11435}",
         "\u{11440}",
@@ -10514,11 +10920,12 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11680}",
         "\u{116ac}",
         "\u{116ae}",
-        "\u{116b6}",
         "\u{116b8}",
         "\u{116b9}",
         "\u{116c0}",
+        "\u{116d0}",
         "\u{11700}",
+        "\u{1171e}",
         "\u{11720}",
         "\u{11726}",
         "\u{11730}",
@@ -10540,7 +10947,6 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11918}",
         "\u{11931}",
         "\u{11937}",
-        "\u{1193d}",
         "\u{1193f}",
         "\u{11940}",
         "\u{11941}",
@@ -10569,6 +10975,12 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11a9e}",
         "\u{11ab0}",
         "\u{11b00}",
+        "\u{11b61}",
+        "\u{11b65}",
+        "\u{11b67}",
+        "\u{11bc0}",
+        "\u{11be1}",
+        "\u{11bf0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c2f}",
@@ -10595,6 +11007,10 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11d96}",
         "\u{11d98}",
         "\u{11da0}",
+        "\u{11db0}",
+        "\u{11dd9}",
+        "\u{11dda}",
+        "\u{11de0}",
         "\u{11ee0}",
         "\u{11ef5}",
         "\u{11ef7}",
@@ -10604,7 +11020,6 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{11f12}",
         "\u{11f34}",
         "\u{11f3e}",
-        "\u{11f41}",
         "\u{11f43}",
         "\u{11f50}",
         "\u{11fb0}",
@@ -10621,7 +11036,11 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{12ff1}",
         "\u{13000}",
         "\u{13441}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
+        "\u{1612a}",
+        "\u{16130}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a60}",
@@ -10640,9 +11059,16 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{16b5b}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d40}",
+        "\u{16d43}",
+        "\u{16d6b}",
+        "\u{16d6d}",
+        "\u{16d70}",
         "\u{16e40}",
         "\u{16e80}",
         "\u{16e97}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{16f00}",
         "\u{16f50}",
         "\u{16f51}",
@@ -10650,10 +11076,11 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{16fe0}",
         "\u{16fe2}",
         "\u{16fe3}",
-        "\u{16ff0}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -10669,13 +11096,18 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1bc90}",
         "\u{1bc9c}",
         "\u{1bc9f}",
+        "\u{1cc00}",
+        "\u{1ccf0}",
+        "\u{1ccfa}",
+        "\u{1cd00}",
+        "\u{1ceba}",
+        "\u{1cee0}",
+        "\u{1cef0}",
         "\u{1cf50}",
         "\u{1d000}",
         "\u{1d100}",
         "\u{1d129}",
-        "\u{1d166}",
         "\u{1d16a}",
-        "\u{1d16d}",
         "\u{1d183}",
         "\u{1d18c}",
         "\u{1d1ae}",
@@ -10749,6 +11181,17 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1e4d0}",
         "\u{1e4eb}",
         "\u{1e4f0}",
+        "\u{1e5d0}",
+        "\u{1e5f0}",
+        "\u{1e5f1}",
+        "\u{1e5ff}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e4}",
+        "\u{1e6e7}",
+        "\u{1e6f0}",
+        "\u{1e6fe}",
+        "\u{1e6ff}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -10820,7 +11263,6 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1f6dc}",
         "\u{1f6f0}",
         "\u{1f700}",
-        "\u{1f77b}",
         "\u{1f7e0}",
         "\u{1f7f0}",
         "\u{1f800}",
@@ -10829,21 +11271,23 @@ fn unicode_escape_property_binary_graphemebase_tc(tc: TestConfig) {
         "\u{1f860}",
         "\u{1f890}",
         "\u{1f8b0}",
+        "\u{1f8c0}",
+        "\u{1f8d0}",
         "\u{1f900}",
         "\u{1fa60}",
         "\u{1fa70}",
         "\u{1fa80}",
-        "\u{1fa90}",
-        "\u{1fabf}",
-        "\u{1face}",
-        "\u{1fae0}",
-        "\u{1faf0}",
+        "\u{1fa8e}",
+        "\u{1fac8}",
+        "\u{1facd}",
+        "\u{1fadf}",
+        "\u{1faef}",
         "\u{1fb00}",
         "\u{1fb94}",
         "\u{1fbf0}",
+        "\u{1fbfa}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -10866,7 +11310,7 @@ fn unicode_escape_property_binary_graphemeextend() {
 }
 
 fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 376] = [
+    static CODE_POINTS: [&str; 419] = [
         "\u{300}",
         "\u{483}",
         "\u{488}",
@@ -10892,7 +11336,7 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{825}",
         "\u{829}",
         "\u{859}",
-        "\u{898}",
+        "\u{897}",
         "\u{8ca}",
         "\u{8e3}",
         "\u{93a}",
@@ -10949,8 +11393,11 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{c81}",
         "\u{cbc}",
         "\u{cbf}",
+        "\u{cc0}",
         "\u{cc2}",
         "\u{cc6}",
+        "\u{cc7}",
+        "\u{cca}",
         "\u{ccc}",
         "\u{cd5}",
         "\u{ce2}",
@@ -10996,7 +11443,9 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{109d}",
         "\u{135d}",
         "\u{1712}",
+        "\u{1715}",
         "\u{1732}",
+        "\u{1734}",
         "\u{1752}",
         "\u{1772}",
         "\u{17b4}",
@@ -11024,21 +11473,27 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{1ab0}",
         "\u{1abe}",
         "\u{1abf}",
+        "\u{1ae0}",
         "\u{1b00}",
         "\u{1b34}",
         "\u{1b35}",
         "\u{1b36}",
+        "\u{1b3b}",
         "\u{1b3c}",
+        "\u{1b3d}",
         "\u{1b42}",
+        "\u{1b43}",
         "\u{1b6b}",
         "\u{1b80}",
         "\u{1ba2}",
         "\u{1ba8}",
+        "\u{1baa}",
         "\u{1bab}",
         "\u{1be6}",
         "\u{1be8}",
         "\u{1bed}",
         "\u{1bef}",
+        "\u{1bf2}",
         "\u{1c2c}",
         "\u{1c36}",
         "\u{1cd0}",
@@ -11075,10 +11530,12 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{a8ff}",
         "\u{a926}",
         "\u{a947}",
+        "\u{a953}",
         "\u{a980}",
         "\u{a9b3}",
         "\u{a9b6}",
         "\u{a9bc}",
+        "\u{a9c0}",
         "\u{a9e5}",
         "\u{aa29}",
         "\u{aa31}",
@@ -11110,8 +11567,9 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{10a3f}",
         "\u{10ae5}",
         "\u{10d24}",
+        "\u{10d69}",
         "\u{10eab}",
-        "\u{10efd}",
+        "\u{10efa}",
         "\u{10f46}",
         "\u{10f82}",
         "\u{11001}",
@@ -11128,10 +11586,12 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{11173}",
         "\u{11180}",
         "\u{111b6}",
+        "\u{111c0}",
         "\u{111c9}",
         "\u{111cf}",
         "\u{1122f}",
         "\u{11234}",
+        "\u{11235}",
         "\u{11236}",
         "\u{1123e}",
         "\u{11241}",
@@ -11141,9 +11601,20 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{1133b}",
         "\u{1133e}",
         "\u{11340}",
+        "\u{1134d}",
         "\u{11357}",
         "\u{11366}",
         "\u{11370}",
+        "\u{113b8}",
+        "\u{113bb}",
+        "\u{113c2}",
+        "\u{113c5}",
+        "\u{113c7}",
+        "\u{113ce}",
+        "\u{113cf}",
+        "\u{113d0}",
+        "\u{113d2}",
+        "\u{113e1}",
         "\u{11438}",
         "\u{11442}",
         "\u{11446}",
@@ -11165,14 +11636,17 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{116ab}",
         "\u{116ad}",
         "\u{116b0}",
+        "\u{116b6}",
         "\u{116b7}",
         "\u{1171d}",
+        "\u{1171f}",
         "\u{11722}",
         "\u{11727}",
         "\u{1182f}",
         "\u{11839}",
         "\u{11930}",
         "\u{1193b}",
+        "\u{1193d}",
         "\u{1193e}",
         "\u{11943}",
         "\u{119d4}",
@@ -11186,6 +11660,9 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{11a59}",
         "\u{11a8a}",
         "\u{11a98}",
+        "\u{11b60}",
+        "\u{11b62}",
+        "\u{11b66}",
         "\u{11c30}",
         "\u{11c38}",
         "\u{11c3f}",
@@ -11205,20 +11682,25 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{11f00}",
         "\u{11f36}",
         "\u{11f40}",
+        "\u{11f41}",
         "\u{11f42}",
+        "\u{11f5a}",
         "\u{13440}",
         "\u{13447}",
+        "\u{1611e}",
+        "\u{1612d}",
         "\u{16af0}",
         "\u{16b30}",
         "\u{16f4f}",
         "\u{16f8f}",
         "\u{16fe4}",
+        "\u{16ff0}",
         "\u{1bc9d}",
         "\u{1cf00}",
         "\u{1cf30}",
         "\u{1d165}",
         "\u{1d167}",
-        "\u{1d16e}",
+        "\u{1d16d}",
         "\u{1d17b}",
         "\u{1d185}",
         "\u{1d1aa}",
@@ -11239,6 +11721,11 @@ fn unicode_escape_property_binary_graphemeextend_tc(tc: TestConfig) {
         "\u{1e2ae}",
         "\u{1e2ec}",
         "\u{1e4ec}",
+        "\u{1e5ee}",
+        "\u{1e6e3}",
+        "\u{1e6e6}",
+        "\u{1e6ee}",
+        "\u{1e6f5}",
         "\u{1e8d0}",
         "\u{1e944}",
         "\u{e0020}",
@@ -11259,7 +11746,7 @@ fn unicode_escape_property_binary_idcontinue() {
 }
 
 fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
-    static CODE_POINTS: [&str; 1344] = [
+    static CODE_POINTS: [&str; 1418] = [
         "\u{30}",
         "\u{41}",
         "\u{5f}",
@@ -11276,7 +11763,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{1c0}",
         "\u{1c4}",
         "\u{294}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c6}",
         "\u{2e0}",
@@ -11353,7 +11840,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{860}",
         "\u{870}",
         "\u{889}",
-        "\u{898}",
+        "\u{897}",
         "\u{8a0}",
         "\u{8c9}",
         "\u{8ca}",
@@ -11502,7 +11989,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{c4a}",
         "\u{c55}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c62}",
         "\u{c66}",
@@ -11524,7 +12011,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{cca}",
         "\u{ccc}",
         "\u{cd5}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{ce2}",
         "\u{ce6}",
@@ -11742,6 +12229,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{1aa7}",
         "\u{1ab0}",
         "\u{1abf}",
+        "\u{1ae0}",
         "\u{1b00}",
         "\u{1b04}",
         "\u{1b05}",
@@ -11931,10 +12419,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{a78b}",
         "\u{a78f}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f7}",
         "\u{a7f8}",
@@ -12122,6 +12607,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{105a3}",
         "\u{105b3}",
         "\u{105bb}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -12140,6 +12626,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -12166,10 +12653,21 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{10d00}",
         "\u{10d24}",
         "\u{10d30}",
+        "\u{10d40}",
+        "\u{10d4a}",
+        "\u{10d4e}",
+        "\u{10d4f}",
+        "\u{10d50}",
+        "\u{10d69}",
+        "\u{10d6f}",
+        "\u{10d70}",
         "\u{10e80}",
         "\u{10eab}",
         "\u{10eb0}",
-        "\u{10efd}",
+        "\u{10ec2}",
+        "\u{10ec5}",
+        "\u{10ec6}",
+        "\u{10efa}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -12265,6 +12763,24 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{11362}",
         "\u{11366}",
         "\u{11370}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113b8}",
+        "\u{113bb}",
+        "\u{113c2}",
+        "\u{113c5}",
+        "\u{113c7}",
+        "\u{113cc}",
+        "\u{113ce}",
+        "\u{113cf}",
+        "\u{113d0}",
+        "\u{113d1}",
+        "\u{113d2}",
+        "\u{113d3}",
+        "\u{113e1}",
         "\u{11400}",
         "\u{11435}",
         "\u{11438}",
@@ -12316,8 +12832,11 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{116b7}",
         "\u{116b8}",
         "\u{116c0}",
+        "\u{116d0}",
         "\u{11700}",
         "\u{1171d}",
+        "\u{1171e}",
+        "\u{1171f}",
         "\u{11720}",
         "\u{11722}",
         "\u{11726}",
@@ -12375,6 +12894,14 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{11a98}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11b60}",
+        "\u{11b61}",
+        "\u{11b62}",
+        "\u{11b65}",
+        "\u{11b66}",
+        "\u{11b67}",
+        "\u{11bc0}",
+        "\u{11bf0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c2f}",
@@ -12413,6 +12940,10 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{11d97}",
         "\u{11d98}",
         "\u{11da0}",
+        "\u{11db0}",
+        "\u{11dd9}",
+        "\u{11dda}",
+        "\u{11de0}",
         "\u{11ee0}",
         "\u{11ef3}",
         "\u{11ef5}",
@@ -12428,6 +12959,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{11f41}",
         "\u{11f42}",
         "\u{11f50}",
+        "\u{11f5a}",
         "\u{11fb0}",
         "\u{12000}",
         "\u{12400}",
@@ -12437,7 +12969,13 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{13440}",
         "\u{13441}",
         "\u{13447}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
+        "\u{1611e}",
+        "\u{1612a}",
+        "\u{1612d}",
+        "\u{16130}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a60}",
@@ -12451,7 +12989,13 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{16b50}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d40}",
+        "\u{16d43}",
+        "\u{16d6b}",
+        "\u{16d70}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{16f00}",
         "\u{16f4f}",
         "\u{16f50}",
@@ -12462,9 +13006,11 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{16fe3}",
         "\u{16fe4}",
         "\u{16ff0}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -12479,6 +13025,7 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{1bc80}",
         "\u{1bc90}",
         "\u{1bc9d}",
+        "\u{1ccf0}",
         "\u{1cf00}",
         "\u{1cf30}",
         "\u{1d165}",
@@ -12550,6 +13097,21 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{1e4eb}",
         "\u{1e4ec}",
         "\u{1e4f0}",
+        "\u{1e5d0}",
+        "\u{1e5ee}",
+        "\u{1e5f0}",
+        "\u{1e5f1}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e3}",
+        "\u{1e6e4}",
+        "\u{1e6e6}",
+        "\u{1e6e7}",
+        "\u{1e6ee}",
+        "\u{1e6f0}",
+        "\u{1e6f5}",
+        "\u{1e6fe}",
+        "\u{1e6ff}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -12596,7 +13158,6 @@ fn unicode_escape_property_binary_idcontinue_tc(tc: TestConfig) {
         "\u{1fbf0}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -12620,7 +13181,7 @@ fn unicode_escape_property_binary_idstart() {
 }
 
 fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 740] = [
+    static CODE_POINTS: [&str; 776] = [
         "\u{41}",
         "\u{61}",
         "\u{aa}",
@@ -12634,7 +13195,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{1c0}",
         "\u{1c4}",
         "\u{294}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c6}",
         "\u{2e0}",
@@ -12750,7 +13311,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{c2a}",
         "\u{c3d}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c80}",
         "\u{c85}",
@@ -12759,7 +13320,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{caa}",
         "\u{cb5}",
         "\u{cbd}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{cf1}",
         "\u{d04}",
@@ -12985,10 +13546,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{a78b}",
         "\u{a78f}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f7}",
         "\u{a7f8}",
@@ -13106,6 +13664,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{105a3}",
         "\u{105b3}",
         "\u{105bb}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -13124,6 +13683,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -13142,8 +13702,17 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{10c80}",
         "\u{10cc0}",
         "\u{10d00}",
+        "\u{10d4a}",
+        "\u{10d4e}",
+        "\u{10d4f}",
+        "\u{10d50}",
+        "\u{10d6f}",
+        "\u{10d70}",
         "\u{10e80}",
         "\u{10eb0}",
+        "\u{10ec2}",
+        "\u{10ec5}",
+        "\u{10ec6}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -13182,6 +13751,13 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{1133d}",
         "\u{11350}",
         "\u{1135d}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113d1}",
+        "\u{113d3}",
         "\u{11400}",
         "\u{11447}",
         "\u{1145f}",
@@ -13216,6 +13792,7 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{11a5c}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11bc0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c40}",
@@ -13228,6 +13805,9 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{11d67}",
         "\u{11d6a}",
         "\u{11d98}",
+        "\u{11db0}",
+        "\u{11dd9}",
+        "\u{11dda}",
         "\u{11ee0}",
         "\u{11f02}",
         "\u{11f04}",
@@ -13239,7 +13819,9 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{12f90}",
         "\u{13000}",
         "\u{13441}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a70}",
@@ -13248,15 +13830,22 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{16b40}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d40}",
+        "\u{16d43}",
+        "\u{16d6b}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{16f00}",
         "\u{16f50}",
         "\u{16f93}",
         "\u{16fe0}",
         "\u{16fe3}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -13312,6 +13901,15 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{1e2c0}",
         "\u{1e4d0}",
         "\u{1e4eb}",
+        "\u{1e5d0}",
+        "\u{1e5f0}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e4}",
+        "\u{1e6e7}",
+        "\u{1e6f0}",
+        "\u{1e6fe}",
+        "\u{1e6ff}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -13354,7 +13952,6 @@ fn unicode_escape_property_binary_idstart_tc(tc: TestConfig) {
         "\u{1eeab}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -13377,7 +13974,7 @@ fn unicode_escape_property_binary_math() {
 }
 
 fn unicode_escape_property_binary_math_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 240] = [
+    static CODE_POINTS: [&str; 243] = [
         "\u{2b}",
         "\u{3c}",
         "\u{5e}",
@@ -13543,6 +14140,8 @@ fn unicode_escape_property_binary_math_tc(tc: TestConfig) {
         "\u{ff5e}",
         "\u{ffe2}",
         "\u{ffe9}",
+        "\u{10d8e}",
+        "\u{1cef0}",
         "\u{1d400}",
         "\u{1d456}",
         "\u{1d49e}",
@@ -13618,6 +14217,7 @@ fn unicode_escape_property_binary_math_tc(tc: TestConfig) {
         "\u{1eea5}",
         "\u{1eeab}",
         "\u{1eef0}",
+        "\u{1f8d0}",
     ];
     const REGEXES: [&str; 1] = ["^\\p{Math}+$"];
     for regex in REGEXES {
@@ -13634,7 +14234,7 @@ fn unicode_escape_property_binary_xidcontinue() {
 }
 
 fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
-    static CODE_POINTS: [&str; 1348] = [
+    static CODE_POINTS: [&str; 1422] = [
         "\u{30}",
         "\u{41}",
         "\u{5f}",
@@ -13651,7 +14251,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{1c0}",
         "\u{1c4}",
         "\u{294}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c6}",
         "\u{2e0}",
@@ -13727,7 +14327,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{860}",
         "\u{870}",
         "\u{889}",
-        "\u{898}",
+        "\u{897}",
         "\u{8a0}",
         "\u{8c9}",
         "\u{8ca}",
@@ -13876,7 +14476,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{c4a}",
         "\u{c55}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c62}",
         "\u{c66}",
@@ -13898,7 +14498,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{cca}",
         "\u{ccc}",
         "\u{cd5}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{ce2}",
         "\u{ce6}",
@@ -14116,6 +14716,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{1aa7}",
         "\u{1ab0}",
         "\u{1abf}",
+        "\u{1ae0}",
         "\u{1b00}",
         "\u{1b04}",
         "\u{1b05}",
@@ -14304,10 +14905,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{a78b}",
         "\u{a78f}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f7}",
         "\u{a7f8}",
@@ -14501,6 +15099,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{105a3}",
         "\u{105b3}",
         "\u{105bb}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -14519,6 +15118,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -14545,10 +15145,21 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{10d00}",
         "\u{10d24}",
         "\u{10d30}",
+        "\u{10d40}",
+        "\u{10d4a}",
+        "\u{10d4e}",
+        "\u{10d4f}",
+        "\u{10d50}",
+        "\u{10d69}",
+        "\u{10d6f}",
+        "\u{10d70}",
         "\u{10e80}",
         "\u{10eab}",
         "\u{10eb0}",
-        "\u{10efd}",
+        "\u{10ec2}",
+        "\u{10ec5}",
+        "\u{10ec6}",
+        "\u{10efa}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -14644,6 +15255,24 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{11362}",
         "\u{11366}",
         "\u{11370}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113b8}",
+        "\u{113bb}",
+        "\u{113c2}",
+        "\u{113c5}",
+        "\u{113c7}",
+        "\u{113cc}",
+        "\u{113ce}",
+        "\u{113cf}",
+        "\u{113d0}",
+        "\u{113d1}",
+        "\u{113d2}",
+        "\u{113d3}",
+        "\u{113e1}",
         "\u{11400}",
         "\u{11435}",
         "\u{11438}",
@@ -14695,8 +15324,11 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{116b7}",
         "\u{116b8}",
         "\u{116c0}",
+        "\u{116d0}",
         "\u{11700}",
         "\u{1171d}",
+        "\u{1171e}",
+        "\u{1171f}",
         "\u{11720}",
         "\u{11722}",
         "\u{11726}",
@@ -14754,6 +15386,14 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{11a98}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11b60}",
+        "\u{11b61}",
+        "\u{11b62}",
+        "\u{11b65}",
+        "\u{11b66}",
+        "\u{11b67}",
+        "\u{11bc0}",
+        "\u{11bf0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c2f}",
@@ -14792,6 +15432,10 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{11d97}",
         "\u{11d98}",
         "\u{11da0}",
+        "\u{11db0}",
+        "\u{11dd9}",
+        "\u{11dda}",
+        "\u{11de0}",
         "\u{11ee0}",
         "\u{11ef3}",
         "\u{11ef5}",
@@ -14807,6 +15451,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{11f41}",
         "\u{11f42}",
         "\u{11f50}",
+        "\u{11f5a}",
         "\u{11fb0}",
         "\u{12000}",
         "\u{12400}",
@@ -14816,7 +15461,13 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{13440}",
         "\u{13441}",
         "\u{13447}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
+        "\u{1611e}",
+        "\u{1612a}",
+        "\u{1612d}",
+        "\u{16130}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a60}",
@@ -14830,7 +15481,13 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{16b50}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d40}",
+        "\u{16d43}",
+        "\u{16d6b}",
+        "\u{16d70}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{16f00}",
         "\u{16f4f}",
         "\u{16f50}",
@@ -14841,9 +15498,11 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{16fe3}",
         "\u{16fe4}",
         "\u{16ff0}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -14858,6 +15517,7 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{1bc80}",
         "\u{1bc90}",
         "\u{1bc9d}",
+        "\u{1ccf0}",
         "\u{1cf00}",
         "\u{1cf30}",
         "\u{1d165}",
@@ -14929,6 +15589,21 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{1e4eb}",
         "\u{1e4ec}",
         "\u{1e4f0}",
+        "\u{1e5d0}",
+        "\u{1e5ee}",
+        "\u{1e5f0}",
+        "\u{1e5f1}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e3}",
+        "\u{1e6e4}",
+        "\u{1e6e6}",
+        "\u{1e6e7}",
+        "\u{1e6ee}",
+        "\u{1e6f0}",
+        "\u{1e6f5}",
+        "\u{1e6fe}",
+        "\u{1e6ff}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -14975,7 +15650,6 @@ fn unicode_escape_property_binary_xidcontinue_tc(tc: TestConfig) {
         "\u{1fbf0}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -14999,7 +15673,7 @@ fn unicode_escape_property_binary_xidstart() {
 }
 
 fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 743] = [
+    static CODE_POINTS: [&str; 779] = [
         "\u{41}",
         "\u{61}",
         "\u{aa}",
@@ -15013,7 +15687,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{1c0}",
         "\u{1c4}",
         "\u{294}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c6}",
         "\u{2e0}",
@@ -15128,7 +15802,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{c2a}",
         "\u{c3d}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c80}",
         "\u{c85}",
@@ -15137,7 +15811,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{caa}",
         "\u{cb5}",
         "\u{cbd}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{cf1}",
         "\u{d04}",
@@ -15362,10 +16036,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{a78b}",
         "\u{a78f}",
         "\u{a790}",
-        "\u{a7d0}",
-        "\u{a7d3}",
-        "\u{a7d5}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f7}",
         "\u{a7f8}",
@@ -15488,6 +16159,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{105a3}",
         "\u{105b3}",
         "\u{105bb}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -15506,6 +16178,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -15524,8 +16197,17 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{10c80}",
         "\u{10cc0}",
         "\u{10d00}",
+        "\u{10d4a}",
+        "\u{10d4e}",
+        "\u{10d4f}",
+        "\u{10d50}",
+        "\u{10d6f}",
+        "\u{10d70}",
         "\u{10e80}",
         "\u{10eb0}",
+        "\u{10ec2}",
+        "\u{10ec5}",
+        "\u{10ec6}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -15564,6 +16246,13 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{1133d}",
         "\u{11350}",
         "\u{1135d}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113d1}",
+        "\u{113d3}",
         "\u{11400}",
         "\u{11447}",
         "\u{1145f}",
@@ -15598,6 +16287,7 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{11a5c}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11bc0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c40}",
@@ -15610,6 +16300,9 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{11d67}",
         "\u{11d6a}",
         "\u{11d98}",
+        "\u{11db0}",
+        "\u{11dd9}",
+        "\u{11dda}",
         "\u{11ee0}",
         "\u{11f02}",
         "\u{11f04}",
@@ -15621,7 +16314,9 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{12f90}",
         "\u{13000}",
         "\u{13441}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a70}",
@@ -15630,15 +16325,22 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{16b40}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d40}",
+        "\u{16d43}",
+        "\u{16d6b}",
         "\u{16e40}",
+        "\u{16ea0}",
+        "\u{16ebb}",
         "\u{16f00}",
         "\u{16f50}",
         "\u{16f93}",
         "\u{16fe0}",
         "\u{16fe3}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
@@ -15694,6 +16396,15 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{1e2c0}",
         "\u{1e4d0}",
         "\u{1e4eb}",
+        "\u{1e5d0}",
+        "\u{1e5f0}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e4}",
+        "\u{1e6e7}",
+        "\u{1e6f0}",
+        "\u{1e6fe}",
+        "\u{1e6ff}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -15736,7 +16447,6 @@ fn unicode_escape_property_binary_xidstart_tc(tc: TestConfig) {
         "\u{1eeab}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -15759,7 +16469,7 @@ fn unicode_escape_property_binary_asciihexdigit() {
 }
 
 fn unicode_escape_property_binary_asciihexdigit_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 3] = ["\u{30}", "\u{41}", "\u{61}"];
+    static CODE_POINTS: [&str; 3] = ["\u{30}", "\u{41}", "\u{61}"];
     const REGEXES: [&str; 2] = ["^\\p{ASCII_Hex_Digit}+$", "^\\p{AHex}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -15775,7 +16485,7 @@ fn unicode_escape_property_binary_bidicontrol() {
 }
 
 fn unicode_escape_property_binary_bidicontrol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 4] = ["\u{61c}", "\u{200e}", "\u{202a}", "\u{2066}"];
+    static CODE_POINTS: [&str; 4] = ["\u{61c}", "\u{200e}", "\u{202a}", "\u{2066}"];
     const REGEXES: [&str; 2] = ["^\\p{Bidi_Control}+$", "^\\p{Bidi_C}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -15791,7 +16501,7 @@ fn unicode_escape_property_binary_dash() {
 }
 
 fn unicode_escape_property_binary_dash_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 23] = [
+    static CODE_POINTS: [&str; 24] = [
         "\u{2d}",
         "\u{58a}",
         "\u{5be}",
@@ -15814,6 +16524,7 @@ fn unicode_escape_property_binary_dash_tc(tc: TestConfig) {
         "\u{fe58}",
         "\u{fe63}",
         "\u{ff0d}",
+        "\u{10d6e}",
         "\u{10ead}",
     ];
     const REGEXES: [&str; 1] = ["^\\p{Dash}+$"];
@@ -15831,7 +16542,7 @@ fn unicode_escape_property_binary_deprecated() {
 }
 
 fn unicode_escape_property_binary_deprecated_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 9] = [
+    static CODE_POINTS: [&str; 9] = [
         "\u{149}",
         "\u{673}",
         "\u{f77}",
@@ -15857,7 +16568,7 @@ fn unicode_escape_property_binary_diacritic() {
 }
 
 fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 237] = [
+    static CODE_POINTS: [&str; 266] = [
         "\u{5e}",
         "\u{60}",
         "\u{a8}",
@@ -15885,10 +16596,10 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{483}",
         "\u{559}",
         "\u{591}",
-        "\u{5a3}",
         "\u{5bf}",
         "\u{5c1}",
         "\u{5c4}",
+        "\u{5c7}",
         "\u{64b}",
         "\u{657}",
         "\u{6df}",
@@ -15925,6 +16636,7 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{d3b}",
         "\u{d4d}",
         "\u{dca}",
+        "\u{e3a}",
         "\u{e47}",
         "\u{e4e}",
         "\u{eba}",
@@ -15948,19 +16660,25 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{135d}",
         "\u{1714}",
         "\u{1715}",
+        "\u{1734}",
         "\u{17c9}",
         "\u{17dd}",
         "\u{1939}",
+        "\u{1a60}",
         "\u{1a75}",
         "\u{1a7f}",
         "\u{1ab0}",
         "\u{1abe}",
         "\u{1ac1}",
+        "\u{1acf}",
+        "\u{1ae0}",
         "\u{1b34}",
         "\u{1b44}",
         "\u{1b6b}",
         "\u{1baa}",
         "\u{1bab}",
+        "\u{1be6}",
+        "\u{1bf2}",
         "\u{1c36}",
         "\u{1c78}",
         "\u{1cd0}",
@@ -15973,6 +16691,7 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{1cf7}",
         "\u{1cf8}",
         "\u{1d2c}",
+        "\u{1d9b}",
         "\u{1dc4}",
         "\u{1df5}",
         "\u{1fbd}",
@@ -15998,7 +16717,10 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{a720}",
         "\u{a788}",
         "\u{a789}",
+        "\u{a7f1}",
         "\u{a7f8}",
+        "\u{a806}",
+        "\u{a82c}",
         "\u{a8c4}",
         "\u{a8e0}",
         "\u{a92b}",
@@ -16032,9 +16754,14 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{10780}",
         "\u{10787}",
         "\u{107b2}",
+        "\u{10a38}",
+        "\u{10a3f}",
         "\u{10ae5}",
         "\u{10d22}",
         "\u{10d24}",
+        "\u{10d4e}",
+        "\u{10d69}",
+        "\u{10efa}",
         "\u{10efd}",
         "\u{10f46}",
         "\u{10f82}",
@@ -16048,10 +16775,16 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{11235}",
         "\u{11236}",
         "\u{112e9}",
-        "\u{1133c}",
+        "\u{1133b}",
         "\u{1134d}",
         "\u{11366}",
         "\u{11370}",
+        "\u{113ce}",
+        "\u{113cf}",
+        "\u{113d0}",
+        "\u{113d2}",
+        "\u{113d3}",
+        "\u{113e1}",
         "\u{11442}",
         "\u{11446}",
         "\u{114c2}",
@@ -16072,9 +16805,15 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{11d42}",
         "\u{11d44}",
         "\u{11d97}",
+        "\u{11dd9}",
+        "\u{11f41}",
+        "\u{11f42}",
+        "\u{11f5a}",
         "\u{13447}",
+        "\u{1612f}",
         "\u{16af0}",
         "\u{16b30}",
+        "\u{16d6b}",
         "\u{16f8f}",
         "\u{16f93}",
         "\u{16ff0}",
@@ -16092,6 +16831,7 @@ fn unicode_escape_property_binary_diacritic_tc(tc: TestConfig) {
         "\u{1e130}",
         "\u{1e2ae}",
         "\u{1e2ec}",
+        "\u{1e5ee}",
         "\u{1e8d0}",
         "\u{1e944}",
         "\u{1e948}",
@@ -16111,11 +16851,13 @@ fn unicode_escape_property_binary_extender() {
 }
 
 fn unicode_escape_property_binary_extender_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 33] = [
+    static CODE_POINTS: [&str; 44] = [
         "\u{b7}",
         "\u{2d0}",
         "\u{640}",
         "\u{7fa}",
+        "\u{a71}",
+        "\u{afb}",
         "\u{b55}",
         "\u{e46}",
         "\u{ec6}",
@@ -16137,13 +16879,22 @@ fn unicode_escape_property_binary_extender_tc(tc: TestConfig) {
         "\u{aaf3}",
         "\u{ff70}",
         "\u{10781}",
+        "\u{10d4e}",
+        "\u{10d6a}",
+        "\u{10d6f}",
+        "\u{11237}",
         "\u{1135d}",
+        "\u{113d2}",
+        "\u{113d3}",
         "\u{115c6}",
         "\u{11a98}",
+        "\u{11dd9}",
         "\u{16b42}",
         "\u{16fe0}",
         "\u{16fe3}",
+        "\u{16ff2}",
         "\u{1e13c}",
+        "\u{1e5ef}",
         "\u{1e944}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Extender}+$", "^\\p{Ext}+$"];
@@ -16161,7 +16912,7 @@ fn unicode_escape_property_binary_hexdigit() {
 }
 
 fn unicode_escape_property_binary_hexdigit_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 6] = [
+    static CODE_POINTS: [&str; 6] = [
         "\u{30}", "\u{41}", "\u{61}", "\u{ff10}", "\u{ff21}", "\u{ff41}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Hex_Digit}+$", "^\\p{Hex}+$"];
@@ -16179,7 +16930,7 @@ fn unicode_escape_property_binary_idsbinaryoperator() {
 }
 
 fn unicode_escape_property_binary_idsbinaryoperator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 3] = ["\u{2ff0}", "\u{2ff4}", "\u{31ef}"];
+    static CODE_POINTS: [&str; 3] = ["\u{2ff0}", "\u{2ff4}", "\u{31ef}"];
     const REGEXES: [&str; 2] = ["^\\p{IDS_Binary_Operator}+$", "^\\p{IDSB}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -16195,7 +16946,7 @@ fn unicode_escape_property_binary_idstrinaryoperator() {
 }
 
 fn unicode_escape_property_binary_idstrinaryoperator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1] = ["\u{2ff2}"];
+    static CODE_POINTS: [&str; 1] = ["\u{2ff2}"];
     const REGEXES: [&str; 2] = ["^\\p{IDS_Trinary_Operator}+$", "^\\p{IDST}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -16211,7 +16962,7 @@ fn unicode_escape_property_binary_ideographic() {
 }
 
 fn unicode_escape_property_binary_ideographic_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 22] = [
+    static CODE_POINTS: [&str; 23] = [
         "\u{3006}",
         "\u{3007}",
         "\u{3021}",
@@ -16221,13 +16972,14 @@ fn unicode_escape_property_binary_ideographic_tc(tc: TestConfig) {
         "\u{f900}",
         "\u{fa70}",
         "\u{16fe4}",
+        "\u{16ff2}",
+        "\u{16ff4}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1b170}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -16250,7 +17002,7 @@ fn unicode_escape_property_binary_joincontrol() {
 }
 
 fn unicode_escape_property_binary_joincontrol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1] = ["\u{200c}"];
+    static CODE_POINTS: [&str; 1] = ["\u{200c}"];
     const REGEXES: [&str; 2] = ["^\\p{Join_Control}+$", "^\\p{Join_C}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -16266,7 +17018,7 @@ fn unicode_escape_property_binary_logicalorderexception() {
 }
 
 fn unicode_escape_property_binary_logicalorderexception_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 7] = [
+    static CODE_POINTS: [&str; 7] = [
         "\u{e40}", "\u{ec0}", "\u{19b5}", "\u{19ba}", "\u{aab5}", "\u{aab9}", "\u{aabb}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Logical_Order_Exception}+$", "^\\p{LOE}+$"];
@@ -16284,7 +17036,7 @@ fn unicode_escape_property_binary_lowercase() {
 }
 
 fn unicode_escape_property_binary_lowercase_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 686] = [
+    static CODE_POINTS: [&str; 692] = [
         "\u{61}",
         "\u{aa}",
         "\u{b5}",
@@ -16432,7 +17184,7 @@ fn unicode_escape_property_binary_lowercase_tc(tc: TestConfig) {
         "\u{24b}",
         "\u{24d}",
         "\u{24f}",
-        "\u{295}",
+        "\u{296}",
         "\u{2b0}",
         "\u{2c0}",
         "\u{2e0}",
@@ -16567,6 +17319,7 @@ fn unicode_escape_property_binary_lowercase_tc(tc: TestConfig) {
         "\u{10fd}",
         "\u{13f8}",
         "\u{1c80}",
+        "\u{1c8a}",
         "\u{1d00}",
         "\u{1d2c}",
         "\u{1d6b}",
@@ -16908,12 +17661,15 @@ fn unicode_escape_property_binary_lowercase_tc(tc: TestConfig) {
         "\u{a7c3}",
         "\u{a7c8}",
         "\u{a7ca}",
+        "\u{a7cd}",
+        "\u{a7cf}",
         "\u{a7d1}",
         "\u{a7d3}",
         "\u{a7d5}",
         "\u{a7d7}",
         "\u{a7d9}",
-        "\u{a7f2}",
+        "\u{a7db}",
+        "\u{a7f1}",
         "\u{a7f6}",
         "\u{a7f8}",
         "\u{a7fa}",
@@ -16936,8 +17692,10 @@ fn unicode_escape_property_binary_lowercase_tc(tc: TestConfig) {
         "\u{10787}",
         "\u{107b2}",
         "\u{10cc0}",
+        "\u{10d70}",
         "\u{118c0}",
         "\u{16e60}",
+        "\u{16ebb}",
         "\u{1d41a}",
         "\u{1d44e}",
         "\u{1d456}",
@@ -16987,7 +17745,7 @@ fn unicode_escape_property_binary_noncharactercodepoint() {
 }
 
 fn unicode_escape_property_binary_noncharactercodepoint_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 18] = [
+    static CODE_POINTS: [&str; 18] = [
         "\u{fdd0}",
         "\u{fffe}",
         "\u{1fffe}",
@@ -17022,7 +17780,7 @@ fn unicode_escape_property_binary_patternsyntax() {
 }
 
 fn unicode_escape_property_binary_patternsyntax_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 257] = [
+    static CODE_POINTS: [&str; 255] = [
         "\u{21}", "\u{24}", "\u{25}", "\u{28}", "\u{29}", "\u{2a}", "\u{2b}", "\u{2c}", "\u{2d}",
         "\u{2e}", "\u{3a}", "\u{3c}", "\u{3f}", "\u{5b}", "\u{5c}", "\u{5d}", "\u{5e}", "\u{60}",
         "\u{7b}", "\u{7c}", "\u{7d}", "\u{7e}", "\u{a1}", "\u{a2}", "\u{a6}", "\u{a7}", "\u{a9}",
@@ -17035,7 +17793,7 @@ fn unicode_escape_property_binary_patternsyntax_tc(tc: TestConfig) {
         "\u{21ce}", "\u{21d0}", "\u{21d2}", "\u{21d3}", "\u{21d4}", "\u{21d5}", "\u{21f4}",
         "\u{2300}", "\u{2308}", "\u{2309}", "\u{230a}", "\u{230b}", "\u{230c}", "\u{2320}",
         "\u{2322}", "\u{2329}", "\u{232a}", "\u{232b}", "\u{237c}", "\u{237d}", "\u{239b}",
-        "\u{23b4}", "\u{23dc}", "\u{23e2}", "\u{2427}", "\u{2440}", "\u{244b}", "\u{2500}",
+        "\u{23b4}", "\u{23dc}", "\u{23e2}", "\u{242a}", "\u{2440}", "\u{244b}", "\u{2500}",
         "\u{25b7}", "\u{25b8}", "\u{25c1}", "\u{25c2}", "\u{25f8}", "\u{2600}", "\u{266f}",
         "\u{2670}", "\u{2768}", "\u{2769}", "\u{276a}", "\u{276b}", "\u{276c}", "\u{276d}",
         "\u{276e}", "\u{276f}", "\u{2770}", "\u{2771}", "\u{2772}", "\u{2773}", "\u{2774}",
@@ -17047,18 +17805,18 @@ fn unicode_escape_property_binary_patternsyntax_tc(tc: TestConfig) {
         "\u{2993}", "\u{2994}", "\u{2995}", "\u{2996}", "\u{2997}", "\u{2998}", "\u{2999}",
         "\u{29d8}", "\u{29d9}", "\u{29da}", "\u{29db}", "\u{29dc}", "\u{29fc}", "\u{29fd}",
         "\u{29fe}", "\u{2b00}", "\u{2b30}", "\u{2b45}", "\u{2b47}", "\u{2b4d}", "\u{2b74}",
-        "\u{2b76}", "\u{2b96}", "\u{2b97}", "\u{2e00}", "\u{2e02}", "\u{2e03}", "\u{2e04}",
-        "\u{2e05}", "\u{2e06}", "\u{2e09}", "\u{2e0a}", "\u{2e0b}", "\u{2e0c}", "\u{2e0d}",
-        "\u{2e0e}", "\u{2e17}", "\u{2e18}", "\u{2e1a}", "\u{2e1b}", "\u{2e1c}", "\u{2e1d}",
-        "\u{2e1e}", "\u{2e20}", "\u{2e21}", "\u{2e22}", "\u{2e23}", "\u{2e24}", "\u{2e25}",
-        "\u{2e26}", "\u{2e27}", "\u{2e28}", "\u{2e29}", "\u{2e2a}", "\u{2e2f}", "\u{2e30}",
-        "\u{2e3a}", "\u{2e3c}", "\u{2e40}", "\u{2e41}", "\u{2e42}", "\u{2e43}", "\u{2e50}",
-        "\u{2e52}", "\u{2e55}", "\u{2e56}", "\u{2e57}", "\u{2e58}", "\u{2e59}", "\u{2e5a}",
-        "\u{2e5b}", "\u{2e5c}", "\u{2e5d}", "\u{2e5e}", "\u{3001}", "\u{3008}", "\u{3009}",
-        "\u{300a}", "\u{300b}", "\u{300c}", "\u{300d}", "\u{300e}", "\u{300f}", "\u{3010}",
-        "\u{3011}", "\u{3012}", "\u{3014}", "\u{3015}", "\u{3016}", "\u{3017}", "\u{3018}",
-        "\u{3019}", "\u{301a}", "\u{301b}", "\u{301c}", "\u{301d}", "\u{301e}", "\u{3020}",
-        "\u{3030}", "\u{fd3e}", "\u{fd3f}", "\u{fe45}",
+        "\u{2b76}", "\u{2e00}", "\u{2e02}", "\u{2e03}", "\u{2e04}", "\u{2e05}", "\u{2e06}",
+        "\u{2e09}", "\u{2e0a}", "\u{2e0b}", "\u{2e0c}", "\u{2e0d}", "\u{2e0e}", "\u{2e17}",
+        "\u{2e18}", "\u{2e1a}", "\u{2e1b}", "\u{2e1c}", "\u{2e1d}", "\u{2e1e}", "\u{2e20}",
+        "\u{2e21}", "\u{2e22}", "\u{2e23}", "\u{2e24}", "\u{2e25}", "\u{2e26}", "\u{2e27}",
+        "\u{2e28}", "\u{2e29}", "\u{2e2a}", "\u{2e2f}", "\u{2e30}", "\u{2e3a}", "\u{2e3c}",
+        "\u{2e40}", "\u{2e41}", "\u{2e42}", "\u{2e43}", "\u{2e50}", "\u{2e52}", "\u{2e55}",
+        "\u{2e56}", "\u{2e57}", "\u{2e58}", "\u{2e59}", "\u{2e5a}", "\u{2e5b}", "\u{2e5c}",
+        "\u{2e5d}", "\u{2e5e}", "\u{3001}", "\u{3008}", "\u{3009}", "\u{300a}", "\u{300b}",
+        "\u{300c}", "\u{300d}", "\u{300e}", "\u{300f}", "\u{3010}", "\u{3011}", "\u{3012}",
+        "\u{3014}", "\u{3015}", "\u{3016}", "\u{3017}", "\u{3018}", "\u{3019}", "\u{301a}",
+        "\u{301b}", "\u{301c}", "\u{301d}", "\u{301e}", "\u{3020}", "\u{3030}", "\u{fd3e}",
+        "\u{fd3f}", "\u{fe45}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Pattern_Syntax}+$", "^\\p{Pat_Syn}+$"];
     for regex in REGEXES {
@@ -17075,7 +17833,7 @@ fn unicode_escape_property_binary_patternwhitespace() {
 }
 
 fn unicode_escape_property_binary_patternwhitespace_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 6] = [
+    static CODE_POINTS: [&str; 6] = [
         "\u{9}", "\u{20}", "\u{85}", "\u{200e}", "\u{2028}", "\u{2029}",
     ];
     const REGEXES: [&str; 2] = ["^\\p{Pattern_White_Space}+$", "^\\p{Pat_WS}+$"];
@@ -17093,7 +17851,7 @@ fn unicode_escape_property_binary_quotationmark() {
 }
 
 fn unicode_escape_property_binary_quotationmark_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 28] = [
+    static CODE_POINTS: [&str; 28] = [
         "\u{22}", "\u{27}", "\u{ab}", "\u{bb}", "\u{2018}", "\u{2019}", "\u{201a}", "\u{201b}",
         "\u{201d}", "\u{201e}", "\u{201f}", "\u{2039}", "\u{203a}", "\u{2e42}", "\u{300c}",
         "\u{300d}", "\u{300e}", "\u{300f}", "\u{301d}", "\u{301e}", "\u{fe41}", "\u{fe42}",
@@ -17114,7 +17872,7 @@ fn unicode_escape_property_binary_radical() {
 }
 
 fn unicode_escape_property_binary_radical_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 3] = ["\u{2e80}", "\u{2e9b}", "\u{2f00}"];
+    static CODE_POINTS: [&str; 3] = ["\u{2e80}", "\u{2e9b}", "\u{2f00}"];
     const REGEXES: [&str; 1] = ["^\\p{Radical}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -17130,7 +17888,7 @@ fn unicode_escape_property_binary_regionalindicator() {
 }
 
 fn unicode_escape_property_binary_regionalindicator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1] = ["\u{1f1e6}"];
+    static CODE_POINTS: [&str; 1] = ["\u{1f1e6}"];
     const REGEXES: [&str; 2] = ["^\\p{Regional_Indicator}+$", "^\\p{RI}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -17146,7 +17904,7 @@ fn unicode_escape_property_binary_sentenceterminal() {
 }
 
 fn unicode_escape_property_binary_sentenceterminal_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 81] = [
+    static CODE_POINTS: [&str; 88] = [
         "\u{21}",
         "\u{2e}",
         "\u{3f}",
@@ -17169,13 +17927,16 @@ fn unicode_escape_property_binary_sentenceterminal_tc(tc: TestConfig) {
         "\u{1809}",
         "\u{1944}",
         "\u{1aa8}",
+        "\u{1b4e}",
         "\u{1b5a}",
         "\u{1b5e}",
         "\u{1b7d}",
         "\u{1c3b}",
         "\u{1c7e}",
+        "\u{2024}",
         "\u{203c}",
         "\u{2047}",
+        "\u{2cf9}",
         "\u{2e2e}",
         "\u{2e3c}",
         "\u{2e53}",
@@ -17191,6 +17952,8 @@ fn unicode_escape_property_binary_sentenceterminal_tc(tc: TestConfig) {
         "\u{aa5d}",
         "\u{aaf0}",
         "\u{abeb}",
+        "\u{fe12}",
+        "\u{fe15}",
         "\u{fe52}",
         "\u{fe56}",
         "\u{ff01}",
@@ -17209,6 +17972,7 @@ fn unicode_escape_property_binary_sentenceterminal_tc(tc: TestConfig) {
         "\u{11238}",
         "\u{1123b}",
         "\u{112a9}",
+        "\u{113d4}",
         "\u{1144b}",
         "\u{115c2}",
         "\u{115c9}",
@@ -17225,6 +17989,7 @@ fn unicode_escape_property_binary_sentenceterminal_tc(tc: TestConfig) {
         "\u{16af5}",
         "\u{16b37}",
         "\u{16b44}",
+        "\u{16d6e}",
         "\u{16e98}",
         "\u{1bc9f}",
         "\u{1da88}",
@@ -17244,7 +18009,7 @@ fn unicode_escape_property_binary_softdotted() {
 }
 
 fn unicode_escape_property_binary_softdotted_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 34] = [
+    static CODE_POINTS: [&str; 34] = [
         "\u{69}",
         "\u{12f}",
         "\u{249}",
@@ -17295,7 +18060,7 @@ fn unicode_escape_property_binary_terminalpunctuation() {
 }
 
 fn unicode_escape_property_binary_terminalpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 108] = [
+    static CODE_POINTS: [&str; 116] = [
         "\u{21}",
         "\u{2c}",
         "\u{2e}",
@@ -17313,6 +18078,7 @@ fn unicode_escape_property_binary_terminalpunctuation_tc(tc: TestConfig) {
         "\u{70c}",
         "\u{7f8}",
         "\u{830}",
+        "\u{837}",
         "\u{85e}",
         "\u{964}",
         "\u{e5a}",
@@ -17329,13 +18095,16 @@ fn unicode_escape_property_binary_terminalpunctuation_tc(tc: TestConfig) {
         "\u{1808}",
         "\u{1944}",
         "\u{1aa8}",
+        "\u{1b4e}",
         "\u{1b5a}",
         "\u{1b5d}",
         "\u{1b7d}",
         "\u{1c3b}",
         "\u{1c7e}",
+        "\u{2024}",
         "\u{203c}",
         "\u{2047}",
+        "\u{2cf9}",
         "\u{2e2e}",
         "\u{2e3c}",
         "\u{2e41}",
@@ -17354,6 +18123,8 @@ fn unicode_escape_property_binary_terminalpunctuation_tc(tc: TestConfig) {
         "\u{aadf}",
         "\u{aaf0}",
         "\u{abeb}",
+        "\u{fe12}",
+        "\u{fe15}",
         "\u{fe50}",
         "\u{fe54}",
         "\u{ff01}",
@@ -17381,6 +18152,7 @@ fn unicode_escape_property_binary_terminalpunctuation_tc(tc: TestConfig) {
         "\u{111de}",
         "\u{11238}",
         "\u{112a9}",
+        "\u{113d4}",
         "\u{1144b}",
         "\u{1145a}",
         "\u{115c2}",
@@ -17401,6 +18173,7 @@ fn unicode_escape_property_binary_terminalpunctuation_tc(tc: TestConfig) {
         "\u{16af5}",
         "\u{16b37}",
         "\u{16b44}",
+        "\u{16d6e}",
         "\u{16e97}",
         "\u{1bc9f}",
         "\u{1da87}",
@@ -17420,7 +18193,7 @@ fn unicode_escape_property_binary_unifiedideograph() {
 }
 
 fn unicode_escape_property_binary_unifiedideograph_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 17] = [
+    static CODE_POINTS: [&str; 16] = [
         "\u{3400}",
         "\u{4e00}",
         "\u{fa0e}",
@@ -17432,7 +18205,6 @@ fn unicode_escape_property_binary_unifiedideograph_tc(tc: TestConfig) {
         "\u{fa27}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -17454,7 +18226,7 @@ fn unicode_escape_property_binary_uppercase() {
 }
 
 fn unicode_escape_property_binary_uppercase_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 651] = [
+    static CODE_POINTS: [&str; 660] = [
         "\u{41}",
         "\u{c0}",
         "\u{d8}",
@@ -17731,6 +18503,7 @@ fn unicode_escape_property_binary_uppercase_tc(tc: TestConfig) {
         "\u{10c7}",
         "\u{10cd}",
         "\u{13a0}",
+        "\u{1c89}",
         "\u{1c90}",
         "\u{1cbd}",
         "\u{1e00}",
@@ -18057,9 +18830,15 @@ fn unicode_escape_property_binary_uppercase_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
+        "\u{a7da}",
+        "\u{a7dc}",
         "\u{a7f5}",
         "\u{ff21}",
         "\u{10400}",
@@ -18069,8 +18848,10 @@ fn unicode_escape_property_binary_uppercase_tc(tc: TestConfig) {
         "\u{1058c}",
         "\u{10594}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1d400}",
         "\u{1d434}",
         "\u{1d468}",
@@ -18122,7 +18903,7 @@ fn unicode_escape_property_binary_variationselector() {
 }
 
 fn unicode_escape_property_binary_variationselector_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 4] = ["\u{180b}", "\u{180f}", "\u{fe00}", "\u{e0100}"];
+    static CODE_POINTS: [&str; 4] = ["\u{180b}", "\u{180f}", "\u{fe00}", "\u{e0100}"];
     const REGEXES: [&str; 2] = ["^\\p{Variation_Selector}+$", "^\\p{VS}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -18138,7 +18919,7 @@ fn unicode_escape_property_binary_whitespace() {
 }
 
 fn unicode_escape_property_binary_whitespace_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 11] = [
+    static CODE_POINTS: [&str; 11] = [
         "\u{9}", "\u{20}", "\u{85}", "\u{a0}", "\u{1680}", "\u{2000}", "\u{2028}", "\u{2029}",
         "\u{202f}", "\u{205f}", "\u{3000}",
     ];
@@ -18157,7 +18938,7 @@ fn unicode_escape_property_binary_emoji() {
 }
 
 fn unicode_escape_property_binary_emoji_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 404] = [
+    static CODE_POINTS: [&str; 418] = [
         "\u{23}",
         "\u{2a}",
         "\u{30}",
@@ -18477,6 +19258,7 @@ fn unicode_escape_property_binary_emoji_tc(tc: TestConfig) {
         "\u{1f6d1}",
         "\u{1f6d5}",
         "\u{1f6d6}",
+        "\u{1f6d8}",
         "\u{1f6dc}",
         "\u{1f6dd}",
         "\u{1f6e0}",
@@ -18544,6 +19326,10 @@ fn unicode_escape_property_binary_emoji_tc(tc: TestConfig) {
         "\u{1fa80}",
         "\u{1fa83}",
         "\u{1fa87}",
+        "\u{1fa89}",
+        "\u{1fa8a}",
+        "\u{1fa8e}",
+        "\u{1fa8f}",
         "\u{1fa90}",
         "\u{1fa96}",
         "\u{1faa9}",
@@ -18551,15 +19337,24 @@ fn unicode_escape_property_binary_emoji_tc(tc: TestConfig) {
         "\u{1fab0}",
         "\u{1fab7}",
         "\u{1fabb}",
+        "\u{1fabe}",
         "\u{1fabf}",
         "\u{1fac0}",
         "\u{1fac3}",
+        "\u{1fac6}",
+        "\u{1fac8}",
+        "\u{1facd}",
         "\u{1face}",
         "\u{1fad0}",
         "\u{1fad7}",
         "\u{1fada}",
+        "\u{1fadc}",
+        "\u{1fadf}",
         "\u{1fae0}",
         "\u{1fae8}",
+        "\u{1fae9}",
+        "\u{1faea}",
+        "\u{1faef}",
         "\u{1faf0}",
         "\u{1faf7}",
     ];
@@ -18578,7 +19373,7 @@ fn unicode_escape_property_binary_emojicomponent() {
 }
 
 fn unicode_escape_property_binary_emojicomponent_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 10] = [
+    static CODE_POINTS: [&str; 10] = [
         "\u{23}",
         "\u{2a}",
         "\u{30}",
@@ -18605,7 +19400,7 @@ fn unicode_escape_property_binary_emojimodifier() {
 }
 
 fn unicode_escape_property_binary_emojimodifier_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1] = ["\u{1f3fb}"];
+    static CODE_POINTS: [&str; 1] = ["\u{1f3fb}"];
     const REGEXES: [&str; 2] = ["^\\p{Emoji_Modifier}+$", "^\\p{EMod}+$"];
     for regex in REGEXES {
         let regex = tc.compilef(regex, "u");
@@ -18621,7 +19416,7 @@ fn unicode_escape_property_binary_emojimodifierbase() {
 }
 
 fn unicode_escape_property_binary_emojimodifierbase_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 50] = [
+    static CODE_POINTS: [&str; 50] = [
         "\u{261d}",
         "\u{26f9}",
         "\u{270a}",
@@ -18688,7 +19483,7 @@ fn unicode_escape_property_binary_emojipresentation() {
 }
 
 fn unicode_escape_property_binary_emojipresentation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 282] = [
+    static CODE_POINTS: [&str; 296] = [
         "\u{231a}",
         "\u{23e9}",
         "\u{23f0}",
@@ -18890,6 +19685,7 @@ fn unicode_escape_property_binary_emojipresentation_tc(tc: TestConfig) {
         "\u{1f6d1}",
         "\u{1f6d5}",
         "\u{1f6d6}",
+        "\u{1f6d8}",
         "\u{1f6dc}",
         "\u{1f6dd}",
         "\u{1f6eb}",
@@ -18953,6 +19749,10 @@ fn unicode_escape_property_binary_emojipresentation_tc(tc: TestConfig) {
         "\u{1fa80}",
         "\u{1fa83}",
         "\u{1fa87}",
+        "\u{1fa89}",
+        "\u{1fa8a}",
+        "\u{1fa8e}",
+        "\u{1fa8f}",
         "\u{1fa90}",
         "\u{1fa96}",
         "\u{1faa9}",
@@ -18960,15 +19760,24 @@ fn unicode_escape_property_binary_emojipresentation_tc(tc: TestConfig) {
         "\u{1fab0}",
         "\u{1fab7}",
         "\u{1fabb}",
+        "\u{1fabe}",
         "\u{1fabf}",
         "\u{1fac0}",
         "\u{1fac3}",
+        "\u{1fac6}",
+        "\u{1fac8}",
+        "\u{1facd}",
         "\u{1face}",
         "\u{1fad0}",
         "\u{1fad7}",
         "\u{1fada}",
+        "\u{1fadc}",
+        "\u{1fadf}",
         "\u{1fae0}",
         "\u{1fae8}",
+        "\u{1fae9}",
+        "\u{1faea}",
+        "\u{1faef}",
         "\u{1faf0}",
         "\u{1faf7}",
     ];
@@ -18987,7 +19796,7 @@ fn unicode_escape_property_binary_extendedpictographic() {
 }
 
 fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 511] = [
+    static CODE_POINTS: [&str; 451] = [
         "\u{a9}",
         "\u{ae}",
         "\u{203c}",
@@ -18998,7 +19807,6 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{21a9}",
         "\u{231a}",
         "\u{2328}",
-        "\u{2388}",
         "\u{23cf}",
         "\u{23e9}",
         "\u{23ed}",
@@ -19015,106 +19823,63 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{2600}",
         "\u{2602}",
         "\u{2604}",
-        "\u{2605}",
-        "\u{2607}",
         "\u{260e}",
-        "\u{260f}",
         "\u{2611}",
-        "\u{2612}",
         "\u{2614}",
-        "\u{2616}",
         "\u{2618}",
-        "\u{2619}",
         "\u{261d}",
-        "\u{261e}",
         "\u{2620}",
-        "\u{2621}",
         "\u{2622}",
-        "\u{2624}",
         "\u{2626}",
-        "\u{2627}",
         "\u{262a}",
-        "\u{262b}",
         "\u{262e}",
         "\u{262f}",
-        "\u{2630}",
         "\u{2638}",
         "\u{263a}",
-        "\u{263b}",
         "\u{2640}",
-        "\u{2641}",
         "\u{2642}",
-        "\u{2643}",
         "\u{2648}",
-        "\u{2654}",
         "\u{265f}",
         "\u{2660}",
-        "\u{2661}",
         "\u{2663}",
-        "\u{2664}",
         "\u{2665}",
-        "\u{2667}",
         "\u{2668}",
-        "\u{2669}",
         "\u{267b}",
-        "\u{267c}",
         "\u{267e}",
         "\u{267f}",
-        "\u{2680}",
-        "\u{2690}",
         "\u{2692}",
         "\u{2693}",
         "\u{2694}",
         "\u{2695}",
         "\u{2696}",
-        "\u{2698}",
         "\u{2699}",
-        "\u{269a}",
         "\u{269b}",
-        "\u{269d}",
         "\u{26a0}",
-        "\u{26a2}",
         "\u{26a7}",
-        "\u{26a8}",
         "\u{26aa}",
-        "\u{26ac}",
         "\u{26b0}",
-        "\u{26b2}",
         "\u{26bd}",
-        "\u{26bf}",
         "\u{26c4}",
-        "\u{26c6}",
         "\u{26c8}",
-        "\u{26c9}",
         "\u{26ce}",
         "\u{26cf}",
-        "\u{26d0}",
         "\u{26d1}",
-        "\u{26d2}",
         "\u{26d3}",
         "\u{26d4}",
-        "\u{26d5}",
         "\u{26e9}",
         "\u{26ea}",
-        "\u{26eb}",
         "\u{26f0}",
         "\u{26f2}",
         "\u{26f4}",
         "\u{26f5}",
-        "\u{26f6}",
         "\u{26f7}",
         "\u{26fa}",
-        "\u{26fb}",
         "\u{26fd}",
-        "\u{26fe}",
         "\u{2702}",
-        "\u{2703}",
         "\u{2705}",
         "\u{2708}",
         "\u{270d}",
-        "\u{270e}",
         "\u{270f}",
-        "\u{2710}",
         "\u{2712}",
         "\u{2714}",
         "\u{2716}",
@@ -19130,7 +19895,6 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{2757}",
         "\u{2763}",
         "\u{2764}",
-        "\u{2765}",
         "\u{2795}",
         "\u{27a1}",
         "\u{27b0}",
@@ -19144,19 +19908,19 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{303d}",
         "\u{3297}",
         "\u{3299}",
-        "\u{1f000}",
         "\u{1f004}",
-        "\u{1f005}",
+        "\u{1f02c}",
+        "\u{1f094}",
+        "\u{1f0af}",
+        "\u{1f0c0}",
         "\u{1f0cf}",
         "\u{1f0d0}",
-        "\u{1f10d}",
-        "\u{1f12f}",
-        "\u{1f16c}",
+        "\u{1f0f6}",
         "\u{1f170}",
         "\u{1f17e}",
         "\u{1f18e}",
         "\u{1f191}",
-        "\u{1f1ad}",
+        "\u{1f1ae}",
         "\u{1f201}",
         "\u{1f203}",
         "\u{1f21a}",
@@ -19166,6 +19930,7 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f249}",
         "\u{1f250}",
         "\u{1f252}",
+        "\u{1f266}",
         "\u{1f300}",
         "\u{1f30d}",
         "\u{1f30f}",
@@ -19181,7 +19946,6 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f31d}",
         "\u{1f31f}",
         "\u{1f321}",
-        "\u{1f322}",
         "\u{1f324}",
         "\u{1f32d}",
         "\u{1f330}",
@@ -19197,11 +19961,8 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f37d}",
         "\u{1f37e}",
         "\u{1f380}",
-        "\u{1f394}",
         "\u{1f396}",
-        "\u{1f398}",
         "\u{1f399}",
-        "\u{1f39c}",
         "\u{1f39e}",
         "\u{1f3a0}",
         "\u{1f3c5}",
@@ -19216,11 +19977,9 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f3e0}",
         "\u{1f3e4}",
         "\u{1f3e5}",
-        "\u{1f3f1}",
         "\u{1f3f3}",
         "\u{1f3f4}",
         "\u{1f3f5}",
-        "\u{1f3f6}",
         "\u{1f3f7}",
         "\u{1f3f8}",
         "\u{1f400}",
@@ -19257,7 +20016,6 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f4f8}",
         "\u{1f4f9}",
         "\u{1f4fd}",
-        "\u{1f4fe}",
         "\u{1f4ff}",
         "\u{1f503}",
         "\u{1f504}",
@@ -19268,51 +20026,30 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f516}",
         "\u{1f52c}",
         "\u{1f52e}",
-        "\u{1f546}",
         "\u{1f549}",
         "\u{1f54b}",
-        "\u{1f54f}",
         "\u{1f550}",
         "\u{1f55c}",
-        "\u{1f568}",
         "\u{1f56f}",
-        "\u{1f571}",
         "\u{1f573}",
         "\u{1f57a}",
-        "\u{1f57b}",
         "\u{1f587}",
-        "\u{1f588}",
         "\u{1f58a}",
-        "\u{1f58e}",
         "\u{1f590}",
-        "\u{1f591}",
         "\u{1f595}",
-        "\u{1f597}",
         "\u{1f5a4}",
         "\u{1f5a5}",
-        "\u{1f5a6}",
         "\u{1f5a8}",
-        "\u{1f5a9}",
         "\u{1f5b1}",
-        "\u{1f5b3}",
         "\u{1f5bc}",
-        "\u{1f5bd}",
         "\u{1f5c2}",
-        "\u{1f5c5}",
         "\u{1f5d1}",
-        "\u{1f5d4}",
         "\u{1f5dc}",
-        "\u{1f5df}",
         "\u{1f5e1}",
-        "\u{1f5e2}",
         "\u{1f5e3}",
-        "\u{1f5e4}",
         "\u{1f5e8}",
-        "\u{1f5e9}",
         "\u{1f5ef}",
-        "\u{1f5f0}",
         "\u{1f5f3}",
-        "\u{1f5f4}",
         "\u{1f5fa}",
         "\u{1f5fb}",
         "\u{1f600}",
@@ -19381,26 +20118,22 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f6bf}",
         "\u{1f6c0}",
         "\u{1f6c1}",
-        "\u{1f6c6}",
         "\u{1f6cb}",
         "\u{1f6cc}",
         "\u{1f6cd}",
         "\u{1f6d0}",
         "\u{1f6d1}",
-        "\u{1f6d3}",
         "\u{1f6d5}",
         "\u{1f6d6}",
         "\u{1f6d8}",
+        "\u{1f6d9}",
         "\u{1f6dc}",
         "\u{1f6dd}",
         "\u{1f6e0}",
-        "\u{1f6e6}",
         "\u{1f6e9}",
-        "\u{1f6ea}",
         "\u{1f6eb}",
         "\u{1f6ed}",
         "\u{1f6f0}",
-        "\u{1f6f1}",
         "\u{1f6f3}",
         "\u{1f6f4}",
         "\u{1f6f7}",
@@ -19408,8 +20141,7 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f6fa}",
         "\u{1f6fb}",
         "\u{1f6fd}",
-        "\u{1f774}",
-        "\u{1f7d5}",
+        "\u{1f7da}",
         "\u{1f7e0}",
         "\u{1f7ec}",
         "\u{1f7f0}",
@@ -19419,6 +20151,9 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f85a}",
         "\u{1f888}",
         "\u{1f8ae}",
+        "\u{1f8bc}",
+        "\u{1f8c2}",
+        "\u{1f8d9}",
         "\u{1f90c}",
         "\u{1f90d}",
         "\u{1f910}",
@@ -19464,7 +20199,8 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1f9cd}",
         "\u{1f9d0}",
         "\u{1f9e7}",
-        "\u{1fa00}",
+        "\u{1fa58}",
+        "\u{1fa6e}",
         "\u{1fa70}",
         "\u{1fa74}",
         "\u{1fa75}",
@@ -19475,6 +20211,10 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1fa83}",
         "\u{1fa87}",
         "\u{1fa89}",
+        "\u{1fa8a}",
+        "\u{1fa8b}",
+        "\u{1fa8e}",
+        "\u{1fa8f}",
         "\u{1fa90}",
         "\u{1fa96}",
         "\u{1faa9}",
@@ -19487,14 +20227,23 @@ fn unicode_escape_property_binary_extendedpictographic_tc(tc: TestConfig) {
         "\u{1fac0}",
         "\u{1fac3}",
         "\u{1fac6}",
+        "\u{1fac7}",
+        "\u{1fac8}",
+        "\u{1fac9}",
+        "\u{1facd}",
         "\u{1face}",
         "\u{1fad0}",
         "\u{1fad7}",
         "\u{1fada}",
         "\u{1fadc}",
+        "\u{1fadd}",
+        "\u{1fadf}",
         "\u{1fae0}",
         "\u{1fae8}",
         "\u{1fae9}",
+        "\u{1faea}",
+        "\u{1faeb}",
+        "\u{1faef}",
         "\u{1faf0}",
         "\u{1faf7}",
         "\u{1faf9}",
@@ -19515,7 +20264,7 @@ fn unicode_escape_property_binary_changeswhennfkccasefolded() {
 }
 
 fn unicode_escape_property_binary_changeswhennfkccasefolded_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1003] = [
+    static CODE_POINTS: [&str; 1013] = [
         "\u{41}",
         "\u{a0}",
         "\u{a8}",
@@ -20277,10 +21026,16 @@ fn unicode_escape_property_binary_changeswhennfkccasefolded_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
-        "\u{a7f2}",
+        "\u{a7da}",
+        "\u{a7dc}",
+        "\u{a7f1}",
         "\u{a7f5}",
         "\u{a7f8}",
         "\u{ab5c}",
@@ -20419,9 +21174,13 @@ fn unicode_escape_property_binary_changeswhennfkccasefolded_tc(tc: TestConfig) {
         "\u{10787}",
         "\u{107b2}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1bca0}",
+        "\u{1ccd6}",
+        "\u{1ccf0}",
         "\u{1d15e}",
         "\u{1d173}",
         "\u{1d1bb}",
@@ -20535,7 +21294,7 @@ fn unicode_escape_property_binary_bidimirrored() {
 }
 
 fn unicode_escape_property_binary_bidimirrored_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 224] = [
+    static CODE_POINTS: [&str; 224] = [
         "\u{28}",
         "\u{29}",
         "\u{3c}",
@@ -20576,7 +21335,7 @@ fn unicode_escape_property_binary_bidimirrored_tc(tc: TestConfig) {
         "\u{225f}",
         "\u{2262}",
         "\u{2264}",
-        "\u{226e}",
+        "\u{226d}",
         "\u{228f}",
         "\u{2298}",
         "\u{22a2}",
@@ -20776,7 +21535,7 @@ fn unicode_escape_property_gc_closepunctuation() {
 }
 
 fn unicode_escape_property_gc_closepunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 76] = [
+    static CODE_POINTS: [&str; 76] = [
         "\u{29}", "\u{5d}", "\u{7d}", "\u{f3b}", "\u{f3d}", "\u{169c}", "\u{2046}", "\u{207e}",
         "\u{208e}", "\u{2309}", "\u{230b}", "\u{232a}", "\u{2769}", "\u{276b}", "\u{276d}",
         "\u{276f}", "\u{2771}", "\u{2773}", "\u{2775}", "\u{27c6}", "\u{27e7}", "\u{27e9}",
@@ -20811,7 +21570,7 @@ fn unicode_escape_property_gc_connectorpunctuation() {
 }
 
 fn unicode_escape_property_gc_connectorpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 6] = [
+    static CODE_POINTS: [&str; 6] = [
         "\u{5f}", "\u{203f}", "\u{2054}", "\u{fe33}", "\u{fe4d}", "\u{ff3f}",
     ];
     const REGEXES: [&str; 6] = [
@@ -20836,7 +21595,7 @@ fn unicode_escape_property_gc_control() {
 }
 
 fn unicode_escape_property_gc_control_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 2] = ["\u{0}", "\u{7f}"];
+    static CODE_POINTS: [&str; 2] = ["\u{0}", "\u{7f}"];
     const REGEXES: [&str; 9] = [
         "^\\p{General_Category=Control}+$",
         "^\\p{gc=Control}+$",
@@ -20862,7 +21621,7 @@ fn unicode_escape_property_gc_currencysymbol() {
 }
 
 fn unicode_escape_property_gc_currencysymbol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 21] = [
+    static CODE_POINTS: [&str; 21] = [
         "\u{24}",
         "\u{a2}",
         "\u{58f}",
@@ -20907,7 +21666,7 @@ fn unicode_escape_property_gc_dashpunctuation() {
 }
 
 fn unicode_escape_property_gc_dashpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 19] = [
+    static CODE_POINTS: [&str; 20] = [
         "\u{2d}",
         "\u{58a}",
         "\u{5be}",
@@ -20926,6 +21685,7 @@ fn unicode_escape_property_gc_dashpunctuation_tc(tc: TestConfig) {
         "\u{fe58}",
         "\u{fe63}",
         "\u{ff0d}",
+        "\u{10d6e}",
         "\u{10ead}",
     ];
     const REGEXES: [&str; 6] = [
@@ -20950,7 +21710,7 @@ fn unicode_escape_property_gc_decimalnumber() {
 }
 
 fn unicode_escape_property_gc_decimalnumber_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 64] = [
+    static CODE_POINTS: [&str; 72] = [
         "\u{30}",
         "\u{660}",
         "\u{6f0}",
@@ -20990,6 +21750,7 @@ fn unicode_escape_property_gc_decimalnumber_tc(tc: TestConfig) {
         "\u{ff10}",
         "\u{104a0}",
         "\u{10d30}",
+        "\u{10d40}",
         "\u{11066}",
         "\u{110f0}",
         "\u{11136}",
@@ -20999,20 +21760,27 @@ fn unicode_escape_property_gc_decimalnumber_tc(tc: TestConfig) {
         "\u{114d0}",
         "\u{11650}",
         "\u{116c0}",
+        "\u{116d0}",
         "\u{11730}",
         "\u{118e0}",
         "\u{11950}",
+        "\u{11bf0}",
         "\u{11c50}",
         "\u{11d50}",
         "\u{11da0}",
+        "\u{11de0}",
         "\u{11f50}",
+        "\u{16130}",
         "\u{16a60}",
         "\u{16ac0}",
         "\u{16b50}",
+        "\u{16d70}",
+        "\u{1ccf0}",
         "\u{1d7ce}",
         "\u{1e140}",
         "\u{1e2f0}",
         "\u{1e4f0}",
+        "\u{1e5f1}",
         "\u{1e950}",
         "\u{1fbf0}",
     ];
@@ -21041,7 +21809,7 @@ fn unicode_escape_property_gc_enclosingmark() {
 }
 
 fn unicode_escape_property_gc_enclosingmark_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 5] = ["\u{488}", "\u{1abe}", "\u{20dd}", "\u{20e2}", "\u{a670}"];
+    static CODE_POINTS: [&str; 5] = ["\u{488}", "\u{1abe}", "\u{20dd}", "\u{20e2}", "\u{a670}"];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Enclosing_Mark}+$",
         "^\\p{gc=Enclosing_Mark}+$",
@@ -21064,7 +21832,7 @@ fn unicode_escape_property_gc_finalpunctuation() {
 }
 
 fn unicode_escape_property_gc_finalpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 10] = [
+    static CODE_POINTS: [&str; 10] = [
         "\u{bb}", "\u{2019}", "\u{201d}", "\u{203a}", "\u{2e03}", "\u{2e05}", "\u{2e0a}",
         "\u{2e0d}", "\u{2e1d}", "\u{2e21}",
     ];
@@ -21090,7 +21858,7 @@ fn unicode_escape_property_gc_format() {
 }
 
 fn unicode_escape_property_gc_format_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 21] = [
+    static CODE_POINTS: [&str; 21] = [
         "\u{ad}",
         "\u{600}",
         "\u{61c}",
@@ -21135,7 +21903,7 @@ fn unicode_escape_property_gc_initialpunctuation() {
 }
 
 fn unicode_escape_property_gc_initialpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 11] = [
+    static CODE_POINTS: [&str; 11] = [
         "\u{ab}", "\u{2018}", "\u{201b}", "\u{201f}", "\u{2039}", "\u{2e02}", "\u{2e04}",
         "\u{2e09}", "\u{2e0c}", "\u{2e1c}", "\u{2e20}",
     ];
@@ -21161,7 +21929,7 @@ fn unicode_escape_property_gc_letternumber() {
 }
 
 fn unicode_escape_property_gc_letternumber_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 12] = [
+    static CODE_POINTS: [&str; 13] = [
         "\u{16ee}",
         "\u{2160}",
         "\u{2185}",
@@ -21174,6 +21942,7 @@ fn unicode_escape_property_gc_letternumber_tc(tc: TestConfig) {
         "\u{1034a}",
         "\u{103d1}",
         "\u{12400}",
+        "\u{16ff4}",
     ];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Letter_Number}+$",
@@ -21197,7 +21966,7 @@ fn unicode_escape_property_gc_lineseparator() {
 }
 
 fn unicode_escape_property_gc_lineseparator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1] = ["\u{2028}"];
+    static CODE_POINTS: [&str; 1] = ["\u{2028}"];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Line_Separator}+$",
         "^\\p{gc=Line_Separator}+$",
@@ -21220,7 +21989,7 @@ fn unicode_escape_property_gc_lowercaseletter() {
 }
 
 fn unicode_escape_property_gc_lowercaseletter_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 658] = [
+    static CODE_POINTS: [&str; 664] = [
         "\u{61}",
         "\u{b5}",
         "\u{df}",
@@ -21366,7 +22135,7 @@ fn unicode_escape_property_gc_lowercaseletter_tc(tc: TestConfig) {
         "\u{24b}",
         "\u{24d}",
         "\u{24f}",
-        "\u{295}",
+        "\u{296}",
         "\u{371}",
         "\u{373}",
         "\u{377}",
@@ -21495,6 +22264,7 @@ fn unicode_escape_property_gc_lowercaseletter_tc(tc: TestConfig) {
         "\u{10fd}",
         "\u{13f8}",
         "\u{1c80}",
+        "\u{1c8a}",
         "\u{1d00}",
         "\u{1d6b}",
         "\u{1d79}",
@@ -21825,11 +22595,14 @@ fn unicode_escape_property_gc_lowercaseletter_tc(tc: TestConfig) {
         "\u{a7c3}",
         "\u{a7c8}",
         "\u{a7ca}",
+        "\u{a7cd}",
+        "\u{a7cf}",
         "\u{a7d1}",
         "\u{a7d3}",
         "\u{a7d5}",
         "\u{a7d7}",
         "\u{a7d9}",
+        "\u{a7db}",
         "\u{a7f6}",
         "\u{a7fa}",
         "\u{ab30}",
@@ -21845,8 +22618,10 @@ fn unicode_escape_property_gc_lowercaseletter_tc(tc: TestConfig) {
         "\u{105b3}",
         "\u{105bb}",
         "\u{10cc0}",
+        "\u{10d70}",
         "\u{118c0}",
         "\u{16e60}",
+        "\u{16ebb}",
         "\u{1d41a}",
         "\u{1d44e}",
         "\u{1d456}",
@@ -21902,7 +22677,7 @@ fn unicode_escape_property_gc_mathsymbol() {
 }
 
 fn unicode_escape_property_gc_mathsymbol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 64] = [
+    static CODE_POINTS: [&str; 67] = [
         "\u{2b}",
         "\u{3c}",
         "\u{7c}",
@@ -21956,6 +22731,8 @@ fn unicode_escape_property_gc_mathsymbol_tc(tc: TestConfig) {
         "\u{ff5e}",
         "\u{ffe2}",
         "\u{ffe9}",
+        "\u{10d8e}",
+        "\u{1cef0}",
         "\u{1d6c1}",
         "\u{1d6db}",
         "\u{1d6fb}",
@@ -21967,6 +22744,7 @@ fn unicode_escape_property_gc_mathsymbol_tc(tc: TestConfig) {
         "\u{1d7a9}",
         "\u{1d7c3}",
         "\u{1eef0}",
+        "\u{1f8d0}",
     ];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Math_Symbol}+$",
@@ -21990,7 +22768,7 @@ fn unicode_escape_property_gc_modifierletter() {
 }
 
 fn unicode_escape_property_gc_modifierletter_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 71] = [
+    static CODE_POINTS: [&str; 79] = [
         "\u{2b0}",
         "\u{2c6}",
         "\u{2e0}",
@@ -22037,7 +22815,7 @@ fn unicode_escape_property_gc_modifierletter_tc(tc: TestConfig) {
         "\u{a717}",
         "\u{a770}",
         "\u{a788}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f8}",
         "\u{a9cf}",
         "\u{a9e6}",
@@ -22051,16 +22829,24 @@ fn unicode_escape_property_gc_modifierletter_tc(tc: TestConfig) {
         "\u{10780}",
         "\u{10787}",
         "\u{107b2}",
+        "\u{10d4e}",
+        "\u{10d6f}",
+        "\u{10ec5}",
+        "\u{11dd9}",
         "\u{16b40}",
+        "\u{16d40}",
+        "\u{16d6b}",
         "\u{16f93}",
         "\u{16fe0}",
         "\u{16fe3}",
+        "\u{16ff2}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
         "\u{1e030}",
         "\u{1e137}",
         "\u{1e4eb}",
+        "\u{1e6ff}",
         "\u{1e94b}",
     ];
     const REGEXES: [&str; 6] = [
@@ -22085,7 +22871,7 @@ fn unicode_escape_property_gc_modifiersymbol() {
 }
 
 fn unicode_escape_property_gc_modifiersymbol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 31] = [
+    static CODE_POINTS: [&str; 31] = [
         "\u{5e}",
         "\u{60}",
         "\u{a8}",
@@ -22140,7 +22926,7 @@ fn unicode_escape_property_gc_nonspacingmark() {
 }
 
 fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 346] = [
+    static CODE_POINTS: [&str; 365] = [
         "\u{300}",
         "\u{483}",
         "\u{591}",
@@ -22165,7 +22951,7 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{825}",
         "\u{829}",
         "\u{859}",
-        "\u{898}",
+        "\u{897}",
         "\u{8ca}",
         "\u{8e3}",
         "\u{93a}",
@@ -22284,6 +23070,7 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{1a7f}",
         "\u{1ab0}",
         "\u{1abf}",
+        "\u{1ae0}",
         "\u{1b00}",
         "\u{1b34}",
         "\u{1b36}",
@@ -22363,8 +23150,9 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{10a3f}",
         "\u{10ae5}",
         "\u{10d24}",
+        "\u{10d69}",
         "\u{10eab}",
-        "\u{10efd}",
+        "\u{10efa}",
         "\u{10f46}",
         "\u{10f82}",
         "\u{11001}",
@@ -22395,6 +23183,11 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{11340}",
         "\u{11366}",
         "\u{11370}",
+        "\u{113bb}",
+        "\u{113ce}",
+        "\u{113d0}",
+        "\u{113d2}",
+        "\u{113e1}",
         "\u{11438}",
         "\u{11442}",
         "\u{11446}",
@@ -22415,6 +23208,7 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{116b0}",
         "\u{116b7}",
         "\u{1171d}",
+        "\u{1171f}",
         "\u{11722}",
         "\u{11727}",
         "\u{1182f}",
@@ -22433,6 +23227,9 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{11a59}",
         "\u{11a8a}",
         "\u{11a98}",
+        "\u{11b60}",
+        "\u{11b62}",
+        "\u{11b66}",
         "\u{11c30}",
         "\u{11c38}",
         "\u{11c3f}",
@@ -22453,8 +23250,11 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{11f36}",
         "\u{11f40}",
         "\u{11f42}",
+        "\u{11f5a}",
         "\u{13440}",
         "\u{13447}",
+        "\u{1611e}",
+        "\u{1612d}",
         "\u{16af0}",
         "\u{16b30}",
         "\u{16f4f}",
@@ -22484,6 +23284,11 @@ fn unicode_escape_property_gc_nonspacingmark_tc(tc: TestConfig) {
         "\u{1e2ae}",
         "\u{1e2ec}",
         "\u{1e4ec}",
+        "\u{1e5ee}",
+        "\u{1e6e3}",
+        "\u{1e6e6}",
+        "\u{1e6ee}",
+        "\u{1e6f5}",
         "\u{1e8d0}",
         "\u{1e944}",
         "\u{e0100}",
@@ -22510,7 +23315,7 @@ fn unicode_escape_property_gc_openpunctuation() {
 }
 
 fn unicode_escape_property_gc_openpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 79] = [
+    static CODE_POINTS: [&str; 79] = [
         "\u{28}", "\u{5b}", "\u{7b}", "\u{f3a}", "\u{f3c}", "\u{169b}", "\u{201a}", "\u{201e}",
         "\u{2045}", "\u{207d}", "\u{208d}", "\u{2308}", "\u{230a}", "\u{2329}", "\u{2768}",
         "\u{276a}", "\u{276c}", "\u{276e}", "\u{2770}", "\u{2772}", "\u{2774}", "\u{27c5}",
@@ -22546,7 +23351,7 @@ fn unicode_escape_property_gc_otherletter() {
 }
 
 fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 511] = [
+    static CODE_POINTS: [&str; 537] = [
         "\u{aa}",
         "\u{ba}",
         "\u{1bb}",
@@ -22637,7 +23442,7 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{c2a}",
         "\u{c3d}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c80}",
         "\u{c85}",
@@ -22646,7 +23451,7 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{caa}",
         "\u{cb5}",
         "\u{cbd}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{cf1}",
         "\u{d04}",
@@ -22856,6 +23661,7 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{10450}",
         "\u{10500}",
         "\u{10530}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -22871,6 +23677,7 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -22887,8 +23694,12 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{10b80}",
         "\u{10c00}",
         "\u{10d00}",
+        "\u{10d4a}",
+        "\u{10d4f}",
         "\u{10e80}",
         "\u{10eb0}",
+        "\u{10ec2}",
+        "\u{10ec6}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -22927,6 +23738,13 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{1133d}",
         "\u{11350}",
         "\u{1135d}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113d1}",
+        "\u{113d3}",
         "\u{11400}",
         "\u{11447}",
         "\u{1145f}",
@@ -22960,6 +23778,7 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{11a5c}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11bc0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c40}",
@@ -22972,6 +23791,8 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{11d67}",
         "\u{11d6a}",
         "\u{11d98}",
+        "\u{11db0}",
+        "\u{11dda}",
         "\u{11ee0}",
         "\u{11f02}",
         "\u{11f04}",
@@ -22982,7 +23803,9 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{12f90}",
         "\u{13000}",
         "\u{13441}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a70}",
@@ -22990,11 +23813,12 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{16b00}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d43}",
         "\u{16f00}",
         "\u{16f50}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1b000}",
         "\u{1b132}",
         "\u{1b150}",
@@ -23011,6 +23835,14 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{1e290}",
         "\u{1e2c0}",
         "\u{1e4d0}",
+        "\u{1e5d0}",
+        "\u{1e5f0}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e4}",
+        "\u{1e6e7}",
+        "\u{1e6f0}",
+        "\u{1e6fe}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -23051,7 +23883,6 @@ fn unicode_escape_property_gc_otherletter_tc(tc: TestConfig) {
         "\u{1eeab}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -23081,7 +23912,7 @@ fn unicode_escape_property_gc_othernumber() {
 }
 
 fn unicode_escape_property_gc_othernumber_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 72] = [
+    static CODE_POINTS: [&str; 72] = [
         "\u{b2}",
         "\u{b9}",
         "\u{bc}",
@@ -23177,7 +24008,7 @@ fn unicode_escape_property_gc_otherpunctuation() {
 }
 
 fn unicode_escape_property_gc_otherpunctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 187] = [
+    static CODE_POINTS: [&str; 194] = [
         "\u{21}",
         "\u{25}",
         "\u{2a}",
@@ -23237,6 +24068,7 @@ fn unicode_escape_property_gc_otherpunctuation_tc(tc: TestConfig) {
         "\u{1a1e}",
         "\u{1aa0}",
         "\u{1aa8}",
+        "\u{1b4e}",
         "\u{1b5a}",
         "\u{1b7d}",
         "\u{1bfc}",
@@ -23320,6 +24152,7 @@ fn unicode_escape_property_gc_otherpunctuation_tc(tc: TestConfig) {
         "\u{10af0}",
         "\u{10b39}",
         "\u{10b99}",
+        "\u{10ed0}",
         "\u{10f55}",
         "\u{10f86}",
         "\u{11047}",
@@ -23333,6 +24166,8 @@ fn unicode_escape_property_gc_otherpunctuation_tc(tc: TestConfig) {
         "\u{111dd}",
         "\u{11238}",
         "\u{112a9}",
+        "\u{113d4}",
+        "\u{113d7}",
         "\u{1144b}",
         "\u{1145a}",
         "\u{1145d}",
@@ -23349,6 +24184,7 @@ fn unicode_escape_property_gc_otherpunctuation_tc(tc: TestConfig) {
         "\u{11a9a}",
         "\u{11a9e}",
         "\u{11b00}",
+        "\u{11be1}",
         "\u{11c41}",
         "\u{11c70}",
         "\u{11ef7}",
@@ -23360,10 +24196,12 @@ fn unicode_escape_property_gc_otherpunctuation_tc(tc: TestConfig) {
         "\u{16af5}",
         "\u{16b37}",
         "\u{16b44}",
+        "\u{16d6d}",
         "\u{16e97}",
         "\u{16fe2}",
         "\u{1bc9f}",
         "\u{1da87}",
+        "\u{1e5ff}",
         "\u{1e95e}",
     ];
     const REGEXES: [&str; 6] = [
@@ -23388,7 +24226,7 @@ fn unicode_escape_property_gc_othersymbol() {
 }
 
 fn unicode_escape_property_gc_othersymbol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 185] = [
+    static CODE_POINTS: [&str; 193] = [
         "\u{a6}",
         "\u{a9}",
         "\u{ae}",
@@ -23469,7 +24307,6 @@ fn unicode_escape_property_gc_othersymbol_tc(tc: TestConfig) {
         "\u{2b45}",
         "\u{2b4d}",
         "\u{2b76}",
-        "\u{2b97}",
         "\u{2ce5}",
         "\u{2e50}",
         "\u{2e80}",
@@ -23497,8 +24334,10 @@ fn unicode_escape_property_gc_othersymbol_tc(tc: TestConfig) {
         "\u{a836}",
         "\u{a839}",
         "\u{aa77}",
+        "\u{fbc3}",
         "\u{fd40}",
-        "\u{fdcf}",
+        "\u{fd90}",
+        "\u{fdc8}",
         "\u{fdfd}",
         "\u{ffe4}",
         "\u{ffe8}",
@@ -23512,12 +24351,18 @@ fn unicode_escape_property_gc_othersymbol_tc(tc: TestConfig) {
         "\u{101d0}",
         "\u{10877}",
         "\u{10ac8}",
+        "\u{10ed1}",
         "\u{1173f}",
         "\u{11fd5}",
         "\u{11fe1}",
         "\u{16b3c}",
         "\u{16b45}",
         "\u{1bc9c}",
+        "\u{1cc00}",
+        "\u{1ccfa}",
+        "\u{1cd00}",
+        "\u{1ceba}",
+        "\u{1cee0}",
         "\u{1cf50}",
         "\u{1d000}",
         "\u{1d100}",
@@ -23554,7 +24399,6 @@ fn unicode_escape_property_gc_othersymbol_tc(tc: TestConfig) {
         "\u{1f6dc}",
         "\u{1f6f0}",
         "\u{1f700}",
-        "\u{1f77b}",
         "\u{1f7e0}",
         "\u{1f7f0}",
         "\u{1f800}",
@@ -23563,17 +24407,19 @@ fn unicode_escape_property_gc_othersymbol_tc(tc: TestConfig) {
         "\u{1f860}",
         "\u{1f890}",
         "\u{1f8b0}",
+        "\u{1f8c0}",
         "\u{1f900}",
         "\u{1fa60}",
         "\u{1fa70}",
         "\u{1fa80}",
-        "\u{1fa90}",
-        "\u{1fabf}",
-        "\u{1face}",
-        "\u{1fae0}",
-        "\u{1faf0}",
+        "\u{1fa8e}",
+        "\u{1fac8}",
+        "\u{1facd}",
+        "\u{1fadf}",
+        "\u{1faef}",
         "\u{1fb00}",
         "\u{1fb94}",
+        "\u{1fbfa}",
     ];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Other_Symbol}+$",
@@ -23597,7 +24443,7 @@ fn unicode_escape_property_gc_paragraphseparator() {
 }
 
 fn unicode_escape_property_gc_paragraphseparator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 1] = ["\u{2029}"];
+    static CODE_POINTS: [&str; 1] = ["\u{2029}"];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Paragraph_Separator}+$",
         "^\\p{gc=Paragraph_Separator}+$",
@@ -23620,7 +24466,7 @@ fn unicode_escape_property_gc_privateuse() {
 }
 
 fn unicode_escape_property_gc_privateuse_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 3] = ["\u{e000}", "\u{f0000}", "\u{100000}"];
+    static CODE_POINTS: [&str; 3] = ["\u{e000}", "\u{f0000}", "\u{100000}"];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Private_Use}+$",
         "^\\p{gc=Private_Use}+$",
@@ -23643,7 +24489,7 @@ fn unicode_escape_property_gc_spaceseparator() {
 }
 
 fn unicode_escape_property_gc_spaceseparator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 7] = [
+    static CODE_POINTS: [&str; 7] = [
         "\u{20}", "\u{a0}", "\u{1680}", "\u{2000}", "\u{202f}", "\u{205f}", "\u{3000}",
     ];
     const REGEXES: [&str; 6] = [
@@ -23668,7 +24514,7 @@ fn unicode_escape_property_gc_spacingmark() {
 }
 
 fn unicode_escape_property_gc_spacingmark_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 182] = [
+    static CODE_POINTS: [&str; 193] = [
         "\u{903}",
         "\u{93b}",
         "\u{93e}",
@@ -23803,6 +24649,12 @@ fn unicode_escape_property_gc_spacingmark_tc(tc: TestConfig) {
         "\u{1134b}",
         "\u{11357}",
         "\u{11362}",
+        "\u{113b8}",
+        "\u{113c2}",
+        "\u{113c5}",
+        "\u{113c7}",
+        "\u{113cc}",
+        "\u{113cf}",
         "\u{11435}",
         "\u{11440}",
         "\u{11445}",
@@ -23819,6 +24671,7 @@ fn unicode_escape_property_gc_spacingmark_tc(tc: TestConfig) {
         "\u{116ac}",
         "\u{116ae}",
         "\u{116b6}",
+        "\u{1171e}",
         "\u{11720}",
         "\u{11726}",
         "\u{1182c}",
@@ -23834,6 +24687,9 @@ fn unicode_escape_property_gc_spacingmark_tc(tc: TestConfig) {
         "\u{11a39}",
         "\u{11a57}",
         "\u{11a97}",
+        "\u{11b61}",
+        "\u{11b65}",
+        "\u{11b67}",
         "\u{11c2f}",
         "\u{11c3e}",
         "\u{11ca9}",
@@ -23847,6 +24703,7 @@ fn unicode_escape_property_gc_spacingmark_tc(tc: TestConfig) {
         "\u{11f34}",
         "\u{11f3e}",
         "\u{11f41}",
+        "\u{1612a}",
         "\u{16f51}",
         "\u{16ff0}",
         "\u{1d165}",
@@ -23874,7 +24731,7 @@ fn unicode_escape_property_gc_titlecaseletter() {
 }
 
 fn unicode_escape_property_gc_titlecaseletter_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 10] = [
+    static CODE_POINTS: [&str; 10] = [
         "\u{1c5}", "\u{1c8}", "\u{1cb}", "\u{1f2}", "\u{1f88}", "\u{1f98}", "\u{1fa8}", "\u{1fbc}",
         "\u{1fcc}", "\u{1ffc}",
     ];
@@ -23900,7 +24757,7 @@ fn unicode_escape_property_gc_unassigned() {
 }
 
 fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 707] = [
+    static CODE_POINTS: [&str; 735] = [
         "\u{378}",
         "\u{380}",
         "\u{38b}",
@@ -23922,7 +24779,6 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{85c}",
         "\u{85f}",
         "\u{86b}",
-        "\u{88f}",
         "\u{892}",
         "\u{984}",
         "\u{98d}",
@@ -24114,13 +24970,13 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{1a8a}",
         "\u{1a9a}",
         "\u{1aae}",
-        "\u{1acf}",
+        "\u{1ade}",
+        "\u{1aec}",
         "\u{1b4d}",
-        "\u{1b7f}",
         "\u{1bf4}",
         "\u{1c38}",
         "\u{1c4a}",
-        "\u{1c89}",
+        "\u{1c8b}",
         "\u{1cbb}",
         "\u{1cc8}",
         "\u{1cfb}",
@@ -24144,13 +25000,12 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{2072}",
         "\u{208f}",
         "\u{209d}",
-        "\u{20c1}",
+        "\u{20c2}",
         "\u{20f1}",
         "\u{218c}",
-        "\u{2427}",
+        "\u{242a}",
         "\u{244b}",
         "\u{2b74}",
-        "\u{2b96}",
         "\u{2cf4}",
         "\u{2d26}",
         "\u{2d28}",
@@ -24175,16 +25030,13 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{3100}",
         "\u{3130}",
         "\u{318f}",
-        "\u{31e4}",
+        "\u{31e6}",
         "\u{321f}",
         "\u{a48d}",
         "\u{a4c7}",
         "\u{a62c}",
         "\u{a6f8}",
-        "\u{a7cb}",
-        "\u{a7d2}",
-        "\u{a7d4}",
-        "\u{a7da}",
+        "\u{a7dd}",
         "\u{a82d}",
         "\u{a83a}",
         "\u{a878}",
@@ -24220,9 +25072,6 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{fb3f}",
         "\u{fb42}",
         "\u{fb45}",
-        "\u{fbc3}",
-        "\u{fd90}",
-        "\u{fdc8}",
         "\u{fdd0}",
         "\u{fe1a}",
         "\u{fe53}",
@@ -24275,6 +25124,7 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{105b2}",
         "\u{105ba}",
         "\u{105bd}",
+        "\u{105f4}",
         "\u{10737}",
         "\u{10756}",
         "\u{10768}",
@@ -24293,7 +25143,7 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{108f6}",
         "\u{1091c}",
         "\u{1093a}",
-        "\u{10940}",
+        "\u{1095a}",
         "\u{109b8}",
         "\u{109d0}",
         "\u{10a04}",
@@ -24318,10 +25168,15 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{10cf3}",
         "\u{10d28}",
         "\u{10d3a}",
+        "\u{10d66}",
+        "\u{10d86}",
+        "\u{10d90}",
         "\u{10e7f}",
         "\u{10eaa}",
         "\u{10eae}",
         "\u{10eb2}",
+        "\u{10ec8}",
+        "\u{10ed9}",
         "\u{10f28}",
         "\u{10f5a}",
         "\u{10f8a}",
@@ -24362,6 +25217,17 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{11364}",
         "\u{1136d}",
         "\u{11375}",
+        "\u{1138a}",
+        "\u{1138c}",
+        "\u{1138f}",
+        "\u{113b6}",
+        "\u{113c1}",
+        "\u{113c3}",
+        "\u{113c6}",
+        "\u{113cb}",
+        "\u{113d6}",
+        "\u{113d9}",
+        "\u{113e3}",
         "\u{1145c}",
         "\u{11462}",
         "\u{114c8}",
@@ -24373,6 +25239,7 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{1166d}",
         "\u{116ba}",
         "\u{116ca}",
+        "\u{116e4}",
         "\u{1171b}",
         "\u{1172c}",
         "\u{11747}",
@@ -24393,6 +25260,9 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{11aa3}",
         "\u{11af9}",
         "\u{11b0a}",
+        "\u{11b68}",
+        "\u{11be2}",
+        "\u{11bfa}",
         "\u{11c09}",
         "\u{11c37}",
         "\u{11c46}",
@@ -24413,10 +25283,12 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{11d92}",
         "\u{11d99}",
         "\u{11daa}",
+        "\u{11ddc}",
+        "\u{11dea}",
         "\u{11ef9}",
         "\u{11f11}",
         "\u{11f3b}",
-        "\u{11f5a}",
+        "\u{11f5b}",
         "\u{11fb1}",
         "\u{11ff2}",
         "\u{1239a}",
@@ -24425,7 +25297,9 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{12544}",
         "\u{12ff3}",
         "\u{13456}",
+        "\u{143fb}",
         "\u{14647}",
+        "\u{1613a}",
         "\u{16a39}",
         "\u{16a5f}",
         "\u{16a6a}",
@@ -24438,15 +25312,18 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{16b62}",
         "\u{16b78}",
         "\u{16b90}",
+        "\u{16d7a}",
         "\u{16e9b}",
+        "\u{16eb9}",
+        "\u{16ed4}",
         "\u{16f4b}",
         "\u{16f88}",
         "\u{16fa0}",
         "\u{16fe5}",
-        "\u{16ff2}",
-        "\u{187f8}",
+        "\u{16ff7}",
         "\u{18cd6}",
-        "\u{18d09}",
+        "\u{18d1f}",
+        "\u{18df3}",
         "\u{1aff4}",
         "\u{1affc}",
         "\u{1afff}",
@@ -24461,6 +25338,10 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{1bc89}",
         "\u{1bc9a}",
         "\u{1bca4}",
+        "\u{1ccfd}",
+        "\u{1ceb4}",
+        "\u{1ced1}",
+        "\u{1cef1}",
         "\u{1cf2e}",
         "\u{1cf47}",
         "\u{1cfc4}",
@@ -24512,6 +25393,11 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{1e2fa}",
         "\u{1e300}",
         "\u{1e4fa}",
+        "\u{1e5fb}",
+        "\u{1e600}",
+        "\u{1e6df}",
+        "\u{1e6f6}",
+        "\u{1e700}",
         "\u{1e7e7}",
         "\u{1e7ec}",
         "\u{1e7ef}",
@@ -24569,10 +25455,9 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{1f249}",
         "\u{1f252}",
         "\u{1f266}",
-        "\u{1f6d8}",
+        "\u{1f6d9}",
         "\u{1f6ed}",
         "\u{1f6fd}",
-        "\u{1f777}",
         "\u{1f7da}",
         "\u{1f7ec}",
         "\u{1f7f1}",
@@ -24581,28 +25466,28 @@ fn unicode_escape_property_gc_unassigned_tc(tc: TestConfig) {
         "\u{1f85a}",
         "\u{1f888}",
         "\u{1f8ae}",
-        "\u{1f8b2}",
-        "\u{1fa54}",
+        "\u{1f8bc}",
+        "\u{1f8c2}",
+        "\u{1f8d9}",
+        "\u{1fa58}",
         "\u{1fa6e}",
         "\u{1fa7d}",
-        "\u{1fa89}",
-        "\u{1fabe}",
-        "\u{1fac6}",
-        "\u{1fadc}",
-        "\u{1fae9}",
+        "\u{1fa8b}",
+        "\u{1fac7}",
+        "\u{1fac9}",
+        "\u{1fadd}",
+        "\u{1faeb}",
         "\u{1faf9}",
         "\u{1fb93}",
-        "\u{1fbcb}",
-        "\u{1fbfa}",
+        "\u{1fbfb}",
         "\u{2a6e0}",
-        "\u{2b73a}",
         "\u{2b81e}",
-        "\u{2cea2}",
+        "\u{2ceae}",
         "\u{2ebe1}",
         "\u{2ee5e}",
         "\u{2fa1e}",
         "\u{3134b}",
-        "\u{323b0}",
+        "\u{3347a}",
         "\u{e0002}",
         "\u{e0080}",
         "\u{e01f0}",
@@ -24631,7 +25516,7 @@ fn unicode_escape_property_gc_uppercaseletter() {
 }
 
 fn unicode_escape_property_gc_uppercaseletter_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 646] = [
+    static CODE_POINTS: [&str; 655] = [
         "\u{41}",
         "\u{c0}",
         "\u{d8}",
@@ -24908,6 +25793,7 @@ fn unicode_escape_property_gc_uppercaseletter_tc(tc: TestConfig) {
         "\u{10c7}",
         "\u{10cd}",
         "\u{13a0}",
+        "\u{1c89}",
         "\u{1c90}",
         "\u{1cbd}",
         "\u{1e00}",
@@ -25232,9 +26118,15 @@ fn unicode_escape_property_gc_uppercaseletter_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
+        "\u{a7da}",
+        "\u{a7dc}",
         "\u{a7f5}",
         "\u{ff21}",
         "\u{10400}",
@@ -25244,8 +26136,10 @@ fn unicode_escape_property_gc_uppercaseletter_tc(tc: TestConfig) {
         "\u{1058c}",
         "\u{10594}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1d400}",
         "\u{1d434}",
         "\u{1d468}",
@@ -25301,7 +26195,7 @@ fn unicode_escape_property_gc_casedletter() {
 }
 
 fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
-    static CODE_POINTS: [&str; 1314] = [
+    static CODE_POINTS: [&str; 1329] = [
         "\u{61}",
         "\u{b5}",
         "\u{df}",
@@ -25447,7 +26341,7 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{24b}",
         "\u{24d}",
         "\u{24f}",
-        "\u{295}",
+        "\u{296}",
         "\u{371}",
         "\u{373}",
         "\u{377}",
@@ -25576,6 +26470,7 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{10fd}",
         "\u{13f8}",
         "\u{1c80}",
+        "\u{1c8a}",
         "\u{1d00}",
         "\u{1d6b}",
         "\u{1d79}",
@@ -25906,11 +26801,14 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{a7c3}",
         "\u{a7c8}",
         "\u{a7ca}",
+        "\u{a7cd}",
+        "\u{a7cf}",
         "\u{a7d1}",
         "\u{a7d3}",
         "\u{a7d5}",
         "\u{a7d7}",
         "\u{a7d9}",
+        "\u{a7db}",
         "\u{a7f6}",
         "\u{a7fa}",
         "\u{ab30}",
@@ -25926,8 +26824,10 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{105b3}",
         "\u{105bb}",
         "\u{10cc0}",
+        "\u{10d70}",
         "\u{118c0}",
         "\u{16e60}",
+        "\u{16ebb}",
         "\u{1d41a}",
         "\u{1d44e}",
         "\u{1d456}",
@@ -26246,6 +27146,7 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{10c7}",
         "\u{10cd}",
         "\u{13a0}",
+        "\u{1c89}",
         "\u{1c90}",
         "\u{1cbd}",
         "\u{1e00}",
@@ -26570,9 +27471,15 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
+        "\u{a7da}",
+        "\u{a7dc}",
         "\u{a7f5}",
         "\u{ff21}",
         "\u{10400}",
@@ -26582,8 +27489,10 @@ fn unicode_escape_property_gc_casedletter_tc(tc: TestConfig) {
         "\u{1058c}",
         "\u{10594}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1d400}",
         "\u{1d434}",
         "\u{1d468}",
@@ -26639,7 +27548,7 @@ fn unicode_escape_property_gc_other() {
 }
 
 fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 733] = [
+    static CODE_POINTS: [&str; 761] = [
         "\u{0}",
         "\u{7f}",
         "\u{ad}",
@@ -26684,7 +27593,6 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{85c}",
         "\u{85f}",
         "\u{86b}",
-        "\u{88f}",
         "\u{892}",
         "\u{984}",
         "\u{98d}",
@@ -26876,13 +27784,13 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{1a8a}",
         "\u{1a9a}",
         "\u{1aae}",
-        "\u{1acf}",
+        "\u{1ade}",
+        "\u{1aec}",
         "\u{1b4d}",
-        "\u{1b7f}",
         "\u{1bf4}",
         "\u{1c38}",
         "\u{1c4a}",
-        "\u{1c89}",
+        "\u{1c8b}",
         "\u{1cbb}",
         "\u{1cc8}",
         "\u{1cfb}",
@@ -26906,13 +27814,12 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{2072}",
         "\u{208f}",
         "\u{209d}",
-        "\u{20c1}",
+        "\u{20c2}",
         "\u{20f1}",
         "\u{218c}",
-        "\u{2427}",
+        "\u{242a}",
         "\u{244b}",
         "\u{2b74}",
-        "\u{2b96}",
         "\u{2cf4}",
         "\u{2d26}",
         "\u{2d28}",
@@ -26937,16 +27844,13 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{3100}",
         "\u{3130}",
         "\u{318f}",
-        "\u{31e4}",
+        "\u{31e6}",
         "\u{321f}",
         "\u{a48d}",
         "\u{a4c7}",
         "\u{a62c}",
         "\u{a6f8}",
-        "\u{a7cb}",
-        "\u{a7d2}",
-        "\u{a7d4}",
-        "\u{a7da}",
+        "\u{a7dd}",
         "\u{a82d}",
         "\u{a83a}",
         "\u{a878}",
@@ -26982,9 +27886,6 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{fb3f}",
         "\u{fb42}",
         "\u{fb45}",
-        "\u{fbc3}",
-        "\u{fd90}",
-        "\u{fdc8}",
         "\u{fdd0}",
         "\u{fe1a}",
         "\u{fe53}",
@@ -27037,6 +27938,7 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{105b2}",
         "\u{105ba}",
         "\u{105bd}",
+        "\u{105f4}",
         "\u{10737}",
         "\u{10756}",
         "\u{10768}",
@@ -27055,7 +27957,7 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{108f6}",
         "\u{1091c}",
         "\u{1093a}",
-        "\u{10940}",
+        "\u{1095a}",
         "\u{109b8}",
         "\u{109d0}",
         "\u{10a04}",
@@ -27080,10 +27982,15 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{10cf3}",
         "\u{10d28}",
         "\u{10d3a}",
+        "\u{10d66}",
+        "\u{10d86}",
+        "\u{10d90}",
         "\u{10e7f}",
         "\u{10eaa}",
         "\u{10eae}",
         "\u{10eb2}",
+        "\u{10ec8}",
+        "\u{10ed9}",
         "\u{10f28}",
         "\u{10f5a}",
         "\u{10f8a}",
@@ -27124,6 +28031,17 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{11364}",
         "\u{1136d}",
         "\u{11375}",
+        "\u{1138a}",
+        "\u{1138c}",
+        "\u{1138f}",
+        "\u{113b6}",
+        "\u{113c1}",
+        "\u{113c3}",
+        "\u{113c6}",
+        "\u{113cb}",
+        "\u{113d6}",
+        "\u{113d9}",
+        "\u{113e3}",
         "\u{1145c}",
         "\u{11462}",
         "\u{114c8}",
@@ -27135,6 +28053,7 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{1166d}",
         "\u{116ba}",
         "\u{116ca}",
+        "\u{116e4}",
         "\u{1171b}",
         "\u{1172c}",
         "\u{11747}",
@@ -27155,6 +28074,9 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{11aa3}",
         "\u{11af9}",
         "\u{11b0a}",
+        "\u{11b68}",
+        "\u{11be2}",
+        "\u{11bfa}",
         "\u{11c09}",
         "\u{11c37}",
         "\u{11c46}",
@@ -27175,10 +28097,12 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{11d92}",
         "\u{11d99}",
         "\u{11daa}",
+        "\u{11ddc}",
+        "\u{11dea}",
         "\u{11ef9}",
         "\u{11f11}",
         "\u{11f3b}",
-        "\u{11f5a}",
+        "\u{11f5b}",
         "\u{11fb1}",
         "\u{11ff2}",
         "\u{1239a}",
@@ -27187,7 +28111,9 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{12544}",
         "\u{12ff3}",
         "\u{13456}",
+        "\u{143fb}",
         "\u{14647}",
+        "\u{1613a}",
         "\u{16a39}",
         "\u{16a5f}",
         "\u{16a6a}",
@@ -27200,15 +28126,18 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{16b62}",
         "\u{16b78}",
         "\u{16b90}",
+        "\u{16d7a}",
         "\u{16e9b}",
+        "\u{16eb9}",
+        "\u{16ed4}",
         "\u{16f4b}",
         "\u{16f88}",
         "\u{16fa0}",
         "\u{16fe5}",
-        "\u{16ff2}",
-        "\u{187f8}",
+        "\u{16ff7}",
         "\u{18cd6}",
-        "\u{18d09}",
+        "\u{18d1f}",
+        "\u{18df3}",
         "\u{1aff4}",
         "\u{1affc}",
         "\u{1afff}",
@@ -27223,6 +28152,10 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{1bc89}",
         "\u{1bc9a}",
         "\u{1bca4}",
+        "\u{1ccfd}",
+        "\u{1ceb4}",
+        "\u{1ced1}",
+        "\u{1cef1}",
         "\u{1cf2e}",
         "\u{1cf47}",
         "\u{1cfc4}",
@@ -27274,6 +28207,11 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{1e2fa}",
         "\u{1e300}",
         "\u{1e4fa}",
+        "\u{1e5fb}",
+        "\u{1e600}",
+        "\u{1e6df}",
+        "\u{1e6f6}",
+        "\u{1e700}",
         "\u{1e7e7}",
         "\u{1e7ec}",
         "\u{1e7ef}",
@@ -27331,10 +28269,9 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{1f249}",
         "\u{1f252}",
         "\u{1f266}",
-        "\u{1f6d8}",
+        "\u{1f6d9}",
         "\u{1f6ed}",
         "\u{1f6fd}",
-        "\u{1f777}",
         "\u{1f7da}",
         "\u{1f7ec}",
         "\u{1f7f1}",
@@ -27343,28 +28280,28 @@ fn unicode_escape_property_gc_other_tc(tc: TestConfig) {
         "\u{1f85a}",
         "\u{1f888}",
         "\u{1f8ae}",
-        "\u{1f8b2}",
-        "\u{1fa54}",
+        "\u{1f8bc}",
+        "\u{1f8c2}",
+        "\u{1f8d9}",
+        "\u{1fa58}",
         "\u{1fa6e}",
         "\u{1fa7d}",
-        "\u{1fa89}",
-        "\u{1fabe}",
-        "\u{1fac6}",
-        "\u{1fadc}",
-        "\u{1fae9}",
+        "\u{1fa8b}",
+        "\u{1fac7}",
+        "\u{1fac9}",
+        "\u{1fadd}",
+        "\u{1faeb}",
         "\u{1faf9}",
         "\u{1fb93}",
-        "\u{1fbcb}",
-        "\u{1fbfa}",
+        "\u{1fbfb}",
         "\u{2a6e0}",
-        "\u{2b73a}",
         "\u{2b81e}",
-        "\u{2cea2}",
+        "\u{2ceae}",
         "\u{2ebe1}",
         "\u{2ee5e}",
         "\u{2fa1e}",
         "\u{3134b}",
-        "\u{323b0}",
+        "\u{3347a}",
         "\u{e0002}",
         "\u{e0080}",
         "\u{e01f0}",
@@ -27396,7 +28333,7 @@ fn unicode_escape_property_gc_letter() {
 }
 
 fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
-    static CODE_POINTS: [&str; 1896] = [
+    static CODE_POINTS: [&str; 1945] = [
         "\u{61}",
         "\u{b5}",
         "\u{df}",
@@ -27542,7 +28479,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{24b}",
         "\u{24d}",
         "\u{24f}",
-        "\u{295}",
+        "\u{296}",
         "\u{371}",
         "\u{373}",
         "\u{377}",
@@ -27671,6 +28608,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{10fd}",
         "\u{13f8}",
         "\u{1c80}",
+        "\u{1c8a}",
         "\u{1d00}",
         "\u{1d6b}",
         "\u{1d79}",
@@ -28001,11 +28939,14 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{a7c3}",
         "\u{a7c8}",
         "\u{a7ca}",
+        "\u{a7cd}",
+        "\u{a7cf}",
         "\u{a7d1}",
         "\u{a7d3}",
         "\u{a7d5}",
         "\u{a7d7}",
         "\u{a7d9}",
+        "\u{a7db}",
         "\u{a7f6}",
         "\u{a7fa}",
         "\u{ab30}",
@@ -28021,8 +28962,10 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{105b3}",
         "\u{105bb}",
         "\u{10cc0}",
+        "\u{10d70}",
         "\u{118c0}",
         "\u{16e60}",
+        "\u{16ebb}",
         "\u{1d41a}",
         "\u{1d44e}",
         "\u{1d456}",
@@ -28101,7 +29044,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{a717}",
         "\u{a770}",
         "\u{a788}",
-        "\u{a7f2}",
+        "\u{a7f1}",
         "\u{a7f8}",
         "\u{a9cf}",
         "\u{a9e6}",
@@ -28115,16 +29058,24 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{10780}",
         "\u{10787}",
         "\u{107b2}",
+        "\u{10d4e}",
+        "\u{10d6f}",
+        "\u{10ec5}",
+        "\u{11dd9}",
         "\u{16b40}",
+        "\u{16d40}",
+        "\u{16d6b}",
         "\u{16f93}",
         "\u{16fe0}",
         "\u{16fe3}",
+        "\u{16ff2}",
         "\u{1aff0}",
         "\u{1aff5}",
         "\u{1affd}",
         "\u{1e030}",
         "\u{1e137}",
         "\u{1e4eb}",
+        "\u{1e6ff}",
         "\u{1e94b}",
         "\u{aa}",
         "\u{ba}",
@@ -28216,7 +29167,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{c2a}",
         "\u{c3d}",
         "\u{c58}",
-        "\u{c5d}",
+        "\u{c5c}",
         "\u{c60}",
         "\u{c80}",
         "\u{c85}",
@@ -28225,7 +29176,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{caa}",
         "\u{cb5}",
         "\u{cbd}",
-        "\u{cdd}",
+        "\u{cdc}",
         "\u{ce0}",
         "\u{cf1}",
         "\u{d04}",
@@ -28435,6 +29386,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{10450}",
         "\u{10500}",
         "\u{10530}",
+        "\u{105c0}",
         "\u{10600}",
         "\u{10740}",
         "\u{10760}",
@@ -28450,6 +29402,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{108f4}",
         "\u{10900}",
         "\u{10920}",
+        "\u{10940}",
         "\u{10980}",
         "\u{109be}",
         "\u{10a00}",
@@ -28466,8 +29419,12 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{10b80}",
         "\u{10c00}",
         "\u{10d00}",
+        "\u{10d4a}",
+        "\u{10d4f}",
         "\u{10e80}",
         "\u{10eb0}",
+        "\u{10ec2}",
+        "\u{10ec6}",
         "\u{10f00}",
         "\u{10f27}",
         "\u{10f30}",
@@ -28506,6 +29463,13 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{1133d}",
         "\u{11350}",
         "\u{1135d}",
+        "\u{11380}",
+        "\u{1138b}",
+        "\u{1138e}",
+        "\u{11390}",
+        "\u{113b7}",
+        "\u{113d1}",
+        "\u{113d3}",
         "\u{11400}",
         "\u{11447}",
         "\u{1145f}",
@@ -28539,6 +29503,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{11a5c}",
         "\u{11a9d}",
         "\u{11ab0}",
+        "\u{11bc0}",
         "\u{11c00}",
         "\u{11c0a}",
         "\u{11c40}",
@@ -28551,6 +29516,8 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{11d67}",
         "\u{11d6a}",
         "\u{11d98}",
+        "\u{11db0}",
+        "\u{11dda}",
         "\u{11ee0}",
         "\u{11f02}",
         "\u{11f04}",
@@ -28561,7 +29528,9 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{12f90}",
         "\u{13000}",
         "\u{13441}",
+        "\u{13460}",
         "\u{14400}",
+        "\u{16100}",
         "\u{16800}",
         "\u{16a40}",
         "\u{16a70}",
@@ -28569,11 +29538,12 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{16b00}",
         "\u{16b63}",
         "\u{16b7d}",
+        "\u{16d43}",
         "\u{16f00}",
         "\u{16f50}",
         "\u{17000}",
-        "\u{18800}",
-        "\u{18d00}",
+        "\u{18cff}",
+        "\u{18d80}",
         "\u{1b000}",
         "\u{1b132}",
         "\u{1b150}",
@@ -28590,6 +29560,14 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{1e290}",
         "\u{1e2c0}",
         "\u{1e4d0}",
+        "\u{1e5d0}",
+        "\u{1e5f0}",
+        "\u{1e6c0}",
+        "\u{1e6e0}",
+        "\u{1e6e4}",
+        "\u{1e6e7}",
+        "\u{1e6f0}",
+        "\u{1e6fe}",
         "\u{1e7e0}",
         "\u{1e7e8}",
         "\u{1e7ed}",
@@ -28630,7 +29608,6 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{1eeab}",
         "\u{20000}",
         "\u{2a700}",
-        "\u{2b740}",
         "\u{2b820}",
         "\u{2ceb0}",
         "\u{2ebf0}",
@@ -28923,6 +29900,7 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{10c7}",
         "\u{10cd}",
         "\u{13a0}",
+        "\u{1c89}",
         "\u{1c90}",
         "\u{1cbd}",
         "\u{1e00}",
@@ -29247,9 +30225,15 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{a7c2}",
         "\u{a7c4}",
         "\u{a7c9}",
+        "\u{a7cb}",
+        "\u{a7ce}",
         "\u{a7d0}",
+        "\u{a7d2}",
+        "\u{a7d4}",
         "\u{a7d6}",
         "\u{a7d8}",
+        "\u{a7da}",
+        "\u{a7dc}",
         "\u{a7f5}",
         "\u{ff21}",
         "\u{10400}",
@@ -29259,8 +30243,10 @@ fn unicode_escape_property_gc_letter_tc(tc: TestConfig) {
         "\u{1058c}",
         "\u{10594}",
         "\u{10c80}",
+        "\u{10d50}",
         "\u{118a0}",
         "\u{16e40}",
+        "\u{16ea0}",
         "\u{1d400}",
         "\u{1d434}",
         "\u{1d468}",
@@ -29316,7 +30302,7 @@ fn unicode_escape_property_gc_mark() {
 }
 
 fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 533] = [
+    static CODE_POINTS: [&str; 563] = [
         "\u{903}",
         "\u{93b}",
         "\u{93e}",
@@ -29451,6 +30437,12 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{1134b}",
         "\u{11357}",
         "\u{11362}",
+        "\u{113b8}",
+        "\u{113c2}",
+        "\u{113c5}",
+        "\u{113c7}",
+        "\u{113cc}",
+        "\u{113cf}",
         "\u{11435}",
         "\u{11440}",
         "\u{11445}",
@@ -29467,6 +30459,7 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{116ac}",
         "\u{116ae}",
         "\u{116b6}",
+        "\u{1171e}",
         "\u{11720}",
         "\u{11726}",
         "\u{1182c}",
@@ -29482,6 +30475,9 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{11a39}",
         "\u{11a57}",
         "\u{11a97}",
+        "\u{11b61}",
+        "\u{11b65}",
+        "\u{11b67}",
         "\u{11c2f}",
         "\u{11c3e}",
         "\u{11ca9}",
@@ -29495,6 +30491,7 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{11f34}",
         "\u{11f3e}",
         "\u{11f41}",
+        "\u{1612a}",
         "\u{16f51}",
         "\u{16ff0}",
         "\u{1d165}",
@@ -29528,7 +30525,7 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{825}",
         "\u{829}",
         "\u{859}",
-        "\u{898}",
+        "\u{897}",
         "\u{8ca}",
         "\u{8e3}",
         "\u{93a}",
@@ -29647,6 +30644,7 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{1a7f}",
         "\u{1ab0}",
         "\u{1abf}",
+        "\u{1ae0}",
         "\u{1b00}",
         "\u{1b34}",
         "\u{1b36}",
@@ -29726,8 +30724,9 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{10a3f}",
         "\u{10ae5}",
         "\u{10d24}",
+        "\u{10d69}",
         "\u{10eab}",
-        "\u{10efd}",
+        "\u{10efa}",
         "\u{10f46}",
         "\u{10f82}",
         "\u{11001}",
@@ -29758,6 +30757,11 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{11340}",
         "\u{11366}",
         "\u{11370}",
+        "\u{113bb}",
+        "\u{113ce}",
+        "\u{113d0}",
+        "\u{113d2}",
+        "\u{113e1}",
         "\u{11438}",
         "\u{11442}",
         "\u{11446}",
@@ -29778,6 +30782,7 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{116b0}",
         "\u{116b7}",
         "\u{1171d}",
+        "\u{1171f}",
         "\u{11722}",
         "\u{11727}",
         "\u{1182f}",
@@ -29796,6 +30801,9 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{11a59}",
         "\u{11a8a}",
         "\u{11a98}",
+        "\u{11b60}",
+        "\u{11b62}",
+        "\u{11b66}",
         "\u{11c30}",
         "\u{11c38}",
         "\u{11c3f}",
@@ -29816,8 +30824,11 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{11f36}",
         "\u{11f40}",
         "\u{11f42}",
+        "\u{11f5a}",
         "\u{13440}",
         "\u{13447}",
+        "\u{1611e}",
+        "\u{1612d}",
         "\u{16af0}",
         "\u{16b30}",
         "\u{16f4f}",
@@ -29847,6 +30858,11 @@ fn unicode_escape_property_gc_mark_tc(tc: TestConfig) {
         "\u{1e2ae}",
         "\u{1e2ec}",
         "\u{1e4ec}",
+        "\u{1e5ee}",
+        "\u{1e6e3}",
+        "\u{1e6e6}",
+        "\u{1e6ee}",
+        "\u{1e6f5}",
         "\u{1e8d0}",
         "\u{1e944}",
         "\u{e0100}",
@@ -29876,7 +30892,7 @@ fn unicode_escape_property_gc_number() {
 }
 
 fn unicode_escape_property_gc_number_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 148] = [
+    static CODE_POINTS: [&str; 157] = [
         "\u{30}",
         "\u{660}",
         "\u{6f0}",
@@ -29916,6 +30932,7 @@ fn unicode_escape_property_gc_number_tc(tc: TestConfig) {
         "\u{ff10}",
         "\u{104a0}",
         "\u{10d30}",
+        "\u{10d40}",
         "\u{11066}",
         "\u{110f0}",
         "\u{11136}",
@@ -29925,20 +30942,27 @@ fn unicode_escape_property_gc_number_tc(tc: TestConfig) {
         "\u{114d0}",
         "\u{11650}",
         "\u{116c0}",
+        "\u{116d0}",
         "\u{11730}",
         "\u{118e0}",
         "\u{11950}",
+        "\u{11bf0}",
         "\u{11c50}",
         "\u{11d50}",
         "\u{11da0}",
+        "\u{11de0}",
         "\u{11f50}",
+        "\u{16130}",
         "\u{16a60}",
         "\u{16ac0}",
         "\u{16b50}",
+        "\u{16d70}",
+        "\u{1ccf0}",
         "\u{1d7ce}",
         "\u{1e140}",
         "\u{1e2f0}",
         "\u{1e4f0}",
+        "\u{1e5f1}",
         "\u{1e950}",
         "\u{1fbf0}",
         "\u{16ee}",
@@ -29953,6 +30977,7 @@ fn unicode_escape_property_gc_number_tc(tc: TestConfig) {
         "\u{1034a}",
         "\u{103d1}",
         "\u{12400}",
+        "\u{16ff4}",
         "\u{b2}",
         "\u{b9}",
         "\u{bc}",
@@ -30048,7 +31073,7 @@ fn unicode_escape_property_gc_punctuation() {
 }
 
 fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 388] = [
+    static CODE_POINTS: [&str; 396] = [
         "\u{5f}",
         "\u{203f}",
         "\u{2054}",
@@ -30073,6 +31098,7 @@ fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
         "\u{fe58}",
         "\u{fe63}",
         "\u{ff0d}",
+        "\u{10d6e}",
         "\u{10ead}",
         "\u{29}",
         "\u{5d}",
@@ -30230,6 +31256,7 @@ fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
         "\u{1a1e}",
         "\u{1aa0}",
         "\u{1aa8}",
+        "\u{1b4e}",
         "\u{1b5a}",
         "\u{1b7d}",
         "\u{1bfc}",
@@ -30313,6 +31340,7 @@ fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
         "\u{10af0}",
         "\u{10b39}",
         "\u{10b99}",
+        "\u{10ed0}",
         "\u{10f55}",
         "\u{10f86}",
         "\u{11047}",
@@ -30326,6 +31354,8 @@ fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
         "\u{111dd}",
         "\u{11238}",
         "\u{112a9}",
+        "\u{113d4}",
+        "\u{113d7}",
         "\u{1144b}",
         "\u{1145a}",
         "\u{1145d}",
@@ -30342,6 +31372,7 @@ fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
         "\u{11a9a}",
         "\u{11a9e}",
         "\u{11b00}",
+        "\u{11be1}",
         "\u{11c41}",
         "\u{11c70}",
         "\u{11ef7}",
@@ -30353,10 +31384,12 @@ fn unicode_escape_property_gc_punctuation_tc(tc: TestConfig) {
         "\u{16af5}",
         "\u{16b37}",
         "\u{16b44}",
+        "\u{16d6d}",
         "\u{16e97}",
         "\u{16fe2}",
         "\u{1bc9f}",
         "\u{1da87}",
+        "\u{1e5ff}",
         "\u{1e95e}",
         "\u{28}",
         "\u{5b}",
@@ -30463,7 +31496,7 @@ fn unicode_escape_property_gc_symbol() {
 }
 
 fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 301] = [
+    static CODE_POINTS: [&str; 312] = [
         "\u{24}",
         "\u{a2}",
         "\u{58f}",
@@ -30569,6 +31602,8 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{ff5e}",
         "\u{ffe2}",
         "\u{ffe9}",
+        "\u{10d8e}",
+        "\u{1cef0}",
         "\u{1d6c1}",
         "\u{1d6db}",
         "\u{1d6fb}",
@@ -30580,6 +31615,7 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{1d7a9}",
         "\u{1d7c3}",
         "\u{1eef0}",
+        "\u{1f8d0}",
         "\u{a6}",
         "\u{a9}",
         "\u{ae}",
@@ -30660,7 +31696,6 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{2b45}",
         "\u{2b4d}",
         "\u{2b76}",
-        "\u{2b97}",
         "\u{2ce5}",
         "\u{2e50}",
         "\u{2e80}",
@@ -30688,8 +31723,10 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{a836}",
         "\u{a839}",
         "\u{aa77}",
+        "\u{fbc3}",
         "\u{fd40}",
-        "\u{fdcf}",
+        "\u{fd90}",
+        "\u{fdc8}",
         "\u{fdfd}",
         "\u{ffe4}",
         "\u{ffe8}",
@@ -30703,12 +31740,18 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{101d0}",
         "\u{10877}",
         "\u{10ac8}",
+        "\u{10ed1}",
         "\u{1173f}",
         "\u{11fd5}",
         "\u{11fe1}",
         "\u{16b3c}",
         "\u{16b45}",
         "\u{1bc9c}",
+        "\u{1cc00}",
+        "\u{1ccfa}",
+        "\u{1cd00}",
+        "\u{1ceba}",
+        "\u{1cee0}",
         "\u{1cf50}",
         "\u{1d000}",
         "\u{1d100}",
@@ -30745,7 +31788,6 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{1f6dc}",
         "\u{1f6f0}",
         "\u{1f700}",
-        "\u{1f77b}",
         "\u{1f7e0}",
         "\u{1f7f0}",
         "\u{1f800}",
@@ -30754,17 +31796,19 @@ fn unicode_escape_property_gc_symbol_tc(tc: TestConfig) {
         "\u{1f860}",
         "\u{1f890}",
         "\u{1f8b0}",
+        "\u{1f8c0}",
         "\u{1f900}",
         "\u{1fa60}",
         "\u{1fa70}",
         "\u{1fa80}",
-        "\u{1fa90}",
-        "\u{1fabf}",
-        "\u{1face}",
-        "\u{1fae0}",
-        "\u{1faf0}",
+        "\u{1fa8e}",
+        "\u{1fac8}",
+        "\u{1facd}",
+        "\u{1fadf}",
+        "\u{1faef}",
         "\u{1fb00}",
         "\u{1fb94}",
+        "\u{1fbfa}",
     ];
     const REGEXES: [&str; 6] = [
         "^\\p{General_Category=Symbol}+$",
@@ -30788,7 +31832,7 @@ fn unicode_escape_property_gc_separator() {
 }
 
 fn unicode_escape_property_gc_separator_tc(tc: TestConfig) {
-    const CODE_POINTS: [&str; 9] = [
+    static CODE_POINTS: [&str; 9] = [
         "\u{2028}", "\u{2029}", "\u{20}", "\u{a0}", "\u{1680}", "\u{2000}", "\u{202f}", "\u{205f}",
         "\u{3000}",
     ];
